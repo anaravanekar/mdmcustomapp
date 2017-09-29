@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="table-responsive" th:fragment="contents">
+    <th:block th:unless="${#lists.isEmpty(resultList)}">
+    <table th:id="'addressTable'+${resultList[0].get('MDM Account Id')}" class="table table-striped table-hover">
+        <thead>
+        <th th:each="column: ${columnlist}" th:text="${column}"></th>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${resultList}">
+            <td th:each="entry : ${item}"
+                th:text="${entry.value}"></td>
+        </tr>
+        </tbody>
+    </table>
+        <!--<button class="toggleHeaderButton" type="button">Show/Hide Header</button>-->
+    </th:block>
+</div>
+</html>

@@ -1,0 +1,169 @@
+# Application properties (Begin with prefix=keysight)
+welcome:
+  message: Hello Ashish Naravanekar
+keysight:
+    orchestraRest:
+        username: admin
+        password: admin
+        ssl: false
+        host: 10.10.10.90
+        port: 8080
+        baseURI: /ebx-dataservices/rest/data/
+        version: v1
+    job:
+        account:
+            enabled: true
+            name: ACCOUNT_DB_TO_REST
+            cron: 0/2 * * 1/1 * ?
+            chunkSize: 1000
+            fetchSize: 10000
+            batchSize: 10
+            writeIndividual: false
+            mapping:
+                 system_id: SystemId
+                 system_name: SystemName
+                 cust_type: CustomerType
+                 accnt_name: AccountName
+                 status: Status
+                 registry_id: RegistryId
+                 alias: Alias
+                 name_prnctn: NamePronunciation
+                 taxpayer_id: TaxpayerId
+                 tax_reg_num: TaxRegistrationNumber
+                 cust_category: CustomerCategory
+                 accnt_num: AccountNumber
+                 accnt_desc: AccountDescription
+                 region: Region
+                 classification: Classification
+                 accnt_type: AccountType
+                 sales_channel: SalesChannel
+                 reference: Reference
+                 nls_code: NLSLanguageCode
+                 custname_local_lang: NameLocalLanguage
+                 cust_screening: CustomerScreening
+                 last_crd_rev_dt: LastCreditReviewDate
+                 next_crd_rev_dt: NextCreditReviewDate
+                 credit_rev_cycle: CreditReviewCycle
+                 par_party: ParentParty
+                 emg_last_trans: EmgLastTrans
+                 group_desc: GroupingDescription
+                 group_id: GroupingId
+                 ixia_classification: IXIAClassification
+                 profile_class: ProfileClass
+        address:
+            enabled: true
+            name: ADDRESS_DB_TO_REST
+            cron: 59/2 * * 1/1 * ?
+            chunkSize: 1000
+            fetchSize: 10000
+            batchSize: 10
+            writeIndividual: false
+            mapping:
+                id: dbPrimaryKey
+                mdm_account_id: MDMAccountId
+                site_num: SiteNumber
+                site_id: SiteId
+                site_name: SiteName
+                system_id: SystemId
+                system_name: SystemName
+                status: Status
+                addr_line_1: AddressLine1
+                addr_line_2: AddressLine2
+                addr_line_3: AddressLine3
+                addr_line_4: AddressLine4
+                address: Address
+                city: City
+                county: County
+                state: State
+                province: Province
+                postal_code: PostalCode
+                country: Country
+                addressee: Addressee
+                ks_sfa_addr_id: KeysightSFAAddressId
+                identifying_addr: IdentifyingAddress
+                reference: Reference
+                translation: Translation
+                oper_unit: OperatingUnit
+                rpl_info_user: RPLCheck
+                nls_lang: NLSLanguage
+                addr_loc_lang_line_1: AddressLine1LocalLanguage
+                addr_loc_lang_line_2: AddressLine2LocalLanguage
+                addr_loc_lang_line_3: AddressLine3LocalLanguage
+                addr_loc_lang_line_4: AddressLine4LocalLanguage
+                city_loc_lang: CityLocalLanguage
+                state_loc_lang: StateLocalLanguage
+                postal_code_loc_lang: PostalLocalLanguage
+                province_loc_lang: ProvinceLocalLanguage
+                county_loc_lang: CountyLocalLanguage
+                country_loc_lang: CountryLocalLanguage
+                send_acknldgmnt: SendAcknowledgement
+                invoice_cop_sup: InvoiceCopies
+                accnt_site_type: AccountSiteType
+                context_value: ContextValue
+                taxable_person: TaxablePerson
+                industry_classification: IndustryClassification
+                tax_cert_date: TaxCertificateDate
+                business_num: BusinessNumber
+                indust_sub_classification: IndustrySubclassification
+                addr_site_ctg: AddressSiteCategory
+                ats: ATS
+                purpose: BusinessPurpose
+                loc: Location
+                bill_to_loc: BillToLocation
+                primary_purpose: PrimaryPurpose
+                rev_recognition: RevenueRecognition
+                org_segment: OrgSegment
+                sub_segment: SubSegment
+                accnt_class: AccountClass
+                receivable: Receivable
+                revenue: Revenue
+                pay_terms: PaymentTerms
+                sales_person: SalesPerson
+                order_type: OrderType
+                price_lst: PriceList
+                demand_class: DemandClass
+                receipt_method: ReceiptMethods
+                primary_payment: PrimaryPayment
+                start_dt: StartDate
+                end_dt: EndDate
+                default_rpt_country: DefaultReportingCountryName
+                default_reg_num: DefaultReportingRegistrationNumber
+                tax_reg_active: TaxRegistrationActive
+                regime_cd: RegimeCode
+                tax: Tax
+                tax_jurisdiction_cd: TaxJurisdictionCode
+                tax_reg_num: TaxRegistrationNumber
+                source: Source
+                default_tax_reg: DefaultTaxRegistration
+                eff_from_dt: EfectiveFrom
+                eff_to_dt: EffectiveTo
+                rounding_rule: RoundingRule
+    queries:
+        getPendingAccounts: SELECT * FROM MDM_ACCOUNT_B4SEBSLOAD WHERE INTERFACE_STATUS='Pending' AND SYSTEM_ID > ':systemId' ORDER BY SYSTEM_ID
+
+        getPendingAddresses: SELECT * FROM MDM_ACCOUNT_ADDRESS_B4SEBSLOAD WHERE INTERFACE_STATUS='Pending' AND ID > :id AND mdm_account_id is not null ORDER BY ID
+    datasource:
+        oracle:
+            driver-class-name: oracle.jdbc.driver.OracleDriver
+            username: lalit
+            password: lalit
+            url: jdbc:oracle:thin:@localhost:1521:xe
+            max-active: 50
+            max-idle: 20
+            max-wait: 20000
+            min-idle: 15
+
+#Spring properties
+spring:
+    batch:
+        job:
+            enabled: false
+    mvc:
+        view:
+          prefix: /WEB-INF/
+          suffix: .jsp
+    thymeleaf:
+        cache: false
+server:
+#   port: 8022
+   contextPath: /mdmcustomapp

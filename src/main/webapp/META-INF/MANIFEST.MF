@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Created-By: Serene AST
+Implementation-Title: MDM Custom Module
+Implementation-Version: 1.0.0
+Implementation-Vendor: Serene AST

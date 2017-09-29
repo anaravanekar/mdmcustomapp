@@ -1,0 +1,17 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+        <thead  th:fragment="contents">
+        <tr>
+            <th>Addresses</th>
+            <th th:each="column: ${columnlist}" th:text="${column}"></th>
+        </tr>
+        </thead>
+       <!-- <tfoot  th:fragment="contents">
+        <tr>
+        &lt;!&ndash;<th>Addresses</th>&ndash;&gt;
+        <th th:each="column: ${columnlist}" th:text="${column}"></th>
+        </tr>
+        </tfoot>-->
+        <tbody th:fragment="contents">
+        </tbody>
+</html>
