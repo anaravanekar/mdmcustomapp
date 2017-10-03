@@ -145,13 +145,22 @@ keysight:
     datasource:
         oracle:
             driver-class-name: oracle.jdbc.driver.OracleDriver
-            username: lalit
-            password: lalit
-            url: jdbc:oracle:thin:@localhost:1521:xe
+            username: ebx
+            password: Pa55word88
+            url: jdbc:oracle:thin:@bidbha2k.cos.is.keysight.com:1524:APPREPT1
             max-active: 50
             max-idle: 20
             max-wait: 20000
             min-idle: 15
+#        oracle:
+#            driver-class-name: oracle.jdbc.driver.OracleDriver
+#            username: lalit
+#            password: lalit
+#            url: jdbc:oracle:thin:@localhost:1521:xe
+#            max-active: 50
+#            max-idle: 20
+#            max-wait: 20000
+#            min-idle: 15
 
 #Spring properties
 spring:

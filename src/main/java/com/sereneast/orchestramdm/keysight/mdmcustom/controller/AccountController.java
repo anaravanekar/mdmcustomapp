@@ -49,6 +49,10 @@ public class AccountController {
 
 	private static final String COLUMN_LIST_ADDRESS = "SITENUMBER as \"Site Number\",ADDRESSLINE1 as \"Address Line 1\",ADDRESSLINE2 as \"Address Line 2\",ADDRESSLINE3 as \"Address Line 3\",ADDRESSLINE4 as \"Address Line 4\",ADDRESS as \"Address\",CITY as \"City\",COUNTY as \"County\",ADDRESSSTATE as \"Address State\",PROVINCE as \"Province\",POSTALCODE as \"Postal Code\",CALCPOSTALCODE as \"Calculated Postal Code\",COUNTRY as \"Country\",SITEID as \"Site Id\",SITENAME as \"Site Name\",MDMADDRESSID as \"MDM Address Id\",MDMACCOUNTID_ as \"MDM Account Id\",DAQAMETADATA_STATE as \"State\",DAQAMETADATA_CLUSTERID as \"Cluster\",DAQAMETADATA_SCORE as Score,SYSTEMID as \"System Id\",SYSTEMNAME as \"System Name\",KEYSIGHTSFAADDRESSID as \"Keysight SFA Address Id\",ADDRESSEE as \"Addressee\",STATUS as \"Status\",IDENTIFYINGADDRESS as \"Identifying Address\",REFERENCE as \"Reference\",TRANSLATION as \"Translation\",OPERATINGUNIT as \"Operating Unit\",RPLCHECK as \"RPL Check\",NLSLANGUAGE as \"NLS Language\",ADDRESSLINE1LOCALLANGUAGE as \"Address Line1: Local Language\",ADDRESSLINE2LOCALLANGUAGE as \"Address Line2: Local Language\",ADDRESSLINE3LOCALLANGUAGE as \"Address Line3: Local Language\",ADDRESSLINE4LOCALLANGUAGE as \"Address Line4: Local Language\",CITYLOCALLANGUAGE as \"City:Local Language\",STATELOCALLANGUAGE as \"State:Local Language\",POSTALLOCALLANGUAGE as \"Postal:Local Language\",PROVINCELOCALLANGUAGE as \"Province:Local Language\",COUNTYLOCALLANGUAGE as \"County: Local Language\",COUNTRYLOCALLANGUAGE as \"Country: Local Language\",SENDACKNOWLEDGEMENT as \"Send Acknowledgement\",INVOICECOPIES as \"Invoice Copies or Suppression\",ACCOUNTSITETYPE as \"Account Site Type\",CONTEXTVALUE as \"Context Value\",TAXABLEPERSON as \"Taxable Person\",INDUSTRYCLASSIFICATION as \"Industry Classification\",TAXCERTIFICATEDATE as \"Tax Certificate Issue Date\",BUSINESSNUMBER as \"Business Number\",INDUSTRYSUBCLASSIFICATION as \"Industry Subclassification\",ADDRESSSITECATEGORY as \"Address Site Category\",ATS as \"ATS\",BUSINESSPURPOSE as \"Business Purpose\",LOCATION as \"Location\",BILLTOLOCATION as \"Bill To Location\",PRIMARYPURPOSE as \"Primary Purpose\",REVENUERECOGNITION as \"Revenue Recognition\",ORGSEGMENT as \"Org Segment\",SUBSEGMENT as \"Sub Segment\",ACCOUNTCLASS as \"Account Class\",RECEIVABLE as \"Receivable\",REVENUE as \"Revenue\",PAYMENTTERMS as \"Payment Terms\",SALESPERSON as \"Sales Person\",ORDERTYPE as \"Order Type\",PRICELIST as \"Price List\",DEMANDCLASS as \"Demand Class\",RECEIPTMETHODS as \"Receipt Methods\",PRIMARYPAYMENT as \"Primary Payment\",STARTDATE as \"Start Date\",ENDDATE as \"End Date\",DEFAULTREPORTINGCOUNTRYNAME as \"Default Reporting Country\",DEFAULTREPORSTRATIONNUMBER as \"Default Reporting Number\",TAXREGISTRATIONACTIVE as \"Tax Registration Active\",REGIMECODE as \"Regime Code\",TAX as \"Tax\",TAXJURISDICTIONCODE as \"Tax Jurisdiction Code\",TAXREGISTRATIONNUMBER as \"Tax Registration Number\",SOURCE as \"Source\",DEFAULTTAXREGISTRATION as \"Default Tax Registration\",EFECTIVEFROM as \"Efective From\",EFFECTIVETO as \"Effective To\",ROUNDINGRULE as \"Rounding Rule\"";
 
+	private static final String COLUMN_LIST_ADDRESS_NEW = "SITENUMBER as \"Site Number\",ADDRESSLINE1 as \"Address Line 1\",ADDRESSLINE2 as \"Address Line 2\",ADDRESSLINE3 as \"Address Line 3\",ADDRESSLINE4 as \"Address Line 4\",ADDRESS as \"Address\",CITY as \"City\",COUNTY as \"County\",ADDRESSSTATE as \"Address State\",PROVINCE as \"Province\",POSTALCODE as \"Postal Code\",CALCPOSTALCODE as \"Calculated Postal Code\",COUNTRY as \"Country\", MDMADDRESSID as \"MDM Address Id\",MDMACCOUNTID_ as \"MDM Account Id\"";//"SITEID as \"Site Id\",SITENAME as \"Site Name\",MDMADDRESSID as \"MDM Address Id\",MDMACCOUNTID_ as \"MDM Account Id\",DAQAMETADATA_STATE as \"State\",DAQAMETADATA_CLUSTERID as \"Cluster\",DAQAMETADATA_SCORE as Score,SYSTEMID as \"System Id\",SYSTEMNAME as \"System Name\",KEYSIGHTSFAADDRESSID as \"Keysight SFA Address Id\",ADDRESSEE as \"Addressee\",STATUS as \"Status\",IDENTIFYINGADDRESS as \"Identifying Address\",REFERENCE as \"Reference\",TRANSLATION as \"Translation\",OPERATINGUNIT as \"Operating Unit\",RPLCHECK as \"RPL Check\",NLSLANGUAGE as \"NLS Language\",ADDRESSLINE1LOCALLANGUAGE as \"Address Line1: Local Language\",ADDRESSLINE2LOCALLANGUAGE as \"Address Line2: Local Language\",ADDRESSLINE3LOCALLANGUAGE as \"Address Line3: Local Language\",ADDRESSLINE4LOCALLANGUAGE as \"Address Line4: Local Language\",CITYLOCALLANGUAGE as \"City:Local Language\",STATELOCALLANGUAGE as \"State:Local Language\",POSTALLOCALLANGUAGE as \"Postal:Local Language\",PROVINCELOCALLANGUAGE as \"Province:Local Language\",COUNTYLOCALLANGUAGE as \"County: Local Language\",COUNTRYLOCALLANGUAGE as \"Country: Local Language\",SENDACKNOWLEDGEMENT as \"Send Acknowledgement\",INVOICECOPIES as \"Invoice Copies or Suppression\",ACCOUNTSITETYPE as \"Account Site Type\",CONTEXTVALUE as \"Context Value\",TAXABLEPERSON as \"Taxable Person\",INDUSTRYCLASSIFICATION as \"Industry Classification\",TAXCERTIFICATEDATE as \"Tax Certificate Issue Date\",BUSINESSNUMBER as \"Business Number\",INDUSTRYSUBCLASSIFICATION as \"Industry Subclassification\",ADDRESSSITECATEGORY as \"Address Site Category\",ATS as \"ATS\",BUSINESSPURPOSE as \"Business Purpose\",LOCATION as \"Location\",BILLTOLOCATION as \"Bill To Location\",PRIMARYPURPOSE as \"Primary Purpose\",REVENUERECOGNITION as \"Revenue Recognition\",ORGSEGMENT as \"Org Segment\",SUBSEGMENT as \"Sub Segment\",ACCOUNTCLASS as \"Account Class\",RECEIVABLE as \"Receivable\",REVENUE as \"Revenue\",PAYMENTTERMS as \"Payment Terms\",SALESPERSON as \"Sales Person\",ORDERTYPE as \"Order Type\",PRICELIST as \"Price List\",DEMANDCLASS as \"Demand Class\",RECEIPTMETHODS as \"Receipt Methods\",PRIMARYPAYMENT as \"Primary Payment\",STARTDATE as \"Start Date\",ENDDATE as \"End Date\",DEFAULTREPORTINGCOUNTRYNAME as \"Default Reporting Country\",DEFAULTREPORSTRATIONNUMBER as \"Default Reporting Number\",TAXREGISTRATIONACTIVE as \"Tax Registration Active\",REGIMECODE as \"Regime Code\",TAX as \"Tax\",TAXJURISDICTIONCODE as \"Tax Jurisdiction Code\",TAXREGISTRATIONNUMBER as \"Tax Registration Number\",SOURCE as \"Source\",DEFAULTTAXREGISTRATION as \"Default Tax Registration\",EFECTIVEFROM as \"Efective From\",EFFECTIVETO as \"Effective To\",ROUNDINGRULE as \"Rounding Rule\"";
+
+	private static final String COLUMN_LIST_ADDRESS_CL = "ac.DAQAMETADATA_CLUSTERID as \"Cluster\", ad.MDMACCOUNTID_ as \"MDM Account Id\", ad.SITENUMBER as \"Site Number\",ad.ADDRESSLINE1 as \"Address Line 1\",ad.ADDRESSLINE2 as \"Address Line 2\",ad.ADDRESSLINE3 as \"Address Line 3\",ad.ADDRESSLINE4 as \"Address Line 4\",ad.ADDRESS as \"Address\",ad.CITY as \"City\",ad.COUNTY as \"County\",ad.ADDRESSSTATE as \"Address State\",ad.PROVINCE as \"Province\",ad.POSTALCODE as \"Postal Code\",CALCPOSTALCODE as \"Calculated Postal Code\",ad.COUNTRY as \"Country\"";//,SITEID as \"Site Id\",SITENAME as \"Site Name\",MDMADDRESSID as \"MDM Address Id\",MDMACCOUNTID_ as \"MDM Account Id\",DAQAMETADATA_STATE as \"State\",DAQAMETADATA_CLUSTERID as \"Cluster\",DAQAMETADATA_SCORE as Score,SYSTEMID as \"System Id\",SYSTEMNAME as \"System Name\",KEYSIGHTSFAADDRESSID as \"Keysight SFA Address Id\",ADDRESSEE as \"Addressee\",STATUS as \"Status\",IDENTIFYINGADDRESS as \"Identifying Address\",REFERENCE as \"Reference\",TRANSLATION as \"Translation\",OPERATINGUNIT as \"Operating Unit\",RPLCHECK as \"RPL Check\",NLSLANGUAGE as \"NLS Language\",ADDRESSLINE1LOCALLANGUAGE as \"Address Line1: Local Language\",ADDRESSLINE2LOCALLANGUAGE as \"Address Line2: Local Language\",ADDRESSLINE3LOCALLANGUAGE as \"Address Line3: Local Language\",ADDRESSLINE4LOCALLANGUAGE as \"Address Line4: Local Language\",CITYLOCALLANGUAGE as \"City:Local Language\",STATELOCALLANGUAGE as \"State:Local Language\",POSTALLOCALLANGUAGE as \"Postal:Local Language\",PROVINCELOCALLANGUAGE as \"Province:Local Language\",COUNTYLOCALLANGUAGE as \"County: Local Language\",COUNTRYLOCALLANGUAGE as \"Country: Local Language\",SENDACKNOWLEDGEMENT as \"Send Acknowledgement\",INVOICECOPIES as \"Invoice Copies or Suppression\",ACCOUNTSITETYPE as \"Account Site Type\",CONTEXTVALUE as \"Context Value\",TAXABLEPERSON as \"Taxable Person\",INDUSTRYCLASSIFICATION as \"Industry Classification\",TAXCERTIFICATEDATE as \"Tax Certificate Issue Date\",BUSINESSNUMBER as \"Business Number\",INDUSTRYSUBCLASSIFICATION as \"Industry Subclassification\",ADDRESSSITECATEGORY as \"Address Site Category\",ATS as \"ATS\",BUSINESSPURPOSE as \"Business Purpose\",LOCATION as \"Location\",BILLTOLOCATION as \"Bill To Location\",PRIMARYPURPOSE as \"Primary Purpose\",REVENUERECOGNITION as \"Revenue Recognition\",ORGSEGMENT as \"Org Segment\",SUBSEGMENT as \"Sub Segment\",ACCOUNTCLASS as \"Account Class\",RECEIVABLE as \"Receivable\",REVENUE as \"Revenue\",PAYMENTTERMS as \"Payment Terms\",SALESPERSON as \"Sales Person\",ORDERTYPE as \"Order Type\",PRICELIST as \"Price List\",DEMANDCLASS as \"Demand Class\",RECEIPTMETHODS as \"Receipt Methods\",PRIMARYPAYMENT as \"Primary Payment\",STARTDATE as \"Start Date\",ENDDATE as \"End Date\",DEFAULTREPORTINGCOUNTRYNAME as \"Default Reporting Country\",DEFAULTREPORSTRATIONNUMBER as \"Default Reporting Number\",TAXREGISTRATIONACTIVE as \"Tax Registration Active\",REGIMECODE as \"Regime Code\",TAX as \"Tax\",TAXJURISDICTIONCODE as \"Tax Jurisdiction Code\",TAXREGISTRATIONNUMBER as \"Tax Registration Number\",SOURCE as \"Source\",DEFAULTTAXREGISTRATION as \"Default Tax Registration\",EFECTIVEFROM as \"Efective From\",EFFECTIVETO as \"Effective To\",ROUNDINGRULE as \"Rounding Rule\"";
+
 	@RequestMapping("/")
 	public String index(Map<String, Object> model) {
 		return "index";
@@ -75,8 +79,13 @@ public class AccountController {
 		return "homePage";
 	}
 
+	@RequestMapping("/homePageNew")
+	public String homePageNew(Map<String, Object> model) {
+		return "homePageNew";
+	}
+
 	@RequestMapping("/account/{accId}/address")
-	public String welcome(@PathVariable("accId") String accId, Map<String, Object> model) {
+	public String getAccountAddresses(@PathVariable("accId") String accId, Map<String, Object> model) {
 		String query = "SELECT "+ COLUMN_LIST_ADDRESS +" FROM EBX_MDM_ACCOUNT_ADDRESS WHERE MDMACCOUNTID_ = "+accId;
 		LOGGER.debug("Address query: "+query);
 		List<Map<String, Object>> resultList = oracleDbNamedParameterJdbcTemplate.query(query,new ResultSetToHashMapRowMapper());
@@ -85,6 +94,30 @@ public class AccountController {
 		model.put("columnlist", new ArrayList<String>(resultList.get(0).keySet()));
 		model.put("resultList",resultList);
 		return "accountAddress :: contents";
+	}
+
+	@RequestMapping("/account/{accId}/addressnew")
+	public String getAccountAddressesNew(@PathVariable("accId") String accId, Map<String, Object> model) {
+		String query = "SELECT "+ COLUMN_LIST_ADDRESS_NEW +" FROM EBX_MDM_ACCOUNT_ADDRESS WHERE MDMACCOUNTID_ = "+accId;
+		LOGGER.debug("Address query: "+query);
+		List<Map<String, Object>> resultList = oracleDbNamedParameterJdbcTemplate.query(query,new ResultSetToHashMapRowMapper());
+		message = message + " No of addresses: " + resultList.size();
+		model.put("message", message);
+		model.put("columnlist", new ArrayList<String>(resultList.get(0).keySet()));
+		model.put("resultList",resultList);
+		return "accountAddress :: contents";
+	}
+
+	@RequestMapping("/account/{clusterId}/claddress")
+	public String getClusterAddresses(@PathVariable("clusterId") String clusterId, Map<String, Object> model) {
+		String query = "SELECT "+ COLUMN_LIST_ADDRESS_CL +" FROM EBX_MDM_ACCOUNT_ADDRESS ad INNER JOIN EBX_MDM_ACCOUNT ac ON ad.MDMACCOUNTID_ = ac.MDMACCOUNTID WHERE ac.DAQAMETADATA_CLUSTERID = "+clusterId;
+		LOGGER.debug("Address query: "+query);
+		List<Map<String, Object>> resultList = oracleDbNamedParameterJdbcTemplate.query(query,new ResultSetToHashMapRowMapper());
+		message = message + " No of addresses: " + resultList.size();
+		model.put("message", message);
+		model.put("columnlist", new ArrayList<String>(resultList.get(0).keySet()));
+		model.put("resultList",resultList);
+		return "clusterAddress :: contents";
 	}
 
 	@RequestMapping("/accountColumns")
@@ -99,7 +132,7 @@ public class AccountController {
 
 	@RequestMapping(path="/accounts")
 	@ResponseBody
-	public String getAllEmployees(HttpServletRequest request, HttpServletResponse response, Model model){
+	public String getAllAccounts(HttpServletRequest request, HttpServletResponse response, Model model){
 		String baseQuery = "select "+ COLUMN_LIST_ACCOUNT
 				+" from ( select rownum rnum, a.* from ("
 				+" SELECT "+ COLUMN_LIST_ACCOUNT

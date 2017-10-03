@@ -35,6 +35,9 @@
             <th>
                 Cluster&nbsp;<input id="search-5" name="DAQAMETADATA_CLUSTERID" type="text" placeholder="Search Cluster Id" />
             </th>
+            <th>
+                <input id="addressByCluster" name="DAQAMETADATA_CLUSTERID_BUTTON" type="button" value="Cluster Addresses" />
+            </th>
             <!--<th>
         <input id="searchButton" class="customSearch" type="button" value="Search"/>
     </th>
@@ -423,7 +426,7 @@ $(document).ready(function(){
                 if ($('#' + mdmId + '-addresses').length > 0) {} else {
                     $("#address-modals").append("<div id='" + mdmId + "-addresses' style='display: none'><b>Loading...</b></div>");
                     $.ajax({
-                        url: "account/" + mdmId + "/address",
+                        url: "account/" + mdmId + "/addressnew",
                         success: function(data) {
                             $("#" + mdmId + '-addresses').html(data);
                             $("#addressTable"+mdmId).DataTable({
@@ -440,6 +443,36 @@ $(document).ready(function(){
                        /* width: 1200, */
                         minWidth: 1200,
                         title: "Addresses for "+accountName+" Account#:"+accountNumber,
+                        close: function(e, ui) {
+                            $(this).dialog('destroy').remove();
+                        }
+                    });
+                }
+            });
+
+            $("#searchTable :button").on('click', function(e) {
+                var clusterId = $("#search-5").val();
+                console.log("clusterId="+clusterId);
+                 if ($('#' + clusterId + '-claddresses').length > 0) {} else {
+                    $("#address-modals").append("<div id='" + clusterId + "-claddresses' style='display: none'><b>Loading...</b></div>");
+                    $.ajax({
+                        url: "account/" + clusterId + "/claddress",
+                        success: function(data) {
+                            $("#" + clusterId + '-claddresses').html(data);
+                            $("#addressTable"+clusterId).DataTable({
+                                    scrollY: "200px",
+                                    scrollX: true,
+                                    colReorder: true
+                            });
+                        }
+                    });
+                    $("#" + clusterId + '-claddresses').dialog({
+                        /*height: 'auto',*/
+                        minHeight: 310,
+                       /* height: 310,*/
+                       /* width: 1200, */
+                        minWidth: 1200,
+                        title: "Addresses for cluster id "+clusterId,
                         close: function(e, ui) {
                             $(this).dialog('destroy').remove();
                         }
