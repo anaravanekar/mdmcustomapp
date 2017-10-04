@@ -117,7 +117,7 @@ $(document).ready(function(){
             url: 'accounts',
             type: 'POST'
         },
-        scrollY: "450px",
+        scrollY: false,
         scrollX: true,
         columns: [
             {
@@ -439,7 +439,7 @@ $(document).ready(function(){
                        /* height: 310,*/
                        /* width: 1200, */
                         minWidth: 1200,
-                        title: "Addresses for "+accountName+" Account#:"+accountNumber,
+                        title: "Addresses for "+accountName+" Account No. "+accountNumber,
                         close: function(e, ui) {
                             $(this).dialog('destroy').remove();
                         }
@@ -448,7 +448,6 @@ $(document).ready(function(){
             });
         } //init complete
     }); //dataTable initialization
-
 
 }); //document ready
         /*]]>*/

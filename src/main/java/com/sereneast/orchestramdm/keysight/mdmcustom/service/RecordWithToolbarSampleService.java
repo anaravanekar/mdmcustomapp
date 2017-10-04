@@ -8,7 +8,6 @@ import com.onwbp.adaptation.Adaptation;
 import com.onwbp.adaptation.Request;
 import com.onwbp.adaptation.RequestResult;
 import com.orchestranetworks.schema.SchemaNode;
-import com.orchestranetworks.service.ProcedureResult;
 import com.orchestranetworks.ui.UICSSClasses;
 import com.orchestranetworks.ui.selection.TableViewEntitySelection;
 import com.orchestranetworks.userservice.*;
@@ -19,6 +18,7 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
@@ -177,6 +177,10 @@ public class RecordWithToolbarSampleService implements UserService<TableViewEnti
 			for (Adaptation adaptation : adaptations) {
 				LOGGER.info("Key: " + Paths._Account._MDMAccountId.format().replaceAll("\\/",""));
 				LOGGER.info("Value: " + adaptation.get(Paths._Account._MDMAccountId));
+				Field[] accountPathFields = Paths._Account.class.getDeclaredFields();
+				/*for(Field pathField: accountPathFields){
+					pathField.
+				}*/
 				//LOGGER.info("field "+adaptation.getSchemaNode().getPathInAdaptation().format().replaceAll("\\/","")+":"+adaptation.get(adaptation.getSchemaNode().getPathInAdaptation()));
 //				fields.put(Paths._Account._MDMAccountId.format().replaceAll("\\/",""), new OrchestraContent(adaptation.get(Paths._Account._MDMAccountId)));
 

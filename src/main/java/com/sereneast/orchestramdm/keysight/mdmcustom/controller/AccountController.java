@@ -110,13 +110,18 @@ public class AccountController {
 
 	@RequestMapping("/account/{clusterId}/claddress")
 	public String getClusterAddresses(@PathVariable("clusterId") String clusterId, Map<String, Object> model) {
-		String query = "SELECT "+ COLUMN_LIST_ADDRESS_CL +" FROM EBX_MDM_ACCOUNT_ADDRESS ad INNER JOIN EBX_MDM_ACCOUNT ac ON ad.MDMACCOUNTID_ = ac.MDMACCOUNTID WHERE ac.DAQAMETADATA_CLUSTERID = "+clusterId;
-		LOGGER.debug("Address query: "+query);
-		List<Map<String, Object>> resultList = oracleDbNamedParameterJdbcTemplate.query(query,new ResultSetToHashMapRowMapper());
-		message = message + " No of addresses: " + resultList.size();
-		model.put("message", message);
-		model.put("columnlist", new ArrayList<String>(resultList.get(0).keySet()));
-		model.put("resultList",resultList);
+		List<Map<String, Object>> resultList = new ArrayList<Map<String,Object>>();
+		List columnList = new ArrayList<String>();
+		if(clusterId!=null && !"".equals(clusterId)) {
+			String query = "SELECT " + COLUMN_LIST_ADDRESS_CL + " FROM EBX_MDM_ACCOUNT_ADDRESS ad INNER JOIN EBX_MDM_ACCOUNT ac ON ad.MDMACCOUNTID_ = ac.MDMACCOUNTID WHERE ac.DAQAMETADATA_CLUSTERID = " + clusterId;
+			resultList = oracleDbNamedParameterJdbcTemplate.query(query, new ResultSetToHashMapRowMapper());
+			if(resultList!=null && !resultList.isEmpty()) {
+				LOGGER.debug("Address query: " + query);
+				columnList = new ArrayList<String>(resultList.get(0).keySet());
+			}
+		}
+		model.put("columnlist", columnList);
+		model.put("resultList", resultList);
 		return "clusterAddress :: contents";
 	}
 

@@ -15,5 +15,8 @@
     </table>
         <!--<button class="toggleHeaderButton" type="button">Show/Hide Header</button>-->
     </th:block>
+    <th:block th:if="${#lists.isEmpty(resultList)}">
+        <span> No data found </span>
+    </th:block>
 </div>
 </html>

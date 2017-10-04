@@ -23,24 +23,15 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 	public void handleServiceRegistration(ModuleServiceRegistrationContext aContext)
 	{
 
-		LOGGER.info("In RegistrationServlet. Registering module: mdmcustomapp.");
+//		LOGGER.info("In RegistrationServlet. Registering module: mdmcustomapp.");
 		// Register custom user service declaration.
-		aContext.registerUserService(new RecordSampleServiceDeclaration(
-				ServiceKey.forModuleServiceName("mdmcustomapp",RecordUpdateShowUpdatedByService.class.getSimpleName()),
-				RecordUpdateShowUpdatedByService.class,
-				"Record Update Sample",
-				"This user service implements a form that updates a record.",
-				"<ul style='margin:0;padding:1em'><li>Create at least one record for table <b>User</b> from the <b>Directory</b> sample data set,</li>"
-						+ "<li>From <b>User</b> table view, select exactly one record,</li>"
-						+ "<li>Run user service <b>[User Service API] Record Update Sample</b>.</li></ul>",
-				toPath("/root/Account")));
-		aContext.registerUserService(new TableViewSampleServiceDeclaration(
+	/*	aContext.registerUserService(new TableViewSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",RecordWithToolbarSampleService.class.getSimpleName()),
 				RecordWithToolbarSampleService.class,
-				"Publish Records",
-				"Publish records",
+				"Promote and Publish",
+				"Promote and Publish",
 				"",-1,
-				toPath("/root/Account")));
+				toPath("/root/Account")));*/
 	}
 	/*public void init(ServletConfig config) throws ServletException {
 		super.init(config);
