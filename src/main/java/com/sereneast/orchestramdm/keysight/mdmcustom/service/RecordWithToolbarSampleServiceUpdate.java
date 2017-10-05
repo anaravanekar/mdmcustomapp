@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onwbp.adaptation.Adaptation;
 import com.onwbp.adaptation.Request;
 import com.onwbp.adaptation.RequestResult;
-import com.orchestranetworks.schema.SchemaNode;
+import com.orchestranetworks.schema.Path;
 import com.orchestranetworks.ui.UICSSClasses;
 import com.orchestranetworks.ui.selection.TableViewEntitySelection;
 import com.orchestranetworks.userservice.*;
@@ -15,13 +15,20 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
+import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
-import java.lang.reflect.Field;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This user service implements a form that allows user to update a selected
@@ -37,9 +44,11 @@ import java.util.*;
  * </ul>
  * </p>
  */
-public class RecordWithToolbarSampleService implements UserService<TableViewEntitySelection>
+public class RecordWithToolbarSampleServiceUpdate implements UserService<TableViewEntitySelection>,ApplicationContextAware
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(RecordWithToolbarSampleService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RecordWithToolbarSampleServiceUpdate.class);
+	private ApplicationContext applicationContext;
+	private String objectName;
 	private final static String TOOLBAR_NAME = "Publish";
 
 	private final static ObjectKey accountObjectKey = ObjectKey.forName("account");
@@ -48,7 +57,9 @@ public class RecordWithToolbarSampleService implements UserService<TableViewEnti
 	private boolean isNextRecord;
 	private boolean isFetchCurrentRecord;
 
-	public RecordWithToolbarSampleService()
+	private ApplicationCacheUtil applicationCacheUtil;
+
+	public RecordWithToolbarSampleServiceUpdate()
 	{
 	}
 
@@ -64,6 +75,8 @@ public class RecordWithToolbarSampleService implements UserService<TableViewEnti
 	{
 		if (aContext.isInitialDisplay())
 		{
+			RequestResult requestResult = aContext.getEntitySelection().getSelectedRecords().execute();
+			LOGGER.debug("no of records selected = "+requestResult.getSize());
 			this.fetchFirstRecord(aContext.getEntitySelection(), aBuilder);
 			this.isFetchCurrentRecord = false;
 			return;
@@ -95,7 +108,7 @@ public class RecordWithToolbarSampleService implements UserService<TableViewEnti
 				@Override
 				public void writePane(UserServicePaneContext aContext, UserServicePaneWriter aWriter)
 				{
-					RecordWithToolbarSampleService.this.writeError(aContext, aWriter);
+					RecordWithToolbarSampleServiceUpdate.this.writeError(aContext, aWriter);
 				}
 			});
 
@@ -110,7 +123,7 @@ public class RecordWithToolbarSampleService implements UserService<TableViewEnti
 				@Override
 				public UserServiceEventOutcome processEvent(UserServiceEventContext aContext)
 				{
-					return RecordWithToolbarSampleService.this.onPrevious(aContext);
+					return RecordWithToolbarSampleServiceUpdate.this.onPrevious(aContext);
 				}
 			});
 		}
@@ -122,7 +135,7 @@ public class RecordWithToolbarSampleService implements UserService<TableViewEnti
 				@Override
 				public UserServiceEventOutcome processEvent(UserServiceEventContext aContext)
 				{
-					return RecordWithToolbarSampleService.this.onNext(aContext);
+					return RecordWithToolbarSampleServiceUpdate.this.onNext(aContext);
 				}
 			});
 		}
@@ -133,7 +146,7 @@ public class RecordWithToolbarSampleService implements UserService<TableViewEnti
 			@Override
 			public UserServiceEventOutcome processEvent(UserServiceEventContext aContext)
 			{
-				return RecordWithToolbarSampleService.this.onSave(aContext);
+				return RecordWithToolbarSampleServiceUpdate.this.onSave(aContext);
 			}
 		});
 
@@ -143,7 +156,7 @@ public class RecordWithToolbarSampleService implements UserService<TableViewEnti
 			@Override
 			public void writePane(UserServicePaneContext aContext, UserServicePaneWriter aWriter)
 			{
-				RecordWithToolbarSampleService.this.writeForm(aContext, aWriter);
+				RecordWithToolbarSampleServiceUpdate.this.writeForm(aContext, aWriter);
 			}
 		});
 	}
@@ -168,47 +181,38 @@ public class RecordWithToolbarSampleService implements UserService<TableViewEnti
 	 */
 	private void writeForm(UserServicePaneContext aContext, UserServicePaneWriter aWriter)
 	{
-		List<OrchestraObject> orchestraObjects = new ArrayList<OrchestraObject>();
-		List<Adaptation> adaptations = aContext.getValueContext(accountObjectKey).getAdaptationTable().selectOccurrences(null);
 		try {
+			List<OrchestraObject> orchestraObjects = new ArrayList<OrchestraObject>();
+			List<Adaptation> adaptations = aContext.getValueContext(accountObjectKey).getAdaptationTable().selectOccurrences(null);
 			LOGGER.info("Selected records size : " + adaptations.size());
 			OrchestraObject orchestraObject = new OrchestraObject();
-			Map<String, OrchestraContent> fields = new HashMap<>();
-			for (Adaptation adaptation : adaptations) {
-				LOGGER.info("Key: " + Paths._Account._MDMAccountId.format().replaceAll("\\/",""));
-				LOGGER.info("Value: " + adaptation.get(Paths._Account._MDMAccountId));
-				Field[] accountPathFields = Paths._Account.class.getDeclaredFields();
-				/*for(Field pathField: accountPathFields){
-					pathField.
-				}*/
-				//LOGGER.info("field "+adaptation.getSchemaNode().getPathInAdaptation().format().replaceAll("\\/","")+":"+adaptation.get(adaptation.getSchemaNode().getPathInAdaptation()));
-//				fields.put(Paths._Account._MDMAccountId.format().replaceAll("\\/",""), new OrchestraContent(adaptation.get(Paths._Account._MDMAccountId)));
-
-				for (SchemaNode schemaNode : adaptation.getContainerTable().getTableOccurrenceRootNode().getNodeChildren()) {
-					LOGGER.info(adaptation.getSchemaNode().toString());
-					LOGGER.info(schemaNode.toString());
-					LOGGER.info(schemaNode.getPathInAdaptation().toString());
-					LOGGER.info(schemaNode.getPathInSchema().toString());
-					if(!schemaNode.getPathInAdaptation().format().contains("DaqaMetaData")) {
-						fields.put(schemaNode.getPathInAdaptation().format().replaceAll("\\/", ""), new OrchestraContent(adaptation.get(schemaNode.getPathInAdaptation())));
-						LOGGER.info("Key: " + schemaNode.getLabel(Locale.ENGLISH));
-						LOGGER.info("Value: " + adaptation.get(schemaNode.getPathInAdaptation()));
-					}
-				}
-				orchestraObject.setContent(fields);
-				orchestraObjects.add(orchestraObject);
+			Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
+			Map<String, Path> pathFieldsMap = null;
+			if(applicationCacheUtil==null){
+				LOGGER.debug("Initializing application cache util");
+				applicationCacheUtil = new ApplicationCacheUtil();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		ObjectMapper mapper = new ObjectMapper();
-		try {
+			if ("ACCOUNT".equals(objectName)) {
+				pathFieldsMap = applicationCacheUtil.getObjectDirectFields(Paths._Account.class.getName());
+			} else if ("ADDRESS".equals(objectName)) {
+				pathFieldsMap = applicationCacheUtil.getObjectDirectFields(Paths._Address.class.getName());
+			}
+			for (Adaptation adaptation : adaptations) {
+				for (String fieldName : pathFieldsMap.keySet()) {
+					LOGGER.debug(fieldName);
+					LOGGER.debug(String.valueOf(pathFieldsMap.get(fieldName)));
+					jsonFieldsMap.put(fieldName, new OrchestraContent(adaptation.get(pathFieldsMap.get(fieldName))));
+				}
+			}
+			orchestraObject.setContent(jsonFieldsMap);
+			orchestraObjects.add(orchestraObject);
+			ObjectMapper mapper = new ObjectMapper();
 			LOGGER.info("Selected records: \n" + mapper.writeValueAsString(orchestraObjects));
 			OrchestraObjectList rows = new OrchestraObjectList();
 			rows.setRows(orchestraObjects);
 			Map<String, String> parameters = new HashMap<String, String>();
 			parameters.put("updateOrInsert", "true");
-			try{
+			try {
 				/*OrchestraResponseDetails responseDetails = orchestraRestClient.insert(DATA_SPACE, DATA_SET, PATH, rows, parameters);
 				final Procedure procedure = new Procedure() {
 					public void execute(final ProcedureContext procedureContext) throws Exception {
@@ -223,15 +227,14 @@ public class RecordWithToolbarSampleService implements UserService<TableViewEnti
 				LOGGER.info("Executing procedure");
 				context.execute(procedure);
 				LOGGER.info("Procedure Executed");*/
-			} catch(Exception e){
-				LOGGER.error("Error making rest call ",e);
+			} catch (Exception e) {
+				LOGGER.error("Error making rest call ", e);
 			}
 			Files.write(java.nio.file.Paths.get("publishedrecords.txt"), mapper.writeValueAsString(rows).getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 			aWriter.add("Publish successful");
-		} catch (Exception e) {
-			e.printStackTrace();
+		}catch (ClassNotFoundException | IllegalAccessException | IOException e){
+			LOGGER.error("Error publishing ",e);
 		}
-
 	}
 
 	/**
@@ -347,5 +350,24 @@ public class RecordWithToolbarSampleService implements UserService<TableViewEnti
 		{
 			result.close();
 		}
+	}
+
+	public String getObjectName() {
+		return objectName;
+	}
+
+	public void setObjectName(String objectName) {
+		this.objectName=objectName;
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		LOGGER.debug("Setting application context");
+		this.applicationContext = applicationContext;
+		if(applicationContext!=null) {
+			LOGGER.debug("Got application context initializing cacheutil");
+			applicationCacheUtil = (ApplicationCacheUtil) applicationContext.getBean("applicationCacheUtil");
+		}
+
 	}
 }

@@ -6,7 +6,7 @@ keysight:
         username: admin
         password: admin
         ssl: false
-        host: 10.10.10.90
+        host: localhost
         port: 8080
         baseURI: /ebx-dataservices/rest/data/
         version: v1
@@ -145,7 +145,7 @@ keysight:
     datasource:
 #        oracle:
 #            driver-class-name: oracle.jdbc.driver.OracleDriver
-#            username: ebx
+#            username: MDMADM
 #            password: Pa55word88
 #            url: jdbc:oracle:thin:@bidbha2k.cos.is.keysight.com:1524:APPREPT1
 #            max-active: 50
