@@ -517,7 +517,7 @@
                         if ($('#' + mdmId + '-addresses').length > 0) {} else {
                             $("#address-modals").append("<div id='" + mdmId + "-addresses' style='display: none'><b>Loading...</b></div>");
                             $.ajax({
-                                url: "account/" + mdmId + "/address",
+                                url: "account/" + mdmId + "/addressnew",
                                 success: function(data) {
                                     $("#" + mdmId + '-addresses').html(data);
                                     $("#addressTable" + mdmId).DataTable({
