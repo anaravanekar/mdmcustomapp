@@ -201,12 +201,16 @@ public class DataTableColumnSpecs {
 	private void prepareColumnSpecs(HttpServletRequest request, int i) {
 		
 		this.setData(request.getParameter("columns["+ i +"][data]"));
+		
 		this.setName(request.getParameter("columns["+ i +"][name]"));
 		this.setOrderable(Boolean.valueOf(request.getParameter("columns["+ i +"][orderable]")));
 		this.setRegex(Boolean.valueOf(request.getParameter("columns["+ i +"][search][regex]")));
-		this.setSearch(request.getParameter("columns["+ i +"][search][value]"));
+		String searchValue = request.getParameter("columns["+ i +"][search][value]");
+		if(null!=searchValue)
+		    this.setSearch(searchValue.toUpperCase());
+		else
+			this.setSearch(searchValue);	
 		this.setSearchable(Boolean.valueOf(request.getParameter("columns["+ i +"][searchable]")));
-		
 		int sortableCol = Integer.parseInt(request.getParameter("order[0][column]"));
 		String sortDir = request.getParameter("order[0][dir]");
 		

@@ -161,7 +161,11 @@ public class PaginationCriteria {
 
 					fbsb.append(SPACE)
 							.append(BRKT_OPN)
+							
+							.append(UPPER)
+							.append(BRKT_OPN)
 								.append(pair.getKey())
+								.append(BRKT_CLS)
 									.append(LIKE_PREFIX)
 										.append(pair.getValue())
 											.append(LIKE_SUFFIX)
@@ -247,6 +251,9 @@ public class PaginationCriteria {
 	
 	/** The Constant DRAW. */
 	public static final String DRAW = "draw";
+	
+	/** The Constant DRAW. */
+	public static final String UPPER = "upper";
 
 	@Override
 	public String toString() {

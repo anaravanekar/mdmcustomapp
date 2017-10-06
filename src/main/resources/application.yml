@@ -173,6 +173,9 @@ spring:
           suffix: .jsp
     thymeleaf:
         cache: false
+    devtools:
+      livereload:
+        enabled: false
 server:
-#   port: 8022
+   port: 8022
    contextPath: /mdmcustomapp

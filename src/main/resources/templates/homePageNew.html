@@ -8,9 +8,135 @@
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css" />
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css" />
-    <style type="text/css">
-        .datatable-container {
+ 
+    
+   <style type="text/css">
+        /*.datatable-container {
             margin: 20px;
+        }*/
+        .datatable-container {
+            margin: 0px;
+            padding: 0px 0px 0px 0px;
+            background: #efefef;
+            position: absolute;
+            left: 0;
+            right: 0px;
+            bottom: 0;
+            top: 0;
+        }
+        .toolbar {
+            background: #6d7082;
+            padding: 4px 15px;
+            border-radius: 0px 0px 0 0;
+        }
+        .toolbar label {
+            color: #ffffff;
+        }
+        select#searchSelect {
+            height: 30px;
+            border: 1px solid #54576b;
+            background-color: #FFFFFF;
+            border-radius: 3px;
+            padding: 3px;
+        }
+        input#searchText {
+            height: 30px;
+            border: 1px solid #54576b;
+            background-color: #FFFFFF;
+            border-radius: 3px;
+            padding: 3px;
+        }
+        table#searchTable input {
+		    color: #4c4c4c;
+            height: 30px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+		}
+		table#searchTable tbody tr td {
+		    color: #ffffff;
+		}
+		div.dataTables_wrapper div.dataTables_filter {
+		    margin-right: 62px;
+		    margin-top: 5px;
+		}
+        input#clearSearch {
+            height: 30px;
+            width: 65px;
+            border: 1px solid #54576b !important;
+            background-color: #ffdf72;
+            border-radius: 3px;
+            font-weight: 700;
+        }
+        input#clearSearch:hover {
+            background-color: #efd06b;
+        }
+        input#addressByCluster {
+            height: 30px;
+		    width: 150px;
+		    border: 1px solid #54576b !important;
+		    background-color: #79fd88;
+		    border-radius: 3px;
+		    font-weight: 700;
+		    color: #4c4c4c;
+        }
+        input#addressByCluster:hover {
+            background-color: #54ce61;
+        }
+        .dataTables_scroll {
+            background: #ffffff;
+            padding: 0px 0px 0px;
+            /*border-radius: 5px 5px 5px 5px;*/
+        }
+        .table>thead>tr>th {
+		    font-weight: 100;
+		}
+        table.table.table-striped thead {
+            background: #696f94;
+            color: #ffffff;
+        }
+        div#accountTable_info {
+            float: left;
+            margin-top: 8px;
+            /*position: absolute;*/
+            bottom: 13px;
+        }
+        div#accountTable_paginate {
+            margin-top: 7px;
+            /*position: absolute;*/
+            right: 19px;
+            bottom: 2px;
+        }
+        .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+            min-width: 157px;
+            font-size: 13px;
+            padding: 3px 8px;
+        }
+        div.dataTables_wrapper div.dataTables_filter {
+		    margin-right: 16px;
+		    margin-top: -34px;
+		    margin-bottom: -1px;
+		    color: #ffffff;
+		}
+		.ui-dialog-content .dataTables_filter {
+            margin-top: 0px !important;
+            color: #3e3e3e !important;
+            margin-bottom: -5px;
+        }
+        table.dataTable {
+            margin-top: 0px !important;
+            margin-bottom: 0px !important;
+        }
+        .ui-dialog .ui-dialog-content {
+            padding: 0;
+        }
+       .ui-widget.ui-widget-content {
+            font-size: 12px !important;
+        }
+        .ui-dialog-content .table-responsive {
+            overflow: auto;
+        }
+        table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after {
+            bottom: 2px;
         }
     </style>
 </head>
@@ -59,6 +185,8 @@
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/colreorder/1.4.1/js/dataTables.colReorder.min.js"></script>
+<script type="text/javascript" src="https://github.com/alvaro-prieto/colResizable/colResizable-1.6.min.js"></script>
+ <script type="text/javascript" src="vendor/colResizable-1.6.min.js"></script>
 <script type="text/javascript" th:inline="javascript">
         /*<![CDATA[*/
         $(document).ready(function() {
@@ -93,19 +221,25 @@
             //console.log("initializing table");
             //console.log($("#accountTable").html());
             var accountTable = $('#accountTable').DataTable({
-                "dom": '<"toolbar">rtip',
+                "dom": '<"toolbar">lfrtip',
+                
                 processing: true,
                 serverSide: true,
+                "autoWidth": false,
+                fixedHeader: {
+                    header: true
+                },
                 ajax: {
                     url: 'accounts',
                     type: 'POST'
                 },
-                scrollY: "380px",
+                scrollY: true,
                 scrollX: true,
                 columns: [{
                         'title': 'MDM Account Id',
                         'data': 'MDMACCOUNTID',
                         'name': 'MDMACCOUNTID',
+                        'width': 120,
                         'searchable': true
                     },
                     {
@@ -320,37 +454,55 @@
                         'searchable': false
                     }
                 ],
+                
+                "columnDefs": [
+                    { "width": 100, "targets": 0 },
+                    { "width": "200px", "targets":28 },
+                    { "width": "200px", "targets":35 }
+                  ],
                 /*colReorder: {
                     realtime: false
                 },*/
                 "initComplete": function(settings, json) {
+                	// $('#accountTable').colResizable();
+                	
                     //console.log('init complete');
                     $('#clearSearch').on('click', function(e) {
                         //console.log("clear clicked");
-                         $('#searchText').val('');
+                         $('#search-0').val('');
+                         $('#search-1').val('');
+                         $('#search-2').val('');
+                         $('#search-4').val('');
+                         $('#search-5').val('');
+                         
                         accountTable.search('').columns().search('').draw();
                     });
 
                     $('#searchSelect').on('change', function(e) {
                         //console.log("search changed");
-                        $('#searchText').val('');
+                      $('#search-0').val('');
+                         $('#search-1').val('');
+                         $('#search-2').val('');
+                         $('#search-4').val('');
+                         $('#search-5').val('');
                         accountTable.search('').columns().search('').draw();
                     });
 
-                    $('#searchText').on('keyup', function(e) {
+                    $('#searchTable :text').on('keyup', function(e) {
                         var that = this;
                         if (e.keyCode == 13) {
-                            var selectedColumnName = $("#searchSelect").val();
-                            //console.log("selectedColumnName=" + selectedColumnName);
-                            var colIndex = searchableColumnsMap.get(selectedColumnName);
-                            //console.log('colIndex=' + colIndex);
-                            if (accountTable.column(colIndex).search() != that.value) {
-                                searchValuesMap.set(that.name, that.value);
+                            
+                        	 var colIndex = searchableColumnsMap.get(that.name);//$(searchColumnIndexSelector).parent().data('column-index');
+                             
+                             console.log('colIndex='+colIndex);
+                             if (accountTable.column(colIndex).search() != that.value) {
+                                searchValuesMap.set(that.name,that.value);
                                 accountTable
                                     .column(colIndex)
                                     .search(that.value)
                                     .draw();
                             }
+                           
                         }
                     });
 
@@ -365,22 +517,24 @@
                         if ($('#' + mdmId + '-addresses').length > 0) {} else {
                             $("#address-modals").append("<div id='" + mdmId + "-addresses' style='display: none'><b>Loading...</b></div>");
                             $.ajax({
-                                url: "account/" + mdmId + "/addressnew",
+                                url: "account/" + mdmId + "/address",
                                 success: function(data) {
                                     $("#" + mdmId + '-addresses').html(data);
                                     $("#addressTable" + mdmId).DataTable({
-                                        scrollY: "200px",
+                                        scrollY: "auto",
                                         scrollX: true,
+                                        minHeight: 300,
                                         colReorder: true
                                     });
                                 }
                             });
                             $("#" + mdmId + '-addresses').dialog({
-                                /*height: 'auto',*/
-                                minHeight: 310,
+                               height: 'auto',
+
+                                width: 1200,
                                 /* height: 310,*/
                                 /* width: 1200, */
-                                minWidth: 1200,
+                                minWidth: 400,
                                 title: "Addresses for " + accountName + ", Account No. " + accountNumber,
                                 close: function(e, ui) {
                                     $(this).dialog('destroy').remove();
@@ -388,37 +542,44 @@
                             });
                         }
                     });
+                    
                 } //init complete
             }); //dataTable initialization
+           
 
-            var searchHtml = '<label>Search&nbsp;&nbsp;&nbsp;</label><select id="searchSelect"><option value="DAQAMETADATA_CLUSTERID">Cluster Id&nbsp;</option><option value="MDMACCOUNTID">MDM Account Id&nbsp;</option><option value="ACCOUNTNUMBER">Account No&nbsp;</option><option value="ACCOUNTNAME">Account Name&nbsp;</option><option value="DAQAMETADATA_STATE">DQ State&nbsp;</option></select>&nbsp;&nbsp;&nbsp;<input id="searchText" name="searchText" type="text"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp<input id="clearSearch" value="Clear" type="button"/>';
-            $("div.toolbar").html(searchHtml + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="addressByCluster" name="DAQAMETADATA_CLUSTERID_BUTTON" type="button" value="Get Addresses" />');
+           // var searchHtml = '<label>Search&nbsp;&nbsp;&nbsp;</label><select id="searchSelect"><option value="DAQAMETADATA_CLUSTERID">Cluster Id&nbsp;</option><option value="MDMACCOUNTID">MDM Account Id&nbsp;</option><option value="ACCOUNTNUMBER">Account No&nbsp;</option><option value="ACCOUNTNAME">Account Name&nbsp;</option><option value="DAQAMETADATA_STATE">DQ State&nbsp;</option></select>&nbsp;&nbsp;&nbsp;<input id="searchText" name="searchText" type="text"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp<input id="clearSearch" value="Clear" type="button"/>';
+           var searchHtml ='<table id="searchTable"  width="100%"><tr><td> MDM Account Id&nbsp;<input id="search-0" name="MDMACCOUNTID" type="text"  style="width:60px "/>&nbsp;&nbsp;&nbsp; Account No&nbsp;<input id="search-1" name="ACCOUNTNUMBER" type="text"  style="width:60px "/>&nbsp;&nbsp;&nbsp;Account Name&nbsp;<input id="search-2" name="ACCOUNTNAME" type="text"  style="width:60px "/>&nbsp;&nbsp;&nbsp; DQ State&nbsp;<input id="search-4" name="DAQAMETADATA_STATE" type="text"  style="width:60px "/>&nbsp;&nbsp;&nbsp; Cluster Id&nbsp;<input id="search-5" name="DAQAMETADATA_CLUSTERID" type="text"  style="width:60px "/>&nbsp;&nbsp;&nbsp;<input id="clearSearch" value="Clear" type="button"/>&nbsp;&nbsp;&nbsp;';
+            $("div.toolbar").html(searchHtml + '&nbsp;&nbsp;&nbsp;<input id="addressByCluster" name="DAQAMETADATA_CLUSTERID_BUTTON" type="button" value="Get Addresses" /></td></tr></table>');
 
             $("#addressByCluster").on('click', function(e) {
-                var selectedColumn = $("#searchSelect").val();
-                if (selectedColumn == 'DAQAMETADATA_CLUSTERID') {
-                    var clusterId = $("#searchText").val();
-                    //console.log("clusterId=" + clusterId);
+            	
+             
+                    var clusterId = $("#search-5").val();
+                 
                     if (clusterId) {
+                    	
                         if ($('#' + clusterId + '-claddresses').length > 0) {} else {
+                        	
                             $("#address-modals").append("<div id='" + clusterId + "-claddresses' style='display: none'><b>Loading...</b></div>");
                             $.ajax({
                                 url: "account/" + clusterId + "/claddress",
                                 success: function(data) {
                                     $("#" + clusterId + '-claddresses').html(data);
                                     $("#addressTable" + clusterId).DataTable({
-                                        scrollY: "200px",
+                                        scrollY: 300,
                                         scrollX: true,
+
                                         colReorder: true
                                     });
                                 }
                             });
                             $("#" + clusterId + '-claddresses').dialog({
-                                /*height: 'auto',*/
-                                minHeight: 310,
+                                height: 'auto',
+                                minHeight: 150,
+                                width: 1200,
                                 /* height: 310,*/
                                 /* width: 1200, */
-                                minWidth: 1200,
+                                minWidth: 400,
                                 title: "Addresses for Account cluster id " + clusterId,
                                 close: function(e, ui) {
                                     $(this).dialog('destroy').remove();
@@ -428,8 +589,17 @@
                     } else {
                         alert("Please enter search value for Cluster Id");
                     }
-                }
+                //}
             });
+            function SetWidth(){
+                var ths = $('th');
+                var element = ths[0];
+                element.style.width = 100;
+            }
+
+
+                $('.dataTables_scrollBody').css('height', $(window).height()-152);
+                $(".ui-dialog-content").height($(".ui-resizable").height());
         }); //document ready
         /*]]>*/
     </script>
