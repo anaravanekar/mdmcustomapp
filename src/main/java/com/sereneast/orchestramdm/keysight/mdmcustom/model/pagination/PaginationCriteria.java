@@ -154,8 +154,9 @@ public class PaginationCriteria {
 			while (fbit.hasNext()) {
 				
 				Entry<String, String> pair =  fbit.next();
-
+                
 				if(null == fbsb) {
+					
 					fbsb = new StringBuilder();
 					fbsb.append(BRKT_OPN);
 
@@ -171,7 +172,19 @@ public class PaginationCriteria {
 											.append(LIKE_SUFFIX)
 												.append(BRKT_CLS);
 
-				} else {
+				} else if(ACCOUNT_NAME.equalsIgnoreCase(pair.getKey()) || DQ_State.equalsIgnoreCase(pair.getKey())  ){
+					fbsb.append(filterBy.isGlobalSearch() ? OR : AND)
+					.append(BRKT_OPN)
+					.append(UPPER)
+					.append(BRKT_OPN)
+						  .append(pair.getKey())
+						  .append(BRKT_CLS)
+							.append(LIKE_PREFIX)
+								.append(pair.getValue())
+									.append(LIKE_SUFFIX)
+										.append(BRKT_CLS);
+				}
+				else {
 
 					fbsb.append(filterBy.isGlobalSearch() ? OR : AND)
 							.append(BRKT_OPN)
@@ -254,6 +267,17 @@ public class PaginationCriteria {
 	
 	/** The Constant DRAW. */
 	public static final String UPPER = "upper";
+	
+	/** The Constant DRAW. */
+	public static final String ACCOUNT_NAME = "ACCOUNTNAME";
+	
+	/** The Constant DRAW. */
+	public static final String DQ_State = "DAQAMETADATA_STATE";
+	
+	
+	
+	
+	
 
 	@Override
 	public String toString() {
