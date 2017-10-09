@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+
+    <title>Accounts</title>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css"/>
+
+    <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+    <![endif]-->
+    <style type="text/css">
+
+/* Eric Meyer's browser rest css ..........begin*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	font-weight: inherit;
+	font-style: inherit;
+	font-size: 100%;
+	font-family: inherit;
+	vertical-align: baseline;
+}
+/* remember to define focus styles! */
+:focus {
+	outline: 0;
+}
+body {
+	line-height: 1;
+	color: black;
+	background: white;
+}
+ol, ul {
+	list-style: none;
+}
+/* tables still need 'cellspacing="0"' in the markup */
+table {
+	border-collapse: separate;
+	border-spacing: 0;
+}
+caption, th, td {
+	text-align: left;
+	font-weight: normal;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: "";
+}
+blockquote, q {
+	quotes: "" "";
+}
+
+/* Eric Meyer's browser rest css ............end*/
+
+
+
+table.dataTable {
+    clear: both;
+    margin-top: 0.5px !important;
+    margin-bottom: 0 !important;
+    max-width: none !important;
+    border-collapse: separate !important;
+    margin: 0; !important;
+    border-spacing: 0; !important;
+}
+#table-container {
+	padding-left: 3px;
+	padding-right: 3px;
+	overflow-x: hidden;
+}
+.address-container {
+	padding-left: 3px;
+	padding-right: 3px;
+	overflow-x: hidden;
+}
+.address-container {
+	padding-left: 3px;
+	padding-right: 3px;
+	overflow-x: hidden;
+}
+.searchBox{
+    width: 50px;
+}
+.searchButton{
+    margin-left: 2px;
+}
+</style>
+</head>
+
+<body>
+<div id="table-container" class="table-wrapper">
+    <table id="accountTable" class="table table-condensed table-striped table-bordered table-hover nowrap" cellspacing="0" width="100%">
+        <thead>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+<div id="address-modals"></div>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/colreorder/1.4.1/js/dataTables.colReorder.min.js"></script>
+<script type="text/javascript" th:inline="javascript">
+        /*<![CDATA[*/
+$(document).ready(function() {
+    var searchableColumnsMap = new Map();
+    searchableColumnsMap.set("MDMACCOUNTID", 0);
+    searchableColumnsMap.set("ACCOUNTNUMBER", 1);
+    searchableColumnsMap.set("ACCOUNTNAME", 2);
+    searchableColumnsMap.set("DAQAMETADATA_STATE", 4);
+    searchableColumnsMap.set("DAQAMETADATA_CLUSTERID", 5);
+    var accountTable = $('#accountTable').DataTable({
+        dom: 'l<"toolbar">frtip',
+        pageLength: 50,
+		scrollY: '82vh',
+		scrollX: true,
+		scrollCollapse: true,
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: 'accounts',
+            type: 'POST'
+        },
+        columns: [
+            {
+                'title': 'MDM Account Id',
+                'data': 'MDMACCOUNTID',
+                'name': 'MDMACCOUNTID',
+                'width': 120,
+                'searchable': true
+            },
+            {
+                'title': 'Account Number',
+                'data': 'ACCOUNTNUMBER',
+                'name': 'ACCOUNTNUMBER',
+                'searchable': true
+            },
+            {
+                'title': 'Account Name',
+                'data': 'ACCOUNTNAME',
+                'name': 'ACCOUNTNAME',
+                'searchable': true
+            },
+            {
+                "title": 'Address',
+                "data": null,
+                "defaultContent": "<span class='addrlink glyphicon glyphicon-eject'></span>",
+                "searchable": false,
+                "orderable": false
+            },
+            {
+                'title': 'State',
+                'data': 'DAQAMETADATA_STATE',
+                'name': 'DAQAMETADATA_STATE',
+                'searchable': true
+            },
+            {
+                'title': 'Cluster',
+                'data': 'DAQAMETADATA_CLUSTERID',
+                'name': 'DAQAMETADATA_CLUSTERID',
+                'searchable': true
+            },
+            {
+                'title': 'Score(%)',
+                'data': 'DAQAMETADATA_SCORE',
+                'name': 'DAQAMETADATA_SCORE',
+                'searchable': false
+            },
+            {
+                'title': 'Target record',
+                'data': 'DAQAMETADATA_TARGETRECORD_',
+                'name': 'DAQAMETADATA_TARGETRECORD_',
+                'searchable': false
+            },
+            {
+                'title': 'Status',
+                'data': 'STATUS',
+                'name': 'STATUS',
+                'searchable': false
+            },
+            {
+                'title': 'System Id',
+                'data': 'SYSTEMID',
+                'name': 'SYSTEMID',
+                'searchable': false
+            },
+            {
+                'title': 'System Name',
+                'data': 'SYSTEMNAME',
+                'name': 'SYSTEMNAME',
+                'searchable': false
+            },
+            {
+                'title': 'Customer Type',
+                'data': 'CUSTOMERTYPE',
+                'name': 'CUSTOMERTYPE',
+                'searchable': false
+            },
+            {
+                'title': 'Registry Id',
+                'data': 'REGISTRYID',
+                'name': 'REGISTRYID',
+                'searchable': false
+            },
+            {
+                'title': 'Alias',
+                'data': 'ALIAS',
+                'name': 'ALIAS',
+                'searchable': false
+            },
+            {
+                'title': 'Name Pronunciation',
+                'data': 'NAMEPRONUNCIATION',
+                'name': 'NAMEPRONUNCIATION',
+                'searchable': false
+            },
+            {
+                'title': 'Taxpayer Id',
+                'data': 'TAXPAYERID',
+                'name': 'TAXPAYERID',
+                'searchable': false
+            },
+            {
+                'title': 'Tax Registration Number',
+                'data': 'TAXREGISTRATIONNUMBER',
+                'name': 'TAXREGISTRATIONNUMBER',
+                'searchable': false
+            },
+            {
+                'title': 'Customer Category',
+                'data': 'CUSTOMERCATEGORY',
+                'name': 'CUSTOMERCATEGORY',
+                'searchable': false
+            },
+            {
+                'title': 'Account Description',
+                'data': 'ACCOUNTDESCRIPTION',
+                'name': 'ACCOUNTDESCRIPTION',
+                'searchable': false
+            },
+            {
+                'title': 'Region',
+                'data': 'REGION',
+                'name': 'REGION',
+                'searchable': false
+            },
+            {
+                'title': 'Classification',
+                'data': 'CLASSIFICATION',
+                'name': 'CLASSIFICATION',
+                'searchable': false
+            },
+            {
+                'title': 'Account Type',
+                'data': 'ACCOUNTTYPE',
+                'name': 'ACCOUNTTYPE',
+                'searchable': false
+            },
+            {
+                'title': 'Sales Channel',
+                'data': 'SALESCHANNEL',
+                'name': 'SALESCHANNEL',
+                'searchable': false
+            },
+            {
+                'title': 'Reference',
+                'data': 'REFERENCE',
+                'name': 'REFERENCE',
+                'searchable': false
+            },
+            {
+                'title': 'NLS Language Code',
+                'data': 'NLSLANGUAGECODE',
+                'name': 'NLSLANGUAGECODE',
+                'searchable': false
+            },
+            {
+                'title': 'Name Local Language',
+                'data': 'NAMELOCALLANGUAGE',
+                'name': 'NAMELOCALLANGUAGE',
+                'searchable': false
+            },
+            {
+                'title': 'Customer Screening',
+                'data': 'CUSTOMERSCREENING',
+                'name': 'CUSTOMERSCREENING',
+                'searchable': false
+            },
+            {
+                'title': 'Last Credit Review Date',
+                'data': 'LASTCREDITREVIEWDATE',
+                'name': 'LASTCREDITREVIEWDATE',
+                'searchable': false
+            },
+            {
+                'title': 'Next Credit Review Date',
+                'data': 'NEXTCREDITREVIEWDATE',
+                'name': 'NEXTCREDITREVIEWDATE',
+                'searchable': false
+            },
+            {
+                'title': 'Credit Review Cycle',
+                'data': 'CREDITREVIEWCYCLE',
+                'name': 'CREDITREVIEWCYCLE',
+                'searchable': false
+            },
+            {
+                'title': 'Parent Party',
+                'data': 'PARENTPARTY',
+                'name': 'PARENTPARTY',
+                'searchable': false
+            },
+            {
+                'title': 'Emg Last Trans',
+                'data': 'EMGLASTTRANS',
+                'name': 'EMGLASTTRANS',
+                'searchable': false
+            },
+            {
+                'title': 'Grouping Description',
+                'data': 'GROUPINGDESCRIPTION',
+                'name': 'GROUPINGDESCRIPTION',
+                'searchable': false
+            },
+            {
+                'title': 'Grouping Id',
+                'data': 'GROUPINGID',
+                'name': 'GROUPINGID',
+                'searchable': false
+            },
+            {
+                'title': 'IXIA Classification',
+                'data': 'IXIACLASSIFICATION',
+                'name': 'IXIACLASSIFICATION',
+                'searchable': false
+            },
+            {
+                'title': 'Profile Class',
+                'data': 'PROFILECLASS',
+                'name': 'PROFILECLASS',
+                'searchable': false
+            }
+        ],
+        "initComplete": function(settings, json) {
+            //console.log('init complete');
+            $('#clearSearch').on('click', function(e) {
+                //console.log("clear clicked");
+                $('.searchBox').val('');
+                accountTable.search('').columns().search('').draw();
+            });
+
+            $('.searchBox').on('keyup', function(e) {
+                var that = this;
+                if (e.keyCode == 13) {
+                     var colIndex = searchableColumnsMap.get(that.name);
+                     //console.log('colIndex='+colIndex);
+                     if (accountTable.column(colIndex).search() != that.value) {
+                        accountTable
+                            .column(colIndex)
+                            .search(that.value)
+                            .draw();
+                    }
+                }
+            });
+
+            $("#accountTable").on('click', '.addrlink', function() {
+                var rowData = accountTable.cell(this.parentElement).data();
+                var accountName = rowData["ACCOUNTNAME"];
+                var mdmId = rowData["MDMACCOUNTID"];
+                var accountNumber = rowData["ACCOUNTNUMBER"];
+                //console.log(rowData);
+                //console.log(rowData["ACCOUNTNAME"]);
+                //console.log($('#' + mdmId + '-addresses').length);
+                if ($('#' + mdmId + '-addresses').length > 0) {} else {
+                    $("#address-modals").append("<div id='" + mdmId + "-addresses' style='display: none'><b>Loading...</b></div>");
+                    $.ajax({
+                        url: "account/" + mdmId + "/addressnew",
+                        success: function(data) {
+                            $("#" + mdmId + '-addresses').html(data);
+                            $("#addressTable" + mdmId).DataTable({
+                                scrollY: '35vh',
+                                scrollX: true,
+                                scrollCollapse: true,
+                                pageLength: 50,
+                                colReorder: true
+                            });
+                        }
+                    });
+                    $("#" + mdmId + '-addresses').dialog({
+                        height: 'auto',
+                        minHeight: 250,
+                        width: '98%',
+                        title: "Addresses for " + accountName + ", Account No. " + accountNumber,
+                        close: function(e, ui) {
+                            $(this).dialog('destroy').remove();
+                        }
+                    });
+                }
+            });
+        }//init complete
+	});//datatable
+
+    //var searchHtml = '<label>Search&nbsp;&nbsp;&nbsp;</label><select id="searchSelect"><option value="DAQAMETADATA_CLUSTERID">Cluster Id&nbsp;</option><option value="MDMACCOUNTID">MDM Account Id&nbsp;</option><option value="ACCOUNTNUMBER">Account No&nbsp;</option><option value="ACCOUNTNAME">Account Name&nbsp;</option><option value="DAQAMETADATA_STATE">DQ State&nbsp;</option></select>&nbsp;&nbsp;&nbsp;<input id="searchText" name="searchText" type="text"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp<input id="clearSearch" value="Clear" type="button"/>';
+    var searchHtml ='&nbsp;&nbsp;&nbsp;MDM Account ID<input id="search-0" name="MDMACCOUNTID" type="text"  class="searchBox"/>Account No<input id="search-1" name="ACCOUNTNUMBER" type="text" class="searchBox"/>Account Name<input id="search-2" name="ACCOUNTNAME" type="text" class="searchBox"/>DQ State<input id="search-4" name="DAQAMETADATA_STATE" type="text" class="searchBox"/>Cluster Id<input id="search-5" name="DAQAMETADATA_CLUSTERID" type="text" class="searchBox"/><input id="clearSearch" value="Clear" type="button" class="searchButton"/><input id="addressByCluster" value="Get Addresses" type="button" class="searchButton"/>';
+    $("div.toolbar").html(searchHtml);
+    $("#addressByCluster").on('click', function(e) {
+        var clusterId = $("#search-5").val();
+        if (clusterId) {
+            if ($('#' + clusterId + '-claddresses').length > 0) {} else {
+                $("#address-modals").append("<div id='" + clusterId + "-claddresses' style='display: none'><b>Loading...</b></div>");
+                $.ajax({
+                    url: "account/" + clusterId + "/claddress",
+                    success: function(data) {
+                        $("#" + clusterId + '-claddresses').html(data);
+                        $("#addressTable" + clusterId).DataTable({
+                            scrollY: '35vh',
+                            scrollX: true,
+                            scrollCollapse: true,
+                            pageLength: 50,
+                            colReorder: true
+                        });
+                    }
+                });
+                $("#" + clusterId + '-claddresses').dialog({
+                    height: 'auto',
+                    minHeight: 250,
+                    width: '98%',
+                    title: "Addresses for Account cluster id " + clusterId,
+                    close: function(e, ui) {
+                        $(this).dialog('destroy').remove();
+                    }
+                });
+            }
+        } else {
+            alert("Please enter search value for Cluster Id");
+        }
+    //}
+    });
+
+});//document ready
+		 /*]]>*/
+  </script>
+</body>
+</html>
+
+
