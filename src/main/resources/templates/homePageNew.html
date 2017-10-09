@@ -29,6 +29,7 @@
             padding: 3px 15px;
             border-radius: 0px 0px 0 0;
             color: #FFFFFF;
+            font-size: 13px;
         }
         .toolbar label {
             color: #ffffff;
@@ -73,7 +74,7 @@
         }
         input#addressByCluster {
             height: 30px;
-		    width: 150px;
+		    width: 124px;
 		    border: 1px solid #54576b !important;
 		    background-color: #79fd88;
 		    border-radius: 3px;
@@ -98,17 +99,19 @@
         div#accountTable_info {
             float: left;
             margin-top: 8px;
-            /*position: absolute;*/
+            position: fixed;
             bottom: 13px;
+            margin-left: 15px;
         }
         div#accountTable_paginate {
             margin-top: 7px;
-            /*position: absolute;*/
+            position: fixed;
             right: 19px;
             bottom: 2px;
         }
         .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
-            min-width: 157px;
+            /*min-width: 157px;*/
+            white-space: nowrap;
             font-size: 13px;
             padding: 3px 8px;
         }
@@ -152,8 +155,9 @@
             float: left;
             padding: 0px 7px 0px 7px;
             margin-top: 3px;
-            margin-right: 30px;
+            margin-right: 3px;
             margin-bottom: -2px;
+            font-size: 13px;
         }
         .toolbar input {
             height: 30px;
@@ -165,6 +169,15 @@
         }
         div#accountTable_length label {
             color: #FFFFFF;
+        }
+        .dataTables_length {
+            float: left;
+        }
+        div.dataTables_wrapper div.dataTables_info {
+            float: left;
+        }
+        .ui-dialog .dataTables_wrapper {
+            width: 99%;
         }
     </style>
 </head>
@@ -251,6 +264,7 @@
             //console.log("initializing table");
             //console.log($("#accountTable").html());
             var accountTable = $('#accountTable').DataTable({
+                pageLength: "50",
                 "dom": 'l<"toolbar">Zfrtip',
                 "colResize": {
         			"tableWidthFixed": false
@@ -524,6 +538,7 @@
                                 success: function(data) {
                                     $("#" + mdmId + '-addresses').html(data);
                                     $("#addressTable"+mdmId ).DataTable({
+                                        pageLength: "50",
                                     	"dom": 'Zlfrtip',
                                     	
                                 		"colResize": {
@@ -573,12 +588,13 @@
                     	
                         if ($('#' + clusterId + '-claddresses').length > 0) {} else {
                         	
-                            $("#address-modals").append("<div id='" + clusterId + "-claddresses' style='display: none'><b>Loading...</b></div>");
+                            $("#address-modals").append("<div class='cluster_cls' id='" + clusterId + "-claddresses' style='display: none'><b>Loading...</b></div>");
                             $.ajax({
                                 url: "account/" + clusterId + "/claddress",
                                 success: function(data) {
                                     $("#" + clusterId + '-claddresses').html(data);
                                     $("#addressTable" + clusterId).DataTable({
+                                        pageLength: "50",
                                         scrollY: 300,
                                         scrollX: true,
                                         "dom": 'Zlfrtip',
@@ -589,7 +605,8 @@
                                         colReorder: true,
 										 "initComplete": function(settings, json) {
 											 $("#addressTable" + clusterId).colResizable();
-										 }	 
+										 }
+
                                     });
                                 }
                             });
@@ -618,8 +635,10 @@
             }
 
 
-                $('.dataTables_scrollBody').css('height', $(window).height()-152);
-                $(".ui-dialog-content").height($(".ui-resizable").height());
+                $('.dataTables_scrollBody').css('height', $(window).height()-142);
+
+                $(".dataTables_scrollBody").height($(".dataTables_scroll").height());
+
         }); //document ready
         /*]]>*/
     </script>
