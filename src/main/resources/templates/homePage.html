@@ -89,6 +89,8 @@
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/colreorder/1.4.1/js/dataTables.colReorder.min.js"></script>
+<script type="text/javascript" src="vendor/colResizable-1.6.min.js"></script>
+<script type="text/javascript" src="vendor/dataTables.colResize.js"></script>
 <script type="text/javascript" th:inline="javascript">
         /*<![CDATA[*/
 $(document).ready(function(){
@@ -113,6 +115,7 @@ $(document).ready(function(){
     var accountTable = $('#accountTable').DataTable({
         processing: true,
         serverSide: true,
+        "dom": 'Zlfrtip',
         ajax: {
             url: 'accounts',
             type: 'POST'
@@ -342,6 +345,7 @@ $(document).ready(function(){
             realtime: false
         },*/
         "initComplete": function(settings, json) {
+        	 $('#accountTable').colResizable();
             console.log('init complete');
             //Add dummy elements to header for search
 /*            searchableColumns.forEach(function(currentValue){
@@ -427,9 +431,14 @@ $(document).ready(function(){
                         success: function(data) {
                             $("#" + mdmId + '-addresses').html(data);
                             $("#addressTable"+mdmId).DataTable({
+                            	    "dom": 'Zlfrtip',
                                     scrollY: "200px",
                                     scrollX: true,
-                                    colReorder: true
+                                    colReorder: true,
+                                   
+									 "initComplete": function(settings, json) {
+										 $("#addressTable"+mdmId ).colResizable({live:true});
+									 }	 
                             });
                         }
                     });
