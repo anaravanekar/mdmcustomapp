@@ -138,6 +138,12 @@
         table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after {
             bottom: 2px;
         }
+        .searchBox{
+            width: 50px;
+        }
+        .searchButton{
+            margin-left: 2px;
+        }
     </style>
 </head>
 
@@ -463,41 +469,21 @@
                     //console.log('init complete');
                     $('#clearSearch').on('click', function(e) {
                         //console.log("clear clicked");
-                         $('#search-0').val('');
-                         $('#search-1').val('');
-                         $('#search-2').val('');
-                         $('#search-4').val('');
-                         $('#search-5').val('');
-                         
+                         $('.searchBox').val('');
                         accountTable.search('').columns().search('').draw();
                     });
 
-                    $('#searchSelect').on('change', function(e) {
-                        //console.log("search changed");
-                      $('#search-0').val('');
-                         $('#search-1').val('');
-                         $('#search-2').val('');
-                         $('#search-4').val('');
-                         $('#search-5').val('');
-                        accountTable.search('').columns().search('').draw();
-                    });
-
-                    $('#searchTable :text').on('keyup', function(e) {
+                    $('.searchBox').on('keyup', function(e) {
                         var that = this;
                         if (e.keyCode == 13) {
-                            
-                        	 var colIndex = searchableColumnsMap.get(that.name);//$(searchColumnIndexSelector).parent().data('column-index');
-                             
-                             console.log('colIndex='+colIndex);
+                             var colIndex = searchableColumnsMap.get(that.name);
+                             //console.log('colIndex='+colIndex);
                              if (accountTable.column(colIndex).search() != that.value) {
-                                searchValuesMap.set(that.name,that.value);
                                 accountTable
                                     .column(colIndex)
-                                    
                                     .search(that.value)
                                     .draw();
                             }
-                           
                         }
                     });
 
@@ -553,8 +539,7 @@
             }); //dataTable initialization
            
            
-           // var searchHtml = '<label>Search&nbsp;&nbsp;&nbsp;</label><select id="searchSelect"><option value="DAQAMETADATA_CLUSTERID">Cluster Id&nbsp;</option><option value="MDMACCOUNTID">MDM Account Id&nbsp;</option><option value="ACCOUNTNUMBER">Account No&nbsp;</option><option value="ACCOUNTNAME">Account Name&nbsp;</option><option value="DAQAMETADATA_STATE">DQ State&nbsp;</option></select>&nbsp;&nbsp;&nbsp;<input id="searchText" name="searchText" type="text"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp<input id="clearSearch" value="Clear" type="button"/>';
-           var searchHtml ='<table id="searchTable"  width="100%"><tr><td> MDM Account Id&nbsp;<input id="search-0" name="MDMACCOUNTID" type="text"  style="width:60px "/>&nbsp;&nbsp;&nbsp; Account No&nbsp;<input id="search-1" name="ACCOUNTNUMBER" type="text"  style="width:60px "/>&nbsp;&nbsp;&nbsp;Account Name&nbsp;<input id="search-2" name="ACCOUNTNAME" type="text"  style="width:60px "/>&nbsp;&nbsp;&nbsp; DQ State&nbsp;<input id="search-4" name="DAQAMETADATA_STATE" type="text"  style="width:60px "/>&nbsp;&nbsp;&nbsp; Cluster Id&nbsp;<input id="search-5" name="DAQAMETADATA_CLUSTERID" type="text"  style="width:60px "/>&nbsp;&nbsp;&nbsp;<input id="clearSearch" value="Clear" type="button"/>&nbsp;&nbsp;&nbsp;';
+            var searchHtml ='&nbsp;&nbsp;&nbsp;MDM Account ID<input id="search-0" name="MDMACCOUNTID" type="text"  class="searchBox"/>Account No<input id="search-1" name="ACCOUNTNUMBER" type="text" class="searchBox"/>Account Name<input id="search-2" name="ACCOUNTNAME" type="text" class="searchBox"/>DQ State<input id="search-4" name="DAQAMETADATA_STATE" type="text" class="searchBox"/>Cluster Id<input id="search-5" name="DAQAMETADATA_CLUSTERID" type="text" class="searchBox"/><input id="clearSearch" value="Clear" type="button" class="searchButton"/><input id="addressByCluster" value="Get Addresses" type="button" class="searchButton"/>';
             $("div.toolbar").html(searchHtml + '&nbsp;&nbsp;&nbsp;<input id="addressByCluster" name="DAQAMETADATA_CLUSTERID_BUTTON" type="button" value="Get Addresses" /></td></tr></table>');
 
             $("#addressByCluster").on('click', function(e) {
