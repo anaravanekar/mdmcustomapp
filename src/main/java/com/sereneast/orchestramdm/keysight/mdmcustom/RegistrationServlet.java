@@ -7,9 +7,8 @@ import com.orchestranetworks.module.ModuleRegistrationServlet;
 import com.orchestranetworks.module.ModuleServiceRegistrationContext;
 import com.orchestranetworks.schema.Path;
 import com.orchestranetworks.service.ServiceKey;
-import com.sereneast.orchestramdm.keysight.mdmcustom.service.RecordSampleServiceDeclaration;
-import com.sereneast.orchestramdm.keysight.mdmcustom.service.RecordUpdateShowUpdatedByService;
-import com.sereneast.orchestramdm.keysight.mdmcustom.service.RecordWithToolbarSampleService;
+import com.sereneast.orchestramdm.keysight.mdmcustom.service.AccountPublishService;
+import com.sereneast.orchestramdm.keysight.mdmcustom.service.AddressPublishService;
 import com.sereneast.orchestramdm.keysight.mdmcustom.service.TableViewSampleServiceDeclaration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,19 +18,27 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("serial")
 public class RegistrationServlet extends ModuleRegistrationServlet {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationServlet.class);
+
 	@Override
 	public void handleServiceRegistration(ModuleServiceRegistrationContext aContext)
 	{
 
-//		LOGGER.info("In RegistrationServlet. Registering module: mdmcustomapp.");
+		LOGGER.info("In RegistrationServlet. Registering module: mdmcustomapp.");
 		// Register custom user service declaration.
-	/*	aContext.registerUserService(new TableViewSampleServiceDeclaration(
-				ServiceKey.forModuleServiceName("mdmcustomapp",RecordWithToolbarSampleService.class.getSimpleName()),
-				RecordWithToolbarSampleService.class,
+		aContext.registerUserService(new TableViewSampleServiceDeclaration(
+				ServiceKey.forModuleServiceName("mdmcustomapp",AccountPublishService.class.getSimpleName()),
+				AccountPublishService.class,
 				"Promote and Publish",
 				"Promote and Publish",
 				"",-1,
-				toPath("/root/Account")));*/
+				toPath("/root/Account")));
+		aContext.registerUserService(new TableViewSampleServiceDeclaration(
+				ServiceKey.forModuleServiceName("mdmcustomapp",AddressPublishService.class.getSimpleName()),
+				AddressPublishService.class,
+				"Promote and Publish",
+				"Promote and Publish",
+				"",-1,
+				toPath("/root/Address")));
 	}
 	/*public void init(ServletConfig config) throws ServletException {
 		super.init(config);

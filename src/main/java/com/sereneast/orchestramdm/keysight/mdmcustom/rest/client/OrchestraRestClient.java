@@ -5,6 +5,7 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.Applicati
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectListResponse;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraResponseDetails;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +85,7 @@ public class OrchestraRestClient {
         return null;
     }
 
-    public OrchestraResponseDetails insert(final String dataSpace, final String dataSet, final String path, OrchestraObjectList requestObject, final Map<String,String> parameters) throws IOException {
+    public Response insert(final String dataSpace, final String dataSet, final String path, OrchestraObjectList requestObject, final Map<String,String> parameters) throws IOException {
         Client client = ClientBuilder.newClient();
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -102,14 +103,21 @@ public class OrchestraRestClient {
             LOGGER.info(String.valueOf(response.getStatus()));
             LOGGER.info(response.getStatusInfo().toString());
 
-            if (response.getStatus() == 200) {
-                OrchestraResponseDetails responseJson = mapper.readValue(response.readEntity(String.class), OrchestraResponseDetails.class);
-                LOGGER.info(mapper.writeValueAsString(responseJson));
-                return responseJson;
+            return response;
+
+/*            if (response.getStatus() == 200) {
+                response.bufferEntity();
+                if(StringUtils.isNotBlank(response.readEntity(String.class))) {
+                    OrchestraResponseDetails responseJson = mapper.readValue(response.readEntity(String.class), OrchestraResponseDetails.class);
+                    LOGGER.info(mapper.writeValueAsString(responseJson));
+                    return responseJson;
+                }else{
+                    return new OrchestraResponseDetails();
+                }
             }else{
                 LOGGER.info("response: "+mapper.writeValueAsString(response.getEntity()));
                 throw new RuntimeException("Error inserting records");
-            }
+            }*/
         }finally{
             client.close();
         }
