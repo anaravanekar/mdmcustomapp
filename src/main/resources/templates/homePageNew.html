@@ -26,8 +26,9 @@
         }
         .toolbar {
             background: #6d7082;
-            padding: 4px 15px;
+            padding: 3px 15px;
             border-radius: 0px 0px 0 0;
+            color: #FFFFFF;
         }
         .toolbar label {
             color: #ffffff;
@@ -144,6 +145,27 @@
         .searchButton{
             margin-left: 2px;
         }
+        div#addressTable1_length {
+            float: left;
+        }
+        div#accountTable_length {
+            float: left;
+            padding: 0px 7px 0px 7px;
+            margin-top: 3px;
+            margin-right: 30px;
+            margin-bottom: -2px;
+        }
+        .toolbar input {
+            height: 30px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            margin-left: 4px;
+            margin-right: 16px;
+            color: #4c4c4c;
+        }
+        div#accountTable_length label {
+            color: #FFFFFF;
+        }
     </style>
 </head>
 
@@ -229,7 +251,7 @@
             //console.log("initializing table");
             //console.log($("#accountTable").html());
             var accountTable = $('#accountTable').DataTable({
-                "dom": '<"toolbar">Zlfrtip',
+                "dom": 'l<"toolbar">Zfrtip',
                 "colResize": {
         			"tableWidthFixed": false
         		},
@@ -540,7 +562,7 @@
            
            
             var searchHtml ='&nbsp;&nbsp;&nbsp;MDM Account ID<input id="search-0" name="MDMACCOUNTID" type="text"  class="searchBox"/>Account No<input id="search-1" name="ACCOUNTNUMBER" type="text" class="searchBox"/>Account Name<input id="search-2" name="ACCOUNTNAME" type="text" class="searchBox"/>DQ State<input id="search-4" name="DAQAMETADATA_STATE" type="text" class="searchBox"/>Cluster Id<input id="search-5" name="DAQAMETADATA_CLUSTERID" type="text" class="searchBox"/><input id="clearSearch" value="Clear" type="button" class="searchButton"/><input id="addressByCluster" value="Get Addresses" type="button" class="searchButton"/>';
-            $("div.toolbar").html(searchHtml + '&nbsp;&nbsp;&nbsp;<input id="addressByCluster" name="DAQAMETADATA_CLUSTERID_BUTTON" type="button" value="Get Addresses" /></td></tr></table>');
+            $("div.toolbar").html(searchHtml);
 
             $("#addressByCluster").on('click', function(e) {
             	
