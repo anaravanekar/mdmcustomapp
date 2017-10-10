@@ -181,9 +181,9 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                 }
                 orchestraObject.setContent(jsonFieldsMap);
                 if("ACCOUNT".equals(objectName)) {
-                    parentDsMap.put((Integer)orchestraObject.getContent().get("MDMAccountId").getContent(), orchestraObject);
+                    parentDsMap.put((Integer)orchestraObject.getContent().get("MDMAccountId").getContent(), getCopy(orchestraObject));
                 }else{
-                    parentDsMap.put((Integer)orchestraObject.getContent().get("MDMAddressId").getContent(), orchestraObject);
+                    parentDsMap.put((Integer)orchestraObject.getContent().get("MDMAddressId").getContent(), getCopy(orchestraObject));
                 }
                 orchestraObjects.add(orchestraObject);
             }
@@ -265,7 +265,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                         ProcedureResult result = null;
                         try {
                             result = svc.execute(procedure);
-                      /*      List<OrchestraObject> objList = new ArrayList<>();
+                            List<OrchestraObject> objList = new ArrayList<>();
                             OrchestraObjectList orows = new OrchestraObjectList();
                             if ("ACCOUNT".equals(objectName)) {
                                 OrchestraObject obj = parentDsMap.get(record.get_int(Paths._Account._MDMAccountId));
@@ -281,7 +281,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                                 orows.setRows(objList);
                                 LOGGER.debug("orows:"+mapper.writeValueAsString(orows));
                                 response = orchestraRestClient.insert(DATA_SPACE, DATA_SET, PATH_ADDRESS, orows, parameters);
-                            } */
+                            }
                         }catch(Exception e){
                             errorMessage = ERROR_UPDATING_FLAG;
                             throw new ApplicationRuntimeException(ERROR_UPDATING_FLAG,e);
@@ -306,6 +306,16 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             aWriter.add("ERROR: "+errorMessage);
             LOGGER.error("Error publishing records: \n",e);
         }
+    }
+
+    private OrchestraObject getCopy(OrchestraObject orchestraObject) {
+        OrchestraObject resultObject = new OrchestraObject();
+        Map<String,OrchestraContent> contents = new HashMap<>();
+        for(String key:orchestraObject.getContent().keySet()){
+            contents.put(key,orchestraObject.getContent().get(key));
+        }
+        resultObject.setContent(contents);
+        return resultObject;
     }
 
     public String getObjectName() {

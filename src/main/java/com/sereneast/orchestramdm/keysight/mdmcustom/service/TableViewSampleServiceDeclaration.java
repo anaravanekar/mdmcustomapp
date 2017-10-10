@@ -3,7 +3,9 @@
  */
 package com.sereneast.orchestramdm.keysight.mdmcustom.service;
 
+import com.orchestranetworks.instance.Repository;
 import com.orchestranetworks.schema.Path;
+import com.orchestranetworks.schema.types.dataspace.DataspaceSet;
 import com.orchestranetworks.service.ServiceKey;
 import com.orchestranetworks.ui.selection.TableViewEntitySelection;
 import com.orchestranetworks.userservice.UserService;
@@ -47,6 +49,10 @@ implements UserServiceDeclaration.OnTableView
 	@Override
 	public void defineActivation(ActivationContextOnTableView aDefinition)
 	{
+		// activates the service in all dataspaces except the "Reference" branch.
+		aDefinition.includeAllDataspaces(DataspaceSet.DataspaceType.BRANCH);
+		aDefinition.excludeDataspacesMatching(Repository.REFERENCE, DataspaceSet.DataspaceChildrenPolicy.NONE);
+
 		aDefinition.includeSchemaNodesMatching(this.tables);
 
 		if (this.selectedRecordCount >= 1)
