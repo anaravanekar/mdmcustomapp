@@ -178,6 +178,59 @@
         }
         .ui-dialog .dataTables_wrapper {
             width: 99%;
+            min-height: 150px;
+        }
+        .cluster_cls .dataTables_scrollBody {
+            position: absolute !important;
+            top: 60px;
+            bottom: 53px;
+            left: 0;
+            right: 0;
+
+        }
+        .cluster_cls {
+            position: absolute !important;
+            left: 0;
+            right: 0;
+            top: 34px;
+            bottom: 0;
+        }
+        .cluster_cls div.dataTables_wrapper div.dataTables_paginate {
+            position: absolute;
+            right: 10px;
+            bottom: 8px;
+        }
+        .cluster_cls div.dataTables_wrapper div.dataTables_info {
+            position: absolute;
+            bottom: 24px;
+            left: 8px;
+        }
+
+
+        .cluster_cls2 .dataTables_scrollBody {
+            position: absolute !important;
+            top: 60px;
+            bottom: 53px;
+            left: 0;
+            right: 0;
+
+        }
+        .cluster_cls2 {
+            position: absolute !important;
+            left: 0;
+            right: 0;
+            top: 34px;
+            bottom: 0;
+        }
+        .cluster_cls2 div.dataTables_wrapper div.dataTables_paginate {
+            position: absolute;
+            right: 10px;
+            bottom: 8px;
+        }
+        .cluster_cls2 div.dataTables_wrapper div.dataTables_info {
+            position: absolute;
+            bottom: 24px;
+            left: 8px;
         }
     </style>
 </head>
@@ -532,7 +585,7 @@
                         //console.log(rowData["ACCOUNTNAME"]);
                         //console.log($('#' + mdmId + '-addresses').length);
                         if ($('#' + mdmId + '-addresses').length > 0) {} else {
-                            $("#address-modals").append("<div id='" + mdmId + "-addresses' style='display: none'><b>Loading...</b></div>");
+                            $("#address-modals").append("<div class='cluster_cls2' id='" + mdmId + "-addresses' style='display: none'><b>Loading...</b></div>");
                             $.ajax({
                                 url: "account/" + mdmId + "/addressnew",
                                 success: function(data) {
@@ -544,15 +597,16 @@
                                 		"colResize": {
                                 			"tableWidthFixed": false
                                 		},
-                                        scrollY: "auto",
+                                        scrollY: true,
                                         scrollX: true,
-                                        minHeight: 0,
+                                        minHeight: 100,
+                                        maxHeight: 200,
                                         colReorder: true,
 										 "initComplete": function(settings, json) {
 											 $("#addressTable"+mdmId ).colResizable({live:true});
 										 }	 
                                     });
-                                    
+                                    $('.ui-resizable').css('height', $(window).height()-200);
                                    
                                 }
                             });
@@ -595,8 +649,9 @@
                                     $("#" + clusterId + '-claddresses').html(data);
                                     $("#addressTable" + clusterId).DataTable({
                                         pageLength: "50",
-                                        scrollY: 300,
+                                        scrollY: true,
                                         scrollX: true,
+                                        minHeight: 150,
                                         "dom": 'Zlfrtip',
 
                                 		"colResize": {
@@ -608,6 +663,7 @@
 										 }
 
                                     });
+                                    $('.ui-dialog').css('height', $(window).height()-190);
                                 }
                             });
                             $("#" + clusterId + '-claddresses').dialog({
@@ -638,6 +694,11 @@
                 $('.dataTables_scrollBody').css('height', $(window).height()-142);
 
                 $(".dataTables_scrollBody").height($(".dataTables_scroll").height());
+
+
+                var divHeight = $('.cluster_cls').height();
+                $('.ui-dialog').css('min-height', divHeight+'px');
+
 
         }); //document ready
         /*]]>*/
