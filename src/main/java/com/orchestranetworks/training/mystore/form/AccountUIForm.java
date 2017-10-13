@@ -16,7 +16,14 @@ import com.orchestranetworks.ui.form.UIFormPaneWithTabs;
  */
 public class AccountUIForm  extends UIForm{
 	
+	@Override
+	public void defineHeader(final UIFormHeader header, final UIFormContext context) {
 	
+	super.defineHeader(header, context);
+	
+	header.setTitle(new UIFormLabelSpec("Account"));
+	
+	}
 	
 	@Override
 	public void defineBody(final UIFormBody body, final UIFormContext context) {
