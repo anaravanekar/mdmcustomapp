@@ -15,16 +15,16 @@ import org.slf4j.LoggerFactory;
 import java.util.Locale;
 import java.util.Map;
 
-public class AddressPublishService extends PublishService {
+public class AccountPublishRecursiveService extends PublishServiceRecursive {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AddressPublishService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccountPublishRecursiveService.class);
 
-    public AddressPublishService() throws ClassNotFoundException, IllegalAccessException {
+    public AccountPublishRecursiveService() throws ClassNotFoundException, IllegalAccessException {
         super();
-        setObjectName("ADDRESS");
-        setDaqaTargetFieldPath(Paths._Address._DaqaMetaData_TargetRecord);
-        setJitterbitBaseUrl("https://Keysight.jitterbit.net/Development/1.0/MDM_Customer_Address");
-        setFlagFieldPath(Paths._Address._Published);
+        setObjectName("ACCOUNT");
+        setDaqaTargetFieldPath(Paths._Account._DaqaMetaData_TargetRecord);
+        setJitterbitBaseUrl("https://Keysight.jitterbit.net/Development/1.0/MDM_Customer_to_Oracle");
+        setFlagFieldPath(Paths._Account._Published);
         setJitterbitrp("Keysight@123");
         setJitterbitUsername("MDM_USER");
         setMdmRestBaseUrl("http://localhost:8080/ebx-dataservices/rest/data/v1");
@@ -32,15 +32,15 @@ public class AddressPublishService extends PublishService {
         setMdmrp("admin");
         setReferenceDataSpaceUrl("BReference");
         setReferenceDataSetUrl("Account");
-        setTablePathUrl("root/Address");
-        setObjectPrimaryKeyPath(Paths._Address._MDMAddressId);
+        setTablePathUrl("root/Account");
+        setObjectPrimaryKeyPath(Paths._Account._MDMAccountId);
         setObjectPrimaryKeyType(Integer.class);
-        setTablePathInSchema(Paths._Address.getPathInSchema());
-        setSystemIdPath(Paths._Address._SystemId);
-        setSystemNamePath(Paths._Address._SystemName);
+        setTablePathInSchema(Paths._Account.getPathInSchema());
+        setSystemIdPath(Paths._Account._SystemId);
+        setSystemNamePath(Paths._Account._SystemName);
         Map<String, Path> pathFieldsMap = null;
         ApplicationCacheUtil applicationCacheUtil = new ApplicationCacheUtil();
-        setFieldPathMap(applicationCacheUtil.getObjectDirectFields(Paths._Address.class.getName()));
+        setFieldPathMap(applicationCacheUtil.getObjectDirectFields(Paths._Account.class.getName()));
     }
 
     @Override
@@ -54,8 +54,8 @@ public class AddressPublishService extends PublishService {
         RequestResult result = aContext.getEntitySelection().getSelectedRecords().execute();
         int i= 0;
         for (Adaptation record; (record = result.nextAdaptation()) != null; ) {
-            ObjectKey oKey = null;//
-            oKey = ObjectKey.forName("ADDRESS"+i);
+            ObjectKey oKey = null;
+            oKey = ObjectKey.forName("ACCOUNT"+i);
             aBuilder.registerRecordOrDataSet(oKey,record);
             getObjectKeys().add(oKey);
             i++;

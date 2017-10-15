@@ -15,11 +15,11 @@ import org.slf4j.LoggerFactory;
 import java.util.Locale;
 import java.util.Map;
 
-public class AddressPublishService extends PublishService {
+public class AddressPublishRecursiveService extends PublishServiceRecursive {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AddressPublishService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddressPublishRecursiveService.class);
 
-    public AddressPublishService() throws ClassNotFoundException, IllegalAccessException {
+    public AddressPublishRecursiveService() throws ClassNotFoundException, IllegalAccessException {
         super();
         setObjectName("ADDRESS");
         setDaqaTargetFieldPath(Paths._Address._DaqaMetaData_TargetRecord);

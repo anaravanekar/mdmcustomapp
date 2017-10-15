@@ -5,6 +5,6 @@
 	<servlet>
 		<servlet-name>RegistrationServlet</servlet-name>
 		<servlet-class>com.sereneast.orchestramdm.keysight.mdmcustom.RegistrationServlet</servlet-class>
-		<load-on-startup>2</load-on-startup>
+		<load-on-startup>1</load-on-startup>
 	</servlet>
 </web-app>

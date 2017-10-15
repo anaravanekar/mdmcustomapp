@@ -10,6 +10,7 @@ import com.orchestranetworks.service.ProgrammaticService;
 import com.orchestranetworks.service.ValueContextForUpdate;
 import com.orchestranetworks.ui.selection.RecordEntitySelection;
 import com.orchestranetworks.userservice.*;
+import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths._Account;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.ModifiedByStore;
 import org.slf4j.Logger;
@@ -22,6 +23,10 @@ public class RecordUpdateShowUpdatedByService implements UserService<RecordEntit
 	private static final Logger LOGGER = LoggerFactory.getLogger(RecordUpdateShowUpdatedByService.class);
 	private final static ObjectKey accountObjectKey = ObjectKey.forName("account");
 	private final static ObjectKey addressObjectKey = ObjectKey.forName("address");
+
+	public static final String CELL_STYLE = "width:80%; padding:5px; vertical-align:top;text-align:right;";
+	public static final String CELL_STYLE_LEFT = "width:80%; padding:5px; vertical-align:top;";
+	public static final String ADDRESS_STYLE = "margin:10px";
 
 	public RecordUpdateShowUpdatedByService()
 	{
@@ -40,7 +45,7 @@ public class RecordUpdateShowUpdatedByService implements UserService<RecordEntit
 		{
 			LOGGER.info("is Initial Display: "+aContext.getSession().getUserReference().getUserId());
 			Adaptation record = aContext.getEntitySelection().getRecord();
-			Procedure procedure = aContext1 -> {
+/*			Procedure procedure = aContext1 -> {
                 ValueContextForUpdate valueContextForUpdate = aContext1.getContext(record.getAdaptationName());
                 valueContextForUpdate.setValue(aContext1.getSession().getUserReference().getUserId(), _Account._AccountName);//TODO change
 				aContext1.doModifyContent(record,valueContextForUpdate);
@@ -51,7 +56,7 @@ public class RecordUpdateShowUpdatedByService implements UserService<RecordEntit
 				LOGGER.info("proc failed "+result.getExceptionFullMessage(Locale.ENGLISH));
 			}else{
 				LOGGER.info("proc success ");
-			}
+			}*/
 			aBuilder.registerRecordOrDataSet(accountObjectKey, record);
 		}
 	}
@@ -63,14 +68,14 @@ public class RecordUpdateShowUpdatedByService implements UserService<RecordEntit
 			UserServiceSetupDisplayContext<RecordEntitySelection> aContext,
 			UserServiceDisplayConfigurator aConfigurator)
 	{
-		aConfigurator.setDefaultButtons(new UserServiceEvent()
+		/*aConfigurator.setDefaultButtons(new UserServiceEvent()
 		{
 			@Override
 			public UserServiceEventOutcome processEvent(UserServiceEventContext aContext)
 			{
 				return RecordUpdateShowUpdatedByService.this.onSave(aContext);
 			}
-		});
+		});*/
 
 		aConfigurator.setContent(new UserServicePane()
 		{
@@ -105,59 +110,352 @@ public class RecordUpdateShowUpdatedByService implements UserService<RecordEntit
 		String className = aContext.getValueContext(accountObjectKey).getValue().getClass().getSimpleName();
 		String rec = aContext.getValueContext(accountObjectKey).toString();
 		String node = aContext.getValueContext(accountObjectKey).getNode().toString();
-		String openedByUser = ModifiedByStore.processRecordModifiedBy("GET",aContext.getValueContext(accountObjectKey).getValue(_Account._MDMAccountId).toString(),null);
+		String openedByUser = String.valueOf(aContext.getValueContext(accountObjectKey).getValue(_Account._AssignedTo));//ModifiedByStore.processRecordModifiedBy("GET",aContext.getValueContext(accountObjectKey).getValue(_Account._MDMAccountId).toString(),null);
 		LOGGER.info("\n\n\n\nuserId: "+userId+" className: "+className+" rec: "+rec+" node: "+node);
 		if(openedByUser!=null) {
 			aWriter.add("Note: Record has been opened for modification by : " +openedByUser);
 		}else{
-			String recordId = aContext.getValueContext(accountObjectKey).getValue(_Account._MDMAccountId).toString();
+			/*String recordId = aContext.getValueContext(accountObjectKey).getValue(_Account._MDMAccountId).toString();
 			LOGGER.info("\n\n\nrecordId: "+recordId);
 			ModifiedByStore.processRecordModifiedBy("PUT",recordId,userId);
-			aWriter.add("userId: "+userId+" recid: " +recordId);
+			aWriter.add("userId: "+userId+" recid: " +recordId);*/
 		}
-//		ModifiedByStore.processRecordModifiedBy("PUT",)
+
+//		aWriter.startTableFormRow();
+		aWriter.setCurrentObject(accountObjectKey);
+		aWriter.add("<table>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td colspan=\"1\" style=\"" + CELL_STYLE + "\">");
 		aWriter.startTableFormRow();
-
-		/*// Display the directory company name data set field in read only mode.
-		aWriter.setCurrentObject(accountObjectKey);
-		UIWidget company = aWriter.newBestMatching(Paths._Account);
-		company.setEditorDisabled(true);*/
-
-		// Display person
-		aWriter.setCurrentObject(accountObjectKey);
-
-		aWriter.addFormRow(_Account._AccountName);
-		aWriter.addFormRow(_Account._AccountNumber);
-		aWriter.addFormRow(_Account._AccountType);
-		aWriter.addFormRow(_Account._Alias);
-		aWriter.addFormRow(_Account._AccountDescription);
-//		aWriter.addFormRow(_Account._CalcAccountName);
-		aWriter.addFormRow(_Account._Classification);
-		aWriter.addFormRow(_Account._CreditReviewCycle);
-		aWriter.addFormRow(_Account._CustomerCategory);
-		aWriter.addFormRow(_Account._CustomerScreening);
-		aWriter.addFormRow(_Account._CustomerType);
-		aWriter.addFormRow(_Account._EmgLastTrans);
-		aWriter.addFormRow(_Account._GroupingDescription);
-		aWriter.addFormRow(_Account._GroupingId);
-		aWriter.addFormRow(_Account._IXIAClassification);
-		aWriter.addFormRow(_Account._LastCreditReviewDate);
-		aWriter.addFormRow(_Account._MDMAccountId);
-		aWriter.addFormRow(_Account._NameLocalLanguage);
-		aWriter.addFormRow(_Account._NamePronunciation);
-		aWriter.addFormRow(_Account._NextCreditReviewDate);
-		aWriter.addFormRow(_Account._NLSLanguageCode);
-		aWriter.addFormRow(_Account._ProfileClass);
-		aWriter.addFormRow(_Account._Reference);
-		aWriter.addFormRow(_Account._Region);
-		aWriter.addFormRow(_Account._RegistryId);
-		aWriter.addFormRow(_Account._RelatedAddress);
-		aWriter.addFormRow(_Account._SalesChannel);
-		aWriter.addFormRow(_Account._Status);
-		aWriter.addFormRow(_Account._SystemId);
-		aWriter.addFormRow(_Account._SystemName);
-		aWriter.addFormRow(_Account._TaxpayerId);
+		aWriter.addFormRow(Paths._Account._AssignedTo);
 		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td>");
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+		// row end
+
+		aWriter.add("<tr>");
+		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._CustomerType);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td>");
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+		aWriter.add("<tr>");
+
+
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._AccountName);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._Country);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+		aWriter.add("<tr>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._Notes);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._AccountType);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._AccountDescription);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._Alias);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._NamePronunciation);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._Status);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+		aWriter.add("<tr>");
+
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._SystemName);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._SystemId);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td colspan=\"2\">");
+		aWriter.add("<div style=\"" + ADDRESS_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._RelatedAddress);
+		aWriter.endTableFormRow();
+		aWriter.add("</div>");
+		aWriter.add("</tr>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._RegistryId);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+		aWriter.add("<tr>");
+
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._GroupingId);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._GroupingDescription);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._ISGClassification);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+		aWriter.add("<tr>");
+
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._TaxpayerId);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._TaxRegistrationNumber);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._Region);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+		aWriter.add("<tr>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._Classification);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+		aWriter.add("<tr>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._SalesChannel);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+		aWriter.add("<tr>");
+
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._NLSLanguageCode);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._NameLocalLanguage);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._CustomerScreening);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+		aWriter.add("<tr>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._LastCreditReviewDate);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+		aWriter.add("<tr>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._NextCreditReviewDate);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+		aWriter.add("<tr>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._CreditReviewCycle);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+		aWriter.add("<tr>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._ParentParty);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+		aWriter.add("<tr>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._EmgLastTrans);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+		aWriter.add("<tr>");
+
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._PaymentReceiptMethod);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._PrimaryPayment);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+
+		aWriter.add("<td style=\"" + CELL_STYLE_LEFT + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._PaymentStartDate);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE_LEFT + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._PaymentEndDate);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._Published);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._BatchCode);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+
+		aWriter.add("<tr>");
+		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(Paths._Account._DaqaMetaData_TargetRecord);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+		aWriter.add("<tr>");
+
+
+		aWriter.add("</table>");
+//		aWriter.endTableFormRow();
+
 	}
 
 	/**

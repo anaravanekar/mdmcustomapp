@@ -7,9 +7,7 @@ import com.orchestranetworks.module.ModuleRegistrationServlet;
 import com.orchestranetworks.module.ModuleServiceRegistrationContext;
 import com.orchestranetworks.schema.Path;
 import com.orchestranetworks.service.ServiceKey;
-import com.sereneast.orchestramdm.keysight.mdmcustom.service.AccountPublishService;
-import com.sereneast.orchestramdm.keysight.mdmcustom.service.AddressPublishService;
-import com.sereneast.orchestramdm.keysight.mdmcustom.service.TableViewSampleServiceDeclaration;
+import com.sereneast.orchestramdm.keysight.mdmcustom.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +37,27 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Promote and Publish",
 				"",-1,
 				toPath("/root/Address")));
+		aContext.registerUserService(new TableViewSampleServiceDeclaration(
+				ServiceKey.forModuleServiceName("mdmcustomapp",AccountPublishRecursiveService.class.getSimpleName()),
+				AccountPublishRecursiveService.class,
+				"Promote and Publish Recursive",
+				"Promote and Publish Recursive",
+				"",-1,
+				toPath("/root/Account")));
+		aContext.registerUserService(new TableViewSampleServiceDeclaration(
+				ServiceKey.forModuleServiceName("mdmcustomapp",AddressPublishRecursiveService.class.getSimpleName()),
+				AddressPublishRecursiveService.class,
+				"Promote and Publish Recursive",
+				"Promote and Publish Recursive",
+				"",-1,
+				toPath("/root/Address")));
+		aContext.registerUserService(new RecordSampleServiceDeclaration(
+				ServiceKey.forModuleServiceName("mdmcustomapp",RecordUpdateShowUpdatedByService.class.getSimpleName()),
+				RecordUpdateShowUpdatedByService.class,
+				"Update Record",
+				"Update Record",
+				"",
+				toPath("/root/Account")));
 	}
 	/*public void init(ServletConfig config) throws ServletException {
 		super.init(config);

@@ -52,7 +52,6 @@ implements UserServiceDeclaration.OnTableView
 		// activates the service in all dataspaces except the "Reference" branch.
 		aDefinition.includeAllDataspaces(DataspaceSet.DataspaceType.BRANCH);
 		aDefinition.excludeDataspacesMatching(Repository.REFERENCE, DataspaceSet.DataspaceChildrenPolicy.NONE);
-
 		aDefinition.includeSchemaNodesMatching(this.tables);
 
 		if (this.selectedRecordCount >= 1)

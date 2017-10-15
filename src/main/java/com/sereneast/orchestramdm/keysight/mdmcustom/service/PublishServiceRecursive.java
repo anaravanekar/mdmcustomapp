@@ -29,9 +29,9 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.*;
 
-public class PublishService implements UserService<TableViewEntitySelection>,ApplicationContextAware
+public class PublishServiceRecursive implements UserService<TableViewEntitySelection>,ApplicationContextAware
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PublishService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PublishServiceRecursive.class);
 
     private ApplicationContext applicationContext;
 
@@ -89,7 +89,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
 
     private String jitterbitrp;
 
-    public PublishService() {
+    public PublishServiceRecursive() {
     }
 
     @Override
@@ -131,7 +131,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             @Override
             public void writePane(UserServicePaneContext aContext, UserServicePaneWriter aWriter)
             {
-                PublishService.this.writeForm(aContext, aWriter);
+                PublishServiceRecursive.this.writeForm(aContext, aWriter);
             }
         });
         aConfigurator.setLeftButtons(aConfigurator.newCloseButton());
@@ -212,14 +212,15 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                     }
                     jsonFieldsMapForJitterbit.put(fieldName, new OrchestraContent(fieldValue));
                 }
+                orchestraObjectToUpdateInJitterbit.setContent(jsonFieldsMapForJitterbit);
                 //Find cross references for the object
                 List<OrchestraObject> suspects = getSuspects(adaptation);
                 if (suspects != null && !suspects.isEmpty()) {
+                    LOGGER.debug("getSuspects recursive found");
                     jsonFieldsMapForJitterbit.put(CROSS_REFERENCES_LABEL, new OrchestraContent(suspects));
                 }else{
                     jsonFieldsMapForJitterbit.put(CROSS_REFERENCES_LABEL, new OrchestraContent(null));
                 }
-                orchestraObjectToUpdateInJitterbit.setContent(jsonFieldsMapForJitterbit);
                 recordsToUpdateInJitterbit.add(orchestraObjectToUpdateInJitterbit);
             }
 
@@ -310,7 +311,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                 LOGGER.info("proc success ");
             }
             OrchestraObject obj = recordsToUpdateInReference.get(i);
-            obj.getContent().put(flagFieldPath.format().replaceAll("\\.\\/", ""),new OrchestraContent("SUCCESS"));
+            obj.getContent().put("Alias",new OrchestraContent("SUCCESS"));
         }
         ObjectMapper mapper = new ObjectMapper();
         OrchestraRestClient orchestraRestClient = new OrchestraRestClient();
@@ -349,8 +350,9 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                 jsonFieldsMap.put(systemNamePath.format().replaceAll("\\.\\/", ""),new OrchestraContent(tableRequestResultRecord.get(systemNamePath)));
                 List<OrchestraObject> childSuspectList = getSuspects(tableRequestResultRecord);
                 if(childSuspectList!=null && !childSuspectList.isEmpty()){
-                    //jsonFieldsMap.put(CROSS_REFERENCES_LABEL,new OrchestraContent(childSuspectList));
-                    suspectList.addAll(childSuspectList);
+                    jsonFieldsMap.put(CROSS_REFERENCES_LABEL,new OrchestraContent(childSuspectList));
+                }else{
+                    jsonFieldsMap.put(CROSS_REFERENCES_LABEL,new OrchestraContent(null));
                 }
                 orchestraObject.setContent(jsonFieldsMap);
                 suspectList.add(orchestraObject);

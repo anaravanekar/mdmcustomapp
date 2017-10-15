@@ -95,7 +95,7 @@ public class OrchestraRestClient {
                 for (Map.Entry<String, String> entry : parameters.entrySet())
                     target = target.queryParam(entry.getKey(), entry.getValue());
             Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON);
-
+            LOGGER.debug("rest url for reference:"+target.toString());
             LOGGER.info("TIME: {} Updating {} {} records", LocalTime.now(),path,requestObject.getRows().size());
             Response response = invocationBuilder.post(Entity.json(mapper.writeValueAsString(requestObject)));
             LOGGER.info("TIME: {} Updated {} {} records",LocalTime.now(),path,requestObject.getRows().size());

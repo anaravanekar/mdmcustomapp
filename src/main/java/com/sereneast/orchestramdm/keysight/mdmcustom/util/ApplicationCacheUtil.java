@@ -27,7 +27,9 @@ public class ApplicationCacheUtil {
 			if(!Modifier.isPrivate(pathField.getModifiers())) {
 				Path path = (Path)pathField.get(null);
 				String key = path.format().replaceAll("\\.\\/", "");
-				if(!key.contains("DaqaMetaData") && !key.contains("MergedTargetRecord")) {
+				if(!key.contains("DaqaMetaData") && !key.contains("MergedTargetRecord") && !key.contains("RelatedAddress")
+						&& !key.contains("Notes") && !key.contains("AssignedTo") && !key.contains("BatchCode")
+						&& !key.contains("Source")) {
 //					LOGGER.debug(String.valueOf(path));
 //					LOGGER.debug(key);
 					fields.put(key,path);

@@ -2,10 +2,7 @@ package com.sereneast.orchestramdm.keysight.mdmcustom;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orchestranetworks.schema.Path;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraResponseDetails;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.JitterbitRestClient;
-import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.OrchestraRestClient;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.junit.Test;
 import org.junit.runner.RunWith;
