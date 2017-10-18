@@ -39,13 +39,11 @@ public class CountryChangeTrigger extends TableTrigger {
         String state = null;
         String province = null;
         if(StringUtils.isNotBlank(countryCode)) {
-            AdaptationTable operatingUnitTable = container.getTable(Paths._OperatingUnitKB.getPathInSchema());
-            final RequestResult operatingUnitTableRequestResult = operatingUnitTable.createRequestResult(Paths._OperatingUnitKB._CountryCode.format()+ " = '"+countryCode+"'");
+            AdaptationTable operatingUnitTable = container.getTable(Paths._OperatingUnit.getPathInSchema());
+            final RequestResult operatingUnitTableRequestResult = operatingUnitTable.createRequestResult(Paths._OperatingUnit._CountryCode.format()+ " = '"+countryCode+"'");
             if (operatingUnitTableRequestResult != null && !operatingUnitTableRequestResult.isEmpty()) {
                 Adaptation record = operatingUnitTableRequestResult.nextAdaptation();
-                operatingUnit = record.getString(Paths._OperatingUnitKB._OperatingUnit);
-                region =  record.getString(Paths._OperatingUnitKB._Region);
-                profileClass = record.getString(Paths._OperatingUnitKB._ProfileClass);
+                operatingUnit = record.getString(Paths._OperatingUnit._OperatingUnit);
             }
             AdaptationTable regimeCodeTable = container.getTable(Paths._RegimeCode.getPathInSchema());
             final RequestResult regimeCodeTableRequestResult = regimeCodeTable.createRequestResult(Paths._RegimeCode._CountryCode.format()+ " = '"+countryCode+"'");

@@ -170,7 +170,22 @@ public class AccountPane implements UIFormPane {
 		 
 		 writer.add("</td>");	
 		writer.add("</tr>");
-			
+
+		writer.add("<tr>");
+		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.addLabel(Paths._Account._ProfileClass);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.addWidget(Paths._Account._ProfileClass);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_RIGHT + "\">");
+
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+
+		writer.add("</td>");
+		writer.add("</tr>");
+
 		writer.add("<tr>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(Paths._Account._GroupingId);

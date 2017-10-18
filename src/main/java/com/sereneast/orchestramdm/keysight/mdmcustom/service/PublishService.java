@@ -69,9 +69,9 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
 
     private static final String ERROR_MESSAGE_JITTERBIT_FAIL = "Error publishing records to Jitterbit";
 
-    private static final String ERROR_MESSAGE_ACCOUNT_NOT_PUBLISHED = "Can not publish address record. Related account has not been published.";
+    private static final String ERROR_MESSAGE_PARENT_NOT_PUBLISHED = "Can not publish record. Parent record has not been published.";
 
-    private static final String ERROR_MESSAGE_ACCOUNT_NOT_FOUND = "Can not publish address record. Related account does not exist.";
+    private static final String ERROR_MESSAGE_PARENT_NOT_FOUND = "Can not publish record. Parent record does not exist.";
 
     private static final String ERROR_UPDATING_FLAG = "Error updating published flag";
 
@@ -92,6 +92,18 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
     private String jitterbitUsername;
 
     private String jitterbitrp;
+
+    private boolean checkParentIsPublished;
+
+    private Path parentIdPath;
+
+    private Path parentForeignKeyPath;
+
+    private Path parentPathInSchema;
+
+    private Path parentIdPathInChild;
+
+    private Path childPathInSchema;
 
     public PublishService() {
     }
@@ -182,34 +194,40 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
         String errorMessage = null;
         List<OrchestraObject> recordsToUpdateInReference = new ArrayList<>();
         List<OrchestraObject>  recordsToUpdateInJitterbit = new ArrayList<>();
-        List<Adaptation> relatedAddresses = new ArrayList<>();
+        List<Adaptation> children = new ArrayList<>();
         try {
             // Set up requests
             for (Adaptation adaptation : selectedRecords) {
-                if ("ADDRESS".equals(objectName)) {
-                    if(adaptation.get(Paths._Address._MDMAccountId)==null){
-                        throw new ApplicationRuntimeException(ERROR_MESSAGE_ACCOUNT_NOT_FOUND);
+                if (checkParentIsPublished) {
+                    if(adaptation.get(parentForeignKeyPath)==null){
+                        throw new ApplicationRuntimeException(ERROR_MESSAGE_PARENT_NOT_FOUND);
                     }
                     LOGGER.debug("Getting account.......");
-                    final String condition = flagFieldPath.format() + " = 'Y' and (" + Paths._Account._MDMAccountId.format() + " = " + Integer.valueOf(adaptation.get(Paths._Address._MDMAccountId).toString()) + ")";
+                    final String condition = flagFieldPath.format() + " = 'Y' and (" + parentIdPath.format() + " = " + Integer.valueOf(adaptation.get(parentForeignKeyPath).toString()) + ")";
                     LOGGER.debug("condition=" + condition);
                     Adaptation container = adaptation.getContainer();
-                    AdaptationTable accountTable = container.getTable(Paths._Account.getPathInSchema());
-                    final RequestResult collectedAccounts = accountTable.createRequestResult(condition);
-                    if (collectedAccounts != null && !collectedAccounts.isEmpty()) {
-                        LOGGER.debug("account found: " + collectedAccounts.nextAdaptation().getString(Paths._Account._AccountName));
+                    AdaptationTable parentTable = container.getTable(parentPathInSchema);
+                    final RequestResult parentTableRequestResult = parentTable.createRequestResult(condition);
+                    if (parentTableRequestResult != null && !parentTableRequestResult.isEmpty()) {
+                        LOGGER.debug("Parent found");
                     } else {
-                        errorMessage = ERROR_MESSAGE_ACCOUNT_NOT_PUBLISHED;
-                        throw new ApplicationRuntimeException(ERROR_MESSAGE_ACCOUNT_NOT_PUBLISHED);
+                        errorMessage = ERROR_MESSAGE_PARENT_NOT_PUBLISHED;
+                        throw new ApplicationRuntimeException(ERROR_MESSAGE_PARENT_NOT_PUBLISHED);
                     }
-                }else{
+                }
+
+                if(parentIdPathInChild!=null){
                     Adaptation container = adaptation.getContainer();
-                    AdaptationTable addressTable = container.getTable(Paths._Address.getPathInSchema());
-                    final RequestResult addressTableRequestResult = addressTable.createRequestResult(Paths._Address._MDMAccountId.format()+"='"+adaptation.get(Paths._Account._MDMAccountId)+"'");
-                    if (addressTableRequestResult != null && !addressTableRequestResult.isEmpty()) {
-                        for(Adaptation address;(address=addressTableRequestResult.nextAdaptation()) != null;){
-                            if("Golden".equalsIgnoreCase(address.getString(Paths._Address._DaqaMetaData_State))) {
-                                relatedAddresses.add(address);
+                    AdaptationTable childTable = container.getTable(childPathInSchema);
+                    final RequestResult childTableRequestResult = childTable.createRequestResult(parentIdPathInChild.format()+"='"+adaptation.get(objectPrimaryKeyPath)+"'");
+                    if (childTableRequestResult != null && !childTableRequestResult.isEmpty()) {
+                        for(Adaptation child;(child=childTableRequestResult.nextAdaptation()) != null;){
+                            if(!"ADDRESS".equalsIgnoreCase(objectName) ){
+                                if("Golden".equalsIgnoreCase(child.getString(Paths._Address._DaqaMetaData_State))) {
+                                    children.add(child);
+                                }
+                            }else{
+                                children.add(child);
                             }
                         }
                     }
@@ -249,8 +267,11 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                     jsonFieldsMapForJitterbit.put(fieldName, new OrchestraContent(fieldValue));
                 }
                 //Find cross references for the object
-                List<OrchestraObject> suspects = getSuspects(adaptation);
-                if (suspects != null && !suspects.isEmpty()) {
+                List<OrchestraObject> suspects = null;
+                if(!"BUSINESSPURPOSE".equalsIgnoreCase(objectName)){
+                    suspects = getSuspects(adaptation);
+                }
+                if(suspects != null && !suspects.isEmpty()) {
                     jsonFieldsMapForJitterbit.put(CROSS_REFERENCES_LABEL, new OrchestraContent(suspects));
                 }else{
                     jsonFieldsMapForJitterbit.put(CROSS_REFERENCES_LABEL, new OrchestraContent(null));
@@ -263,12 +284,20 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             promoteToReference(recordsToUpdateInReference);
             publishToJitterbit(recordsToUpdateInJitterbit);
             updateFlagToSuccess(aContext,selectedRecords,recordsToUpdateInReference);
-            if(!relatedAddresses.isEmpty()){
+            if(!children.isEmpty()){
                 try {
-                    AddressPublishService addressPublishService = new AddressPublishService();
-                    message = addressPublishService.promoteAndPublish(relatedAddresses,aContext);
+                    PublishService childPublishService = null;
+                    if("ACCOUNT".equalsIgnoreCase(objectName)){
+                        childPublishService = new AddressPublishService();
+                        LOGGER.debug("publishing Account children");
+                    }else if("ADDRESS".equalsIgnoreCase(objectName)){
+                        childPublishService = new BusinessPurposePublishService();
+                        LOGGER.debug("publishing Address children");
+                    }
+                    childPublishService.setCheckParentIsPublished(false);
+                    message = childPublishService.promoteAndPublish(children,aContext);
                 } catch (ClassNotFoundException | IllegalAccessException e) {
-                    throw new ApplicationRuntimeException("Error publishing related addresses",e);
+                    throw new ApplicationRuntimeException("Error publishing children",e);
                 }
             }else{
                 message = "Publish successful";
@@ -592,5 +621,53 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
 
     public void setDaqaStateFieldPath(Path daqaStateFieldPath) {
         this.daqaStateFieldPath = daqaStateFieldPath;
+    }
+
+    public boolean isCheckParentIsPublished() {
+        return checkParentIsPublished;
+    }
+
+    public void setCheckParentIsPublished(boolean checkParentIsPublished) {
+        this.checkParentIsPublished = checkParentIsPublished;
+    }
+
+    public Path getParentIdPath() {
+        return parentIdPath;
+    }
+
+    public void setParentIdPath(Path parentIdPath) {
+        this.parentIdPath = parentIdPath;
+    }
+
+    public Path getParentForeignKeyPath() {
+        return parentForeignKeyPath;
+    }
+
+    public void setParentForeignKeyPath(Path parentForeignKeyPath) {
+        this.parentForeignKeyPath = parentForeignKeyPath;
+    }
+
+    public Path getParentPathInSchema() {
+        return parentPathInSchema;
+    }
+
+    public void setParentPathInSchema(Path parentPathInSchema) {
+        this.parentPathInSchema = parentPathInSchema;
+    }
+
+    public Path getParentIdPathInChild() {
+        return parentIdPathInChild;
+    }
+
+    public void setParentIdPathInChild(Path parentIdPathInChild) {
+        this.parentIdPathInChild = parentIdPathInChild;
+    }
+
+    public Path getChildPathInSchema() {
+        return childPathInSchema;
+    }
+
+    public void setChildPathInSchema(Path childPathInSchema) {
+        this.childPathInSchema = childPathInSchema;
     }
 }

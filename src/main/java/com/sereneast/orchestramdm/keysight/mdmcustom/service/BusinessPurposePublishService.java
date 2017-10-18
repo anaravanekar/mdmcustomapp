@@ -16,17 +16,15 @@ import org.slf4j.LoggerFactory;
 import java.util.Locale;
 import java.util.Map;
 
-public class AccountPublishService extends PublishService {
+public class BusinessPurposePublishService extends PublishService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccountPublishService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BusinessPurposePublishService.class);
 
-    public AccountPublishService() throws ClassNotFoundException, IllegalAccessException {
+    public BusinessPurposePublishService() throws ClassNotFoundException, IllegalAccessException {
         super();
-        setObjectName("ACCOUNT");
-        setDaqaTargetFieldPath(Paths._Account._DaqaMetaData_TargetRecord);
-        setDaqaStateFieldPath(Paths._Account._DaqaMetaData_State);
-        setJitterbitBaseUrl("https://Keysight.jitterbit.net/Development/1.0/MDM_Customer_to_Oracle");
-        setFlagFieldPath(Paths._Account._Published);
+        setObjectName("BUSINESSPURPOSE");
+        setJitterbitBaseUrl("https://Keysight.jitterbit.net/Development/1.0/MDM_Customer_Address");
+//        setFlagFieldPath(Paths._BusinessPurpose._Published);
         setJitterbitrp("Keysight@123");
         setJitterbitUsername("MDM_USER");
         //setMdmRestBaseUrl("http://localhost:8080/ebx-dataservices/rest/data/v1");
@@ -37,17 +35,18 @@ public class AccountPublishService extends PublishService {
         setMdmrp(((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("password").toString());
         setReferenceDataSpaceUrl("BReference");
         setReferenceDataSetUrl("Account");
-        setTablePathUrl("root/Account");
-        setObjectPrimaryKeyPath(Paths._Account._MDMAccountId);
+        setTablePathUrl("root/BusinessPurpose");
+//        setObjectPrimaryKeyPath(Paths._BusinessPurpose._MDMPurposeId);
         setObjectPrimaryKeyType(Integer.class);
-        setTablePathInSchema(Paths._Account.getPathInSchema());
-        setSystemIdPath(Paths._Account._SystemId);
-        setSystemNamePath(Paths._Account._SystemName);
+//        setTablePathInSchema(Paths._BusinessPurpose.getPathInSchema());
         Map<String, Path> pathFieldsMap = null;
         ApplicationCacheUtil applicationCacheUtil = new ApplicationCacheUtil();
-        setFieldPathMap(applicationCacheUtil.getObjectDirectFields(Paths._Account.class.getName()));
-        setParentIdPathInChild(Paths._Address._MDMAccountId);
-        setChildPathInSchema(Paths._Address.getPathInSchema());
+//        setFieldPathMap(applicationCacheUtil.getObjectDirectFields(Paths._BusinessPurpose.class.getName()));
+        setCheckParentIsPublished(true);
+        setParentIdPath(Paths._Address._MDMAddressId);
+//        setParentForeignKeyPath(Paths._BusinessPurpose._MDMAddressId);
+        setParentPathInSchema(Paths._Address.getPathInSchema());
+        setCheckParentIsPublished(true);
     }
 
     @Override
@@ -61,8 +60,8 @@ public class AccountPublishService extends PublishService {
         RequestResult result = aContext.getEntitySelection().getSelectedRecords().execute();
         int i= 0;
         for (Adaptation record; (record = result.nextAdaptation()) != null; ) {
-            ObjectKey oKey = null;
-            oKey = ObjectKey.forName("ACCOUNT"+i);
+            ObjectKey oKey = null;//
+            oKey = ObjectKey.forName("ADDRESS"+i);
             aBuilder.registerRecordOrDataSet(oKey,record);
             getObjectKeys().add(oKey);
             i++;

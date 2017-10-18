@@ -48,6 +48,13 @@ public class AddressPublishService extends PublishService {
         Map<String, Path> pathFieldsMap = null;
         ApplicationCacheUtil applicationCacheUtil = new ApplicationCacheUtil();
         setFieldPathMap(applicationCacheUtil.getObjectDirectFields(Paths._Address.class.getName()));
+        setCheckParentIsPublished(true);
+        setParentIdPath(Paths._Account._MDMAccountId);
+        setParentForeignKeyPath(Paths._Address._MDMAccountId);
+        setParentPathInSchema(Paths._Account.getPathInSchema());
+//        setParentIdPathInChild(Paths._BusinessPurpose._MDMAddressId);
+//        setChildPathInSchema(Paths._BusinessPurpose.getPathInSchema());
+        setCheckParentIsPublished(true);
     }
 
     @Override

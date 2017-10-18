@@ -248,6 +248,18 @@ public class RecordUpdateShowUpdatedByService implements UserService<RecordEntit
 		aWriter.add("</tr>");
 		aWriter.add("<tr>");
 
+		aWriter.add("<tr>");
+		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE + "\">");
+		aWriter.startTableFormRow();
+		aWriter.addFormRow(_Account._ProfileClass);
+		aWriter.endTableFormRow();
+		aWriter.add("</td>");
+		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
+
+		aWriter.add("</td>");
+		aWriter.add("</tr>");
+		aWriter.add("<tr>");
+
 		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
 		aWriter.startTableFormRow();
 		aWriter.addFormRow(Paths._Account._GroupingId);

@@ -103,8 +103,9 @@ public class TableTriggerForCountry extends TableTrigger {
                     Path fieldPath = Path.parse("./" + fieldName);
                     Set finalValues = new HashSet<String>();
                     finalValues.addAll(adaptation.getList(fieldPath));
-                    if (resultRecord != null && resultRecord.getList(fieldPath) != null && !resultRecord.getList(fieldPath).isEmpty())
-
+                    if (resultRecord != null && resultRecord.getList(fieldPath) != null && !resultRecord.getList(fieldPath).isEmpty()) {
+                        finalValues.addAll(resultRecord.getList(fieldPath));
+                    }
                     valueContextForUpdate.setValue(new ArrayList<String>(finalValues), fieldPath);
                 }
                 procedureContext.doModifyContent(resultRecord, valueContextForUpdate);
