@@ -1,4 +1,4 @@
-package com.orchestranetworks.training.mystore.form;
+package com.orchestranetworks.account.ui.form;
 
 import com.orchestranetworks.ui.form.UIFormContext;
 import com.orchestranetworks.ui.form.UIFormPane;
@@ -61,13 +61,10 @@ public class AccountPane implements UIFormPane {
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(Paths._Account._Country);
 		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.add("<td colspan=\"3\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_LEFT + "\">");
 		writer.addWidget(Paths._Account._Country);
 		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_RIGHT + "\">");
-		 writer.add("</td>");
-		 writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		 writer.add("</td>");	
+		
 		writer.add("</tr>");
 		// row end 
 		
@@ -296,28 +293,25 @@ public class AccountPane implements UIFormPane {
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(Paths._Account._LastCreditReviewDate);
 		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.add("<td colspan=\"2\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_LEFT + "\">");
 		writer.addWidget(Paths._Account._LastCreditReviewDate);
 		writer.add("</td>");
 		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_RIGHT + "\">");
 		
 		 writer.add("</td>");
-		 writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		 
-		 writer.add("</td>");	
+	
 		writer.add("</tr>");	
 		
 		writer.add("<tr>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(Paths._Account._NextCreditReviewDate);
 		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_LEFT + "\">");
 		writer.addWidget(Paths._Account._NextCreditReviewDate);
 		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_RIGHT + "\">");
+		writer.add("<td colspan=\"2\" style=\"" + CELL_STYLE_RIGHT + "\">");
 		
-		 writer.add("</td>");
-		 writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+	
 		 
 		 writer.add("</td>");	
 		writer.add("</tr>");		 
@@ -356,13 +350,9 @@ public class AccountPane implements UIFormPane {
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(Paths._Account._EmgLastTrans);
 		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.add("<td colspan=\"3\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_LEFT + "\">");
 		writer.addWidget(Paths._Account._EmgLastTrans);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_RIGHT + "\">");
-		
-		 writer.add("</td>");
-		 writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+				
 		 
 		 writer.add("</td>");	
 		writer.add("</tr>");	
@@ -386,13 +376,10 @@ public class AccountPane implements UIFormPane {
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(Paths._Account._PaymentStartDate);
 		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.add("<td colspan=\"3\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_LEFT + "\">");
 		writer.addWidget(Paths._Account._PaymentStartDate);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_RIGHT + "\">");
+	
 		
-		 writer.add("</td>");
-		 writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
 		
 		 writer.add("</td>");	
 		writer.add("</tr>");	
@@ -419,12 +406,9 @@ public class AccountPane implements UIFormPane {
 		writer.add("<td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
 		writer.addWidget(Paths._Account._MergedTargetRecord);
 		writer.add("</td>");
+		writer.add("</tr>");
 		
-		writer.add("</tr>");	
-		
-		
-
-				
+					
 		writer.add("</table>");
 	
 

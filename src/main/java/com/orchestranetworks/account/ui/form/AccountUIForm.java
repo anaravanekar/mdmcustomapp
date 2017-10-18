@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.orchestranetworks.training.mystore.form;
+package com.orchestranetworks.account.ui.form;
 
 import com.orchestranetworks.account.ui.form.AccountPane;
 import com.orchestranetworks.ui.UIFormLabelSpec;
