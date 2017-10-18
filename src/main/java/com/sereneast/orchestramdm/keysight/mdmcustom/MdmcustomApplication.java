@@ -15,7 +15,6 @@ public class MdmcustomApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
 		SpringApplication.run(MdmcustomApplication.class, args);
-		System.out.println("Hello from KB");
 	}
 }
 
