@@ -166,7 +166,7 @@ public class PublishServiceRecursive implements UserService<TableViewEntitySelec
                 selectedRecords.add(adaptation);
                 if ("ADDRESS".equals(objectName)) {
                     LOGGER.debug("Getting account.......");
-                    final String condition = flagFieldPath.format() + " = 'SUCCESS' and (" + Paths._Account._MDMAccountId.format() + " = " + Integer.valueOf(adaptation.get(Paths._Address._MDMAccountId).toString()) + ")";
+                    final String condition = flagFieldPath.format() + " = 'Y' and (" + Paths._Account._MDMAccountId.format() + " = " + Integer.valueOf(adaptation.get(Paths._Address._MDMAccountId).toString()) + ")";
                     LOGGER.debug("condition=" + condition);
                     Adaptation container = adaptation.getContainer();
                     AdaptationTable accountTable = container.getTable(Paths._Account.getPathInSchema());
@@ -298,7 +298,7 @@ public class PublishServiceRecursive implements UserService<TableViewEntitySelec
             Adaptation record = selectedRecords.get(i);
             Procedure procedure = procedureContext -> {
                 ValueContextForUpdate valueContextForUpdate = procedureContext.getContext(record.getAdaptationName());
-                valueContextForUpdate.setValue("SUCCESS", flagFieldPath);//TODO change
+                valueContextForUpdate.setValue("Y", flagFieldPath);//TODO change
                 procedureContext.doModifyContent(record, valueContextForUpdate);
             };
             ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), record.getHome());
@@ -311,7 +311,7 @@ public class PublishServiceRecursive implements UserService<TableViewEntitySelec
                 LOGGER.info("proc success ");
             }
             OrchestraObject obj = recordsToUpdateInReference.get(i);
-            obj.getContent().put("Alias",new OrchestraContent("SUCCESS"));
+            obj.getContent().put("Alias",new OrchestraContent("Y"));
         }
         ObjectMapper mapper = new ObjectMapper();
         OrchestraRestClient orchestraRestClient = new OrchestraRestClient();

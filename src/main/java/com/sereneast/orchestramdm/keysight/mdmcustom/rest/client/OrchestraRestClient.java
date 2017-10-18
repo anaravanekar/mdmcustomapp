@@ -74,6 +74,7 @@ public class OrchestraRestClient {
             LOGGER.trace(response.getStatusInfo().toString());
 
             if (response.getStatus() == 200) {
+                response.bufferEntity();
                 ObjectMapper mapper = new ObjectMapper();
                 OrchestraObjectListResponse responseJson = mapper.readValue(response.readEntity(String.class), OrchestraObjectListResponse.class);
                 LOGGER.trace(mapper.writeValueAsString(responseJson));

@@ -53,6 +53,8 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
 
     private Path daqaTargetFieldPath;
 
+    private Path daqaStateFieldPath;
+
     private Path systemIdPath;
 
     private Path systemNamePath;
@@ -68,6 +70,8 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
     private static final String ERROR_MESSAGE_JITTERBIT_FAIL = "Error publishing records to Jitterbit";
 
     private static final String ERROR_MESSAGE_ACCOUNT_NOT_PUBLISHED = "Can not publish address record. Related account has not been published.";
+
+    private static final String ERROR_MESSAGE_ACCOUNT_NOT_FOUND = "Can not publish address record. Related account does not exist.";
 
     private static final String ERROR_UPDATING_FLAG = "Error updating published flag";
 
@@ -154,19 +158,40 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
 
     private void writeForm(UserServicePaneContext aContext, UserServicePaneWriter aWriter){
         LOGGER.debug("In writeform");
-        List<OrchestraObject> recordsToUpdateInReference = new ArrayList<>();
-        List<OrchestraObject>  recordsToUpdateInJitterbit = new ArrayList<>();
+        String finalMessage = null;
         List<Adaptation> selectedRecords = new ArrayList<>();
-        String errorMessage = null;
         try {
-            // Set up requests
             for (ObjectKey objectKey : objectKeys) {
                 LOGGER.debug("Getting adaptation for objectKey=" + objectKey.getName());
                 Adaptation adaptation = (Adaptation) aContext.getValueContext(objectKey).getValue();
-                selectedRecords.add(adaptation);
+                if("Golden".equalsIgnoreCase(adaptation.getString(daqaStateFieldPath))){
+                    selectedRecords.add(adaptation);
+                }else{
+                    throw new ApplicationRuntimeException("Only Golden records can be published. Please select Golden records and try again.");
+                }
+            }
+            finalMessage = promoteAndPublish(selectedRecords, aContext);
+        }catch(ApplicationRuntimeException e){
+            finalMessage = e.getMessage();
+        }
+        aWriter.add(finalMessage);
+    }
+
+    public String promoteAndPublish(List<Adaptation> selectedRecords,UserServicePaneContext aContext){
+        String message = null;
+        String errorMessage = null;
+        List<OrchestraObject> recordsToUpdateInReference = new ArrayList<>();
+        List<OrchestraObject>  recordsToUpdateInJitterbit = new ArrayList<>();
+        List<Adaptation> relatedAddresses = new ArrayList<>();
+        try {
+            // Set up requests
+            for (Adaptation adaptation : selectedRecords) {
                 if ("ADDRESS".equals(objectName)) {
+                    if(adaptation.get(Paths._Address._MDMAccountId)==null){
+                        throw new ApplicationRuntimeException(ERROR_MESSAGE_ACCOUNT_NOT_FOUND);
+                    }
                     LOGGER.debug("Getting account.......");
-                    final String condition = flagFieldPath.format() + " = 'SUCCESS' and (" + Paths._Account._MDMAccountId.format() + " = " + Integer.valueOf(adaptation.get(Paths._Address._MDMAccountId).toString()) + ")";
+                    final String condition = flagFieldPath.format() + " = 'Y' and (" + Paths._Account._MDMAccountId.format() + " = " + Integer.valueOf(adaptation.get(Paths._Address._MDMAccountId).toString()) + ")";
                     LOGGER.debug("condition=" + condition);
                     Adaptation container = adaptation.getContainer();
                     AdaptationTable accountTable = container.getTable(Paths._Account.getPathInSchema());
@@ -176,6 +201,17 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                     } else {
                         errorMessage = ERROR_MESSAGE_ACCOUNT_NOT_PUBLISHED;
                         throw new ApplicationRuntimeException(ERROR_MESSAGE_ACCOUNT_NOT_PUBLISHED);
+                    }
+                }else{
+                    Adaptation container = adaptation.getContainer();
+                    AdaptationTable addressTable = container.getTable(Paths._Address.getPathInSchema());
+                    final RequestResult addressTableRequestResult = addressTable.createRequestResult(Paths._Address._MDMAccountId.format()+"='"+adaptation.get(Paths._Account._MDMAccountId)+"'");
+                    if (addressTableRequestResult != null && !addressTableRequestResult.isEmpty()) {
+                        for(Adaptation address;(address=addressTableRequestResult.nextAdaptation()) != null;){
+                            if("Golden".equalsIgnoreCase(address.getString(Paths._Address._DaqaMetaData_State))) {
+                                relatedAddresses.add(address);
+                            }
+                        }
                     }
                 }
 
@@ -227,15 +263,25 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             promoteToReference(recordsToUpdateInReference);
             publishToJitterbit(recordsToUpdateInJitterbit);
             updateFlagToSuccess(aContext,selectedRecords,recordsToUpdateInReference);
-            aWriter.add("Publish successful");
+            if(!relatedAddresses.isEmpty()){
+                try {
+                    AddressPublishService addressPublishService = new AddressPublishService();
+                    message = addressPublishService.promoteAndPublish(relatedAddresses,aContext);
+                } catch (ClassNotFoundException | IllegalAccessException e) {
+                    throw new ApplicationRuntimeException("Error publishing related addresses",e);
+                }
+            }else{
+                message = "Publish successful";
+            }
         }catch(ApplicationRuntimeException e){
             String rootCauseMessage = e.getRootCause()!=null?"\nRoot Cause: "+e.getRootCause().getMessage():"";
-            aWriter.add("ERROR: "+e.getMessage()+rootCauseMessage);
+            message = "ERROR: "+e.getMessage()+rootCauseMessage;
             LOGGER.error("Error publishing records: \n",e);
         }
+        return message;
     }
 
-    private void promoteToReference(List<OrchestraObject> recordsToUpdateInReference){
+    public void promoteToReference(List<OrchestraObject> recordsToUpdateInReference){
         try{
             ObjectMapper mapper = new ObjectMapper();
             OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
@@ -297,7 +343,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             Adaptation record = selectedRecords.get(i);
             Procedure procedure = procedureContext -> {
                 ValueContextForUpdate valueContextForUpdate = procedureContext.getContext(record.getAdaptationName());
-                valueContextForUpdate.setValue("SUCCESS", flagFieldPath);//TODO change
+                valueContextForUpdate.setValue("Y", flagFieldPath);//TODO change
                 procedureContext.doModifyContent(record, valueContextForUpdate);
             };
             ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), record.getHome());
@@ -310,7 +356,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                 LOGGER.info("proc success ");
             }
             OrchestraObject obj = recordsToUpdateInReference.get(i);
-            obj.getContent().put(flagFieldPath.format().replaceAll("\\.\\/", ""),new OrchestraContent("SUCCESS"));
+            obj.getContent().put(flagFieldPath.format().replaceAll("\\.\\/", ""),new OrchestraContent("Y"));
         }
         ObjectMapper mapper = new ObjectMapper();
         OrchestraRestClient orchestraRestClient = new OrchestraRestClient();
@@ -538,5 +584,13 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
 
     public void setJitterbitrp(String jitterbitrp) {
         this.jitterbitrp = jitterbitrp;
+    }
+
+    public Path getDaqaStateFieldPath() {
+        return daqaStateFieldPath;
+    }
+
+    public void setDaqaStateFieldPath(Path daqaStateFieldPath) {
+        this.daqaStateFieldPath = daqaStateFieldPath;
     }
 }

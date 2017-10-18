@@ -13,6 +13,7 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +34,10 @@ public class TableTriggerForCountry extends TableTrigger {
 
     private Path countryPath = Paths._Account._Country;
 
+    private Path publishedFieldPath = Paths._Account._Published;
+
+    private List<String> lovsToMerge;
+
     private boolean initialized;
 
     @Override
@@ -48,25 +53,27 @@ public class TableTriggerForCountry extends TableTrigger {
         initialize();
         ProcedureContext procedureContext = aContext.getProcedureContext();
         Adaptation adaptation = aContext.getAdaptationOccurrence();
+        LOGGER.debug("Record Id:"+adaptation.get(objectPrimaryKeyPath)+" timestamp"+ LocalDateTime.now());
         ValueChanges changes = aContext.getChanges();
         ValueChange daqaStateChanges = changes.getChange(stateFieldPath);
         ValueChange daqaTargetChanges = changes.getChange(daqaTargetFieldPath);
         ValueChange daqaMergeOriginChanges = changes.getChange(mergeOriginPath);
         ValueChange daqaTimestampChanges = changes.getChange(timestampPath);
         ValueChange countryChanges = changes.getChange(countryPath);
-        if(daqaStateChanges!=null) {
+        ValueChange publishedFieldValueChange = changes.getChange(publishedFieldPath);
+        if (daqaStateChanges != null) {
             LOGGER.debug("State Before: " + String.valueOf(daqaStateChanges.getValueBefore()));
             LOGGER.debug("State After: " + String.valueOf(daqaStateChanges.getValueAfter()));
         }
-        if(daqaTargetChanges!=null) {
+        if (daqaTargetChanges != null) {
             LOGGER.debug("target Before: " + String.valueOf(daqaTargetChanges.getValueBefore()));
             LOGGER.debug("target After: " + String.valueOf(daqaTargetChanges.getValueAfter()));
         }
-        if(daqaMergeOriginChanges!=null) {
+        if (daqaMergeOriginChanges != null) {
             LOGGER.debug("daqaMergeOriginChanges Before: " + String.valueOf(daqaMergeOriginChanges.getValueBefore()));
             LOGGER.debug("daqaMergeOriginChanges After: " + String.valueOf(daqaMergeOriginChanges.getValueAfter()));
         }
-        if(daqaTimestampChanges!=null) {
+        if (daqaTimestampChanges != null) {
             LOGGER.debug("daqaTimestampChanges Before: " + String.valueOf(daqaTimestampChanges.getValueBefore()));
             LOGGER.debug("daqaTimestampChanges After: " + String.valueOf(daqaTimestampChanges.getValueAfter()));
         }
@@ -74,56 +81,44 @@ public class TableTriggerForCountry extends TableTrigger {
             LOGGER.debug("country Before: " + String.valueOf(countryChanges.getValueBefore()));
             LOGGER.debug("country After: " + String.valueOf(countryChanges.getValueAfter()));
         }
+        if (publishedFieldValueChange != null) {
+            LOGGER.debug("publishedFieldValueChange Before: " + String.valueOf(publishedFieldValueChange.getValueBefore()));
+            LOGGER.debug("publishedFieldValueChange After: " + String.valueOf(publishedFieldValueChange.getValueAfter()));
+        }
         LOGGER.debug("DaqaValues.........");
-        LOGGER.debug("daqastate = "+String.valueOf(adaptation.get(stateFieldPath)));
-        LOGGER.debug("daqatarget = "+String.valueOf(adaptation.get(daqaTargetFieldPath)));
-        LOGGER.debug("daqamergeorigin = "+String.valueOf(adaptation.get(mergeOriginPath)));
-        LOGGER.debug("daqatimestamp = "+String.valueOf(adaptation.get(timestampPath)));
-
-       /* if("Golden".equalsIgnoreCase(String.valueOf(adaptation.get(stateFieldPath))) ){
-            Set<String> goldenCountriesFinal = new HashSet<>();
-            List<String> goldenCountriesCurrent = adaptation.getList(countryPath);
-            Set<String> searchResultCountriesSet = new HashSet<>();
-            List<Adaptation> searchResultList = searchByTargetValue(procedureContext,
-                    Integer.valueOf(String.valueOf(adaptation.get(objectPrimaryKeyPath))),adaptation.getContainerTable());
-            goldenCountriesFinal.addAll(goldenCountriesCurrent);
-            if (searchResultList!=null && !searchResultList.isEmpty()) {
-               for(Adaptation resultRecord: searchResultList) {
-                   List<String> resultRecordCountries = resultRecord.getList(countryPath);
-                   if(resultRecordCountries != null && !resultRecordCountries.isEmpty()) {
-                       searchResultCountriesSet.addAll(resultRecordCountries);
-                   }
-               }
-            }
-            goldenCountriesFinal.addAll(searchResultCountriesSet);
-            LOGGER.debug("Golden countries current:"+String.valueOf(goldenCountriesCurrent));
-            LOGGER.debug("Search countries :"+String.valueOf(searchResultCountriesSet));
-            LOGGER.debug("Golden countries final:"+String.valueOf(goldenCountriesFinal));
-            ValueContextForUpdate valueContextForUpdate = procedureContext.getContext(adaptation.getAdaptationName());
-            valueContextForUpdate.setValue(new ArrayList<String>(goldenCountriesFinal), countryPath);
-            procedureContext.doModifyContent(adaptation, valueContextForUpdate);
-        }else */
-       if(daqaStateChanges!=null && "Merged".equalsIgnoreCase(String.valueOf(daqaStateChanges.getValueAfter()))){
-            LOGGER.debug("DAQA STATE CHANGED TO MERGED!!");
-            Set<String> goldenCountriesFinal = new HashSet<>();
-            List<String> currentRecordCountries = adaptation.getList(countryPath);
-            Set<String> searchResultCountriesSet = new HashSet<>();
-            Adaptation resultRecord = searchByMdmId(procedureContext,
-                    Integer.valueOf(String.valueOf(adaptation.get(daqaTargetFieldPath))),adaptation.getContainerTable());
-            goldenCountriesFinal.addAll(currentRecordCountries);
-            if (resultRecord!=null) {
-                List<String> resultRecordCountries = resultRecord.getList(countryPath);
-                if(resultRecordCountries != null && !resultRecordCountries.isEmpty()) {
-                    searchResultCountriesSet.addAll(resultRecordCountries);
+        LOGGER.debug("daqastate = " + String.valueOf(adaptation.get(stateFieldPath)));
+        LOGGER.debug("daqatarget = " + String.valueOf(adaptation.get(daqaTargetFieldPath)));
+        LOGGER.debug("daqamergeorigin = " + String.valueOf(adaptation.get(mergeOriginPath)));
+        LOGGER.debug("daqatimestamp = " + String.valueOf(adaptation.get(timestampPath)));
+        String publishedValue = adaptation.get(publishedFieldPath) != null ? String.valueOf(adaptation.get(publishedFieldPath)) : null;
+        LOGGER.debug("publishedValue=" + publishedValue);
+        if(!(publishedFieldValueChange!=null && publishedFieldValueChange.getValueAfter()!=null && "U".equalsIgnoreCase(publishedFieldValueChange.getValueAfter().toString()))) {
+            LOGGER.debug("executing trigger");
+            if (daqaStateChanges != null && "Merged".equalsIgnoreCase(String.valueOf(daqaStateChanges.getValueAfter()))) {
+                LOGGER.debug("DAQA STATE CHANGED TO MERGED!!");
+                Adaptation resultRecord = searchByMdmId(procedureContext,
+                        Integer.valueOf(String.valueOf(adaptation.get(daqaTargetFieldPath))), adaptation.getContainerTable());
+                ValueContextForUpdate valueContextForUpdate = procedureContext.getContext(resultRecord.getAdaptationName());
+                for (String fieldName : lovsToMerge) {
+                    Path fieldPath = Path.parse("./" + fieldName);
+                    Set finalValues = new HashSet<String>();
+                    finalValues.addAll(adaptation.getList(fieldPath));
+                    if (resultRecord != null && resultRecord.getList(fieldPath) != null && !resultRecord.getList(fieldPath).isEmpty()) {
+                        finalValues.addAll(resultRecord.getList(fieldPath));
+                    }
+                    valueContextForUpdate.setValue(new ArrayList<String>(finalValues), fieldPath);
                 }
+                procedureContext.doModifyContent(resultRecord, valueContextForUpdate);
             }
-            goldenCountriesFinal.addAll(searchResultCountriesSet);
-            LOGGER.debug("Current record countries:"+String.valueOf(currentRecordCountries));
-            LOGGER.debug("Search countries :"+String.valueOf(searchResultCountriesSet));
-            LOGGER.debug("Golden countries final:"+String.valueOf(goldenCountriesFinal));
-            ValueContextForUpdate valueContextForUpdate = procedureContext.getContext(resultRecord.getAdaptationName());
-            valueContextForUpdate.setValue(new ArrayList<String>(goldenCountriesFinal), countryPath);
-            procedureContext.doModifyContent(resultRecord, valueContextForUpdate);
+            if (publishedFieldValueChange==null && publishedValue != null && "Y".equalsIgnoreCase(publishedValue)) {
+                LOGGER.debug("Updating published flag");
+                ValueContextForUpdate valueContextForUpdate = procedureContext.getContext(adaptation.getAdaptationName());
+                valueContextForUpdate.setValue("U", publishedFieldPath);
+                procedureContext.doModifyContent(adaptation, valueContextForUpdate);
+                LOGGER.debug("publishedValue updated");
+            }
+        }else{
+            LOGGER.debug("Nothing to update");
         }
     }
 
@@ -213,6 +208,22 @@ public class TableTriggerForCountry extends TableTrigger {
 
     public void setCountryPath(Path countryPath) {
         this.countryPath = countryPath;
+    }
+
+    public Path getPublishedFieldPath() {
+        return publishedFieldPath;
+    }
+
+    public void setPublishedFieldPath(Path publishedFieldPath) {
+        this.publishedFieldPath = publishedFieldPath;
+    }
+
+    public List<String> getLovsToMerge() {
+        return lovsToMerge;
+    }
+
+    public void setLovsToMerge(List<String> lovsToMerge) {
+        this.lovsToMerge = lovsToMerge;
     }
 
     public void setInitialized(boolean initialized) {

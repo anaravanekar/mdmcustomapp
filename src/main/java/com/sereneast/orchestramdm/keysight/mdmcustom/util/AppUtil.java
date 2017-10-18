@@ -3,11 +3,17 @@
  */
 package com.sereneast.orchestramdm.keysight.mdmcustom.util;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.gson.Gson;
+import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.pagination.PaginationCriteria;
 
 
@@ -130,5 +136,17 @@ public class AppUtil {
 					.replaceAll("#LIMIT#", String.valueOf(pageNumber + 1 + pageSize));
 		}
 		return (null == finalQuery) ?  baseQuery : finalQuery;
+	}
+
+	public static Map<String,Object> getAllPropertiesMap(){
+		ObjectMapper yamlmapper = new ObjectMapper(new YAMLFactory());
+		ClassLoader classLoader = AppUtil.class.getClassLoader();
+		File file = new File(classLoader.getResource("application.yml").getFile());
+		try {
+			Map<String,Object> properties = yamlmapper.readValue(file,Map.class);
+			return properties;
+		} catch (IOException e) {
+			throw new ApplicationRuntimeException("Error reading properties from application.yml",e);
+		}
 	}
 }

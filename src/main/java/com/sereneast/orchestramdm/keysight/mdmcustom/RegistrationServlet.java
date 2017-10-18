@@ -37,7 +37,7 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Promote and Publish",
 				"",-1,
 				toPath("/root/Address")));
-		aContext.registerUserService(new TableViewSampleServiceDeclaration(
+/*		aContext.registerUserService(new TableViewSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",AccountPublishRecursiveService.class.getSimpleName()),
 				AccountPublishRecursiveService.class,
 				"Promote and Publish Recursive",
@@ -50,7 +50,7 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Promote and Publish Recursive",
 				"Promote and Publish Recursive",
 				"",-1,
-				toPath("/root/Address")));
+				toPath("/root/Address")));*/
 		aContext.registerUserService(new RecordSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",RecordUpdateShowUpdatedByService.class.getSimpleName()),
 				RecordUpdateShowUpdatedByService.class,

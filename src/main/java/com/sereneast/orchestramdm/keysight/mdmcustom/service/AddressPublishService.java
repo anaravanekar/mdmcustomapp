@@ -6,12 +6,15 @@ import com.orchestranetworks.schema.Path;
 import com.orchestranetworks.ui.selection.TableViewEntitySelection;
 import com.orchestranetworks.userservice.ObjectKey;
 import com.orchestranetworks.userservice.UserServiceObjectContextBuilder;
+import com.orchestranetworks.userservice.UserServicePaneContext;
 import com.orchestranetworks.userservice.UserServiceSetupObjectContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
+import com.sereneast.orchestramdm.keysight.mdmcustom.util.AppUtil;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -23,13 +26,17 @@ public class AddressPublishService extends PublishService {
         super();
         setObjectName("ADDRESS");
         setDaqaTargetFieldPath(Paths._Address._DaqaMetaData_TargetRecord);
+        setDaqaStateFieldPath(Paths._Address._DaqaMetaData_State);
         setJitterbitBaseUrl("https://Keysight.jitterbit.net/Development/1.0/MDM_Customer_Address");
         setFlagFieldPath(Paths._Address._Published);
         setJitterbitrp("Keysight@123");
         setJitterbitUsername("MDM_USER");
-        setMdmRestBaseUrl("http://localhost:8080/ebx-dataservices/rest/data/v1");
-        setMdmRestUsername("admin");
-        setMdmrp("admin");
+        //setMdmRestBaseUrl("http://localhost:8080/ebx-dataservices/rest/data/v1");
+        setMdmRestBaseUrl(((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("baseUrl").toString());
+        //setMdmRestUsername("admin");
+        //setMdmrp("admin");
+        setMdmRestUsername(((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("username").toString());
+        setMdmrp(((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("password").toString());
         setReferenceDataSpaceUrl("BReference");
         setReferenceDataSetUrl("Account");
         setTablePathUrl("root/Address");

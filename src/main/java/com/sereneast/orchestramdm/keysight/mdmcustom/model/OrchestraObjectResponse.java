@@ -1,7 +1,10 @@
 package com.sereneast.orchestramdm.keysight.mdmcustom.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.Map;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class OrchestraObjectResponse {
     private String label;
     private String details;

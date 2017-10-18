@@ -110,10 +110,10 @@ public class RecordUpdateShowUpdatedByService implements UserService<RecordEntit
 		String className = aContext.getValueContext(accountObjectKey).getValue().getClass().getSimpleName();
 		String rec = aContext.getValueContext(accountObjectKey).toString();
 		String node = aContext.getValueContext(accountObjectKey).getNode().toString();
-		String openedByUser = String.valueOf(aContext.getValueContext(accountObjectKey).getValue(_Account._AssignedTo));//ModifiedByStore.processRecordModifiedBy("GET",aContext.getValueContext(accountObjectKey).getValue(_Account._MDMAccountId).toString(),null);
+		String openedByUser = aContext.getValueContext(accountObjectKey).getValue(_Account._AssignedTo)!=null?aContext.getValueContext(accountObjectKey).getValue(_Account._AssignedTo).toString():null;//ModifiedByStore.processRecordModifiedBy("GET",aContext.getValueContext(accountObjectKey).getValue(_Account._MDMAccountId).toString(),null);
 		LOGGER.info("\n\n\n\nuserId: "+userId+" className: "+className+" rec: "+rec+" node: "+node);
 		if(openedByUser!=null) {
-			aWriter.add("Note: Record has been opened for modification by : " +openedByUser);
+			aWriter.add("<b>Note: Record has been opened for modification by : " +openedByUser+"</b>");
 		}else{
 			/*String recordId = aContext.getValueContext(accountObjectKey).getValue(_Account._MDMAccountId).toString();
 			LOGGER.info("\n\n\nrecordId: "+recordId);
