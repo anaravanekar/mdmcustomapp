@@ -3,13 +3,11 @@
  */
 package com.orchestranetworks.account.ui.form;
 
-import com.orchestranetworks.account.ui.form.AccountPane;
 import com.orchestranetworks.ui.UIFormLabelSpec;
 import com.orchestranetworks.ui.form.UIForm;
 import com.orchestranetworks.ui.form.UIFormBody;
 import com.orchestranetworks.ui.form.UIFormContext;
 import com.orchestranetworks.ui.form.UIFormHeader;
-import com.orchestranetworks.ui.form.UIFormPaneWithTabs;
 
 /**
  * @author rbarfa

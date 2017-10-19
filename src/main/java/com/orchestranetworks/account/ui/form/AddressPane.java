@@ -29,6 +29,9 @@ public class AddressPane implements UIFormPane {
 					writer.endTableFormRow();
 				}
 			}
+			writer.startTableFormRow();
+			writer.addFormRow(Paths._Address._MergedTargetRecord);
+			writer.endTableFormRow();
 			writer.addJS("function calculatedFields(countryCode){");
 				//writer.addJS("alert('calculatedFields called');");
 				writer.addJS("var xhr = new XMLHttpRequest();");
