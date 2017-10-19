@@ -87,6 +87,64 @@ public class RestController {
         return mapper.writeValueAsString(objectList);
     }
 
+    @RequestMapping(value = "calculatedFields/country/{dataSpace}/{dataSet}/{countryCode}", method = RequestMethod.GET)
+    public String getCalculatedFields(@PathVariable("dataSpace") String dataSpace, @PathVariable("dataSet") String dataSet,@PathVariable("countryCode") String countryCode) throws IOException {
+        String operatingUnitTablePath = "root/OperatingUnit";
+        String mdmRestBaseUrl = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("baseUrl").toString();//"http://localhost:8080/ebx-dataservices/rest/data/v1";
+        String mdmRestUsername = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("username").toString();//"admin"; // TODO: read from properties file
+        String mdmrp = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("password").toString();//"admin";
+        OrchestraRestClient orchestraRestClient = new OrchestraRestClient();
+        orchestraRestClient.setBaseUrl(mdmRestBaseUrl);
+        orchestraRestClient.setFeature(HttpAuthenticationFeature.basic(mdmRestUsername, mdmrp));
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("filter","CountryCode='" +countryCode+"'");
+
+        OrchestraObjectListResponse orchestraObjectListResponse = orchestraRestClient.get(dataSpace,dataSet,operatingUnitTablePath,parameters);
+        Map<String,String> resultObject = new HashMap<>();
+        if (orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
+            OrchestraObjectResponse objectResponse = orchestraObjectListResponse.getRows().get(0);
+            Map<String,OrchestraContent> content = objectResponse.getContent();
+            String operatingUnit = content.get("OperatingUnit").getContent()!=null?content.get("OperatingUnit").getContent().toString():null;
+            LOGGER.debug("operatingUnit="+operatingUnit);
+            if(operatingUnit!=null){
+                resultObject.put("OperatingUnit",operatingUnit);
+            }
+        }
+
+        orchestraObjectListResponse = orchestraRestClient.get(dataSpace,dataSet,"root/RegimeCode",parameters);
+        if (orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
+            OrchestraObjectResponse objectResponse = orchestraObjectListResponse.getRows().get(0);
+            Map<String,OrchestraContent> content = objectResponse.getContent();
+            String value = content.get("TaxRegimeCode").getContent()!=null?content.get("TaxRegimeCode").getContent().toString():null;
+            LOGGER.debug("TaxRegimeCode="+value);
+            if(value!=null){
+                resultObject.put("TaxRegimeCode",value);
+            }
+        }
+        orchestraObjectListResponse = orchestraRestClient.get(dataSpace,dataSet,"root/State",parameters);
+        if (orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
+            OrchestraObjectResponse objectResponse = orchestraObjectListResponse.getRows().get(0);
+            Map<String,OrchestraContent> content = objectResponse.getContent();
+            String value = content.get("State").getContent()!=null?content.get("State").getContent().toString():null;
+            LOGGER.debug("State="+value);
+            if(value!=null){
+                resultObject.put("AddressState",value);
+            }
+        }
+        orchestraObjectListResponse = orchestraRestClient.get(dataSpace,dataSet,"root/Province",parameters);
+        if (orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
+            OrchestraObjectResponse objectResponse = orchestraObjectListResponse.getRows().get(0);
+            Map<String,OrchestraContent> content = objectResponse.getContent();
+            String value = content.get("Province").getContent()!=null?content.get("Province").getContent().toString():null;
+            LOGGER.debug("Province="+value);
+            if(value!=null){
+                resultObject.put("Province",value);
+            }
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(resultObject);
+    }
+
     private String getTargetPredicate(String mdmId, String mdmIdFieldName, String targetId) {
         String condition = "DaqaMetaData/TargetRecord='" + mdmId + "'";
         if (StringUtils.isNotBlank(targetId) && StringUtils.isNotBlank(mdmId)) {
