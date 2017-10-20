@@ -564,13 +564,17 @@
 
                     $('.searchBox').on('keyup', function(e) {
                         var that = this;
+                        var value = that.value;
                         if (e.keyCode == 13) {
                              var colIndex = searchableColumnsMap.get(that.name);
                              //console.log('colIndex='+colIndex);
-                             if (accountTable.column(colIndex).search() != that.value) {
+                             if(value && colIndex!=2 && colIndex!=3){
+                                value=value.replace(/\D/g,'');
+                             }
+                             if (accountTable.column(colIndex).search() != value) {
                                 accountTable
                                     .column(colIndex)
-                                    .search(that.value)
+                                    .search(value)
                                     .draw();
                             }
                         }
