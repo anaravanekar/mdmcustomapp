@@ -23,7 +23,7 @@ public class AddressPane implements UIFormPane {
 //		try {
 		String openedByUser = context.getValueContext().getValue(Paths._Address._AssignedTo)!=null?context.getValueContext().getValue(Paths._Address._AssignedTo).toString():null;
 		if(StringUtils.isNotBlank(openedByUser)) {
-			writer.add("<div");writer.addSafeAttribute("style", "margin-left: 5px;");writer.add(">");writer.add("<b>Note: This record is currently being edited by " +openedByUser+"</b>");writer.add("</div>");
+			writer.add("<div");writer.addSafeAttribute("style", "margin-left: 5px;");writer.add(">");writer.add("<b>Note: This record is currently being edited by " +openedByUser+". Any changes made will not be persisted.</b>");writer.add("</div>");
 		}
 //writer.add("<div");writer.addSafeAttribute("style", "display: inline-block;");writer.add(">");writer.startTableFormRow();
 //writer.endTableFormRow();writer.add("</div>");

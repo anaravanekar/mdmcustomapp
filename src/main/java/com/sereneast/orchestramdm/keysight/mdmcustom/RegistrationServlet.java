@@ -51,13 +51,13 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Promote and Publish Recursive",
 				"",-1,
 				toPath("/root/Address")));*/
-		aContext.registerUserService(new RecordSampleServiceDeclaration(
+/*		aContext.registerUserService(new RecordSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",RecordUpdateShowUpdatedByService.class.getSimpleName()),
 				RecordUpdateShowUpdatedByService.class,
 				"Update Record",
 				"Update Record",
 				"",
-				toPath("/root/Account")));
+				toPath("/root/Account")));*/
 	}
 	/*public void init(ServletConfig config) throws ServletException {
 		super.init(config);

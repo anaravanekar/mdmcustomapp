@@ -250,7 +250,13 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                                         }
                                         jsonFieldsMapForJitterbit.put(fieldName, new OrchestraContent(fieldValue));
                                     }
-                                    List<OrchestraObject> suspects = getSuspects(adaptation);
+                                    Path tempAddressKeyPath = objectPrimaryKeyPath;
+                                    Path tempTablePath = tablePathInSchema;
+                                    objectPrimaryKeyPath = Paths._BusinessPurpose._MDMPurposeId;
+                                    tablePathInSchema = Paths._BusinessPurpose.getPathInSchema();
+                                    List<OrchestraObject> suspects = getSuspects(child);
+                                    objectPrimaryKeyPath = tempAddressKeyPath;
+                                    tablePathInSchema = tempTablePath;
                                     if (suspects != null && !suspects.isEmpty()) {
                                         jsonFieldsMapForJitterbit.put(CROSS_REFERENCES_LABEL, new OrchestraContent(suspects));
                                     } else {

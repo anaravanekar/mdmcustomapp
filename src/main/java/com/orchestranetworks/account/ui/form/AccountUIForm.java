@@ -1,38 +1,51 @@
 /**
- * 
+ *
  */
 package com.orchestranetworks.account.ui.form;
 
 import com.orchestranetworks.ui.UIFormLabelSpec;
-import com.orchestranetworks.ui.form.UIForm;
-import com.orchestranetworks.ui.form.UIFormBody;
-import com.orchestranetworks.ui.form.UIFormContext;
-import com.orchestranetworks.ui.form.UIFormHeader;
+import com.orchestranetworks.ui.form.*;
+import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author rbarfa
  *
  */
 public class AccountUIForm  extends UIForm{
-	
+	private static final Logger LOGGER = LoggerFactory.getLogger(AccountUIForm.class);
+
 	@Override
 	public void defineHeader(final UIFormHeader header, final UIFormContext context) {
-	
-	super.defineHeader(header, context);
-	
-	header.setTitle(new UIFormLabelSpec("Account"));
-	
+
+		super.defineHeader(header, context);
+
+		header.setTitle(new UIFormLabelSpec("Account"));
+
 	}
-	
+
 	@Override
 	public void defineBody(final UIFormBody body, final UIFormContext context) {
-		super.defineBody(body, context);		
-	
+		super.defineBody(body, context);
+
 		AccountPane pane=new AccountPane();
 
 		body.setContent(pane);
-		
+
 	}
-	
-	
+
+	@Override
+	public void defineBottomBar(UIFormBottomBar aBottomBar, UIFormContext context){
+		LOGGER.debug("session userid:"+context.getSession().getUserReference().getUserId());
+		LOGGER.debug("assignedto:"+context.getCurrentRecord().getString(Paths._Account._AssignedTo));
+		if(StringUtils.isNotBlank(context.getCurrentRecord().getString(Paths._Account._AssignedTo))
+				&& !context.getSession().getUserReference().getUserId().equals(context.getCurrentRecord().getString(Paths._Account._AssignedTo))){
+			aBottomBar.setAllButtonsNotDisplayable();
+			aBottomBar.setCloseButtonDisplayable(true);
+			return;
+		}
+	}
+
 }
