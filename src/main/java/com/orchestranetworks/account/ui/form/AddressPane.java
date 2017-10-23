@@ -314,16 +314,16 @@ public class AddressPane implements UIFormPane {
 		writer.add("</td></tr>");
 
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_BusinessPurpose);
+		writer.addLabel(_RelatedBusinessPurpose);
 		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_BusinessPurpose);
+		writer.addWidget(_RelatedBusinessPurpose);
 		writer.add("</td></tr>");
 
-		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+/*		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_Location);
 		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
 		writer.addWidget(_Location);
-		writer.add("</td></tr>");
+		writer.add("</td></tr>");*/
 
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_BillToLocation);
@@ -331,11 +331,11 @@ public class AddressPane implements UIFormPane {
 		writer.addWidget(_BillToLocation);
 		writer.add("</td></tr>");
 
-		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+/*		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_PrimaryPurpose);
 		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
 		writer.addWidget(_PrimaryPurpose);
-		writer.add("</td></tr>");
+		writer.add("</td></tr>");*/
 
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_RevenueRecognition);
@@ -349,11 +349,11 @@ public class AddressPane implements UIFormPane {
 		writer.addWidget(_OrgSegment);
 		writer.add("</td></tr>");
 
-		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+/*		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_SubSegment);
 		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
 		writer.addWidget(_SubSegment);
-		writer.add("</td></tr>");
+		writer.add("</td></tr>");*/
 
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_DemandClass);

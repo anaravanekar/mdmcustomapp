@@ -94,7 +94,7 @@ public class TableTriggerForCountry extends TableTrigger {
         LOGGER.debug("publishedValue=" + publishedValue);
         if(!(publishedFieldValueChange!=null && publishedFieldValueChange.getValueAfter()!=null && "U".equalsIgnoreCase(publishedFieldValueChange.getValueAfter().toString()))) {
             LOGGER.debug("executing trigger");
-            if (daqaStateChanges != null && "Merged".equalsIgnoreCase(String.valueOf(daqaStateChanges.getValueAfter()))) {
+            if (daqaStateChanges != null && "Merged".equalsIgnoreCase(String.valueOf(daqaStateChanges.getValueAfter())) && lovsToMerge!=null) {
                 LOGGER.debug("DAQA STATE CHANGED TO MERGED!!");
                 Adaptation resultRecord = searchByMdmId(procedureContext,
                         Integer.valueOf(String.valueOf(adaptation.get(daqaTargetFieldPath))), adaptation.getContainerTable());

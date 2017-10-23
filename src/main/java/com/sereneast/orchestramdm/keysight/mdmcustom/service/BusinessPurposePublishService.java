@@ -41,7 +41,7 @@ public class BusinessPurposePublishService extends PublishService {
 //        setTablePathInSchema(Paths._BusinessPurpose.getPathInSchema());
         Map<String, Path> pathFieldsMap = null;
         ApplicationCacheUtil applicationCacheUtil = new ApplicationCacheUtil();
-//        setFieldPathMap(applicationCacheUtil.getObjectDirectFields(Paths._BusinessPurpose.class.getName()));
+        setFieldPathMap(applicationCacheUtil.getObjectDirectFields(Paths._BusinessPurpose.class.getName()));
         setCheckParentIsPublished(true);
         setParentIdPath(Paths._Address._MDMAddressId);
 //        setParentForeignKeyPath(Paths._BusinessPurpose._MDMAddressId);

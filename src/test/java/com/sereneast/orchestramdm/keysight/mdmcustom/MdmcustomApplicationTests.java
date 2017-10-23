@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,5 +73,9 @@ public class MdmcustomApplicationTests {
 
 		System.out.println(((Map)((Map)AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("baseUrl"));
 		System.out.println(((Map)((Map)((Map)((Map)AppUtil.getAllPropertiesMap().get("keysight")).get("matching"))).get("lovsToMerge")).get("account") instanceof List);
+		List<String> testList = null;//new ArrayList<>();
+		for(String item:testList){
+			System.out.println("item="+item);
+		}
 	}
 }
