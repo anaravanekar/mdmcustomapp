@@ -1,14 +1,18 @@
 package com.orchestranetworks.account.ui.form;
 
+import com.orchestranetworks.training.mystore.form.AccountUIForm;
 import com.orchestranetworks.ui.form.UIFormContext;
 import com.orchestranetworks.ui.form.UIFormPane;
 import com.orchestranetworks.ui.form.UIFormPaneWriter;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.sereneast.orchestramdm.keysight.mdmcustom.Paths._Account.*;
 
 public class AccountPane implements UIFormPane {
+	private static final Logger LOGGER = LoggerFactory.getLogger(AccountPane.class);
 	public static final String CELL_STYLE_LEFT = "width:25%;  vertical-align:top;";
 	public static final String CELL_STYLE_RIGHT = "width:25%; vertical-align:top;text-align:right;";
 	public static final String CELL_STYLE_LEFT_HALF = "width:12%;  vertical-align:top;";
@@ -18,8 +22,11 @@ public class AccountPane implements UIFormPane {
 	@Override
 	public void writePane(UIFormPaneWriter writer, UIFormContext context) {
 
+		String currentUserId = context.getSession().getUserReference().getUserId();
 		String openedByUser = context.getValueContext().getValue(Paths._Account._AssignedTo)!=null?context.getValueContext().getValue(Paths._Account._AssignedTo).toString():null;
-		if(StringUtils.isNotBlank(openedByUser)) {
+		LOGGER.debug("currentUsereId:"+currentUserId);
+		LOGGER.debug("openedByUser:"+openedByUser);
+		if(StringUtils.isNotBlank(openedByUser) && !currentUserId.equalsIgnoreCase(openedByUser)) {
 			writer.add("<div");writer.addSafeAttribute("style", "margin-left: 5px;");writer.add(">");writer.add("<b>Note: This record is currently being edited by " +openedByUser+". Any changes made will not be persisted.</b>");writer.add("</div>");
 		}
 

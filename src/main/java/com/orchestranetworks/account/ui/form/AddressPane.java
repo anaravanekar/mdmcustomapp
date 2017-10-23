@@ -21,8 +21,11 @@ public class AddressPane implements UIFormPane {
 	@Override
 	public void writePane(UIFormPaneWriter writer, UIFormContext context) {
 //		try {
+		String currentUserId = context.getSession().getUserReference().getUserId();
 		String openedByUser = context.getValueContext().getValue(Paths._Address._AssignedTo)!=null?context.getValueContext().getValue(Paths._Address._AssignedTo).toString():null;
-		if(StringUtils.isNotBlank(openedByUser)) {
+		LOGGER.debug("currentUsereId:"+currentUserId);
+		LOGGER.debug("openedByUser:"+openedByUser);
+		if(StringUtils.isNotBlank(openedByUser) && !currentUserId.equalsIgnoreCase(openedByUser)) {
 			writer.add("<div");writer.addSafeAttribute("style", "margin-left: 5px;");writer.add(">");writer.add("<b>Note: This record is currently being edited by " +openedByUser+". Any changes made will not be persisted.</b>");writer.add("</div>");
 		}
 //writer.add("<div");writer.addSafeAttribute("style", "display: inline-block;");writer.add(">");writer.startTableFormRow();
