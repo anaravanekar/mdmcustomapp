@@ -4,11 +4,9 @@
 package com.sereneast.orchestramdm.keysight.mdmcustom.util;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -148,5 +146,19 @@ public class AppUtil {
 		} catch (IOException e) {
 			throw new ApplicationRuntimeException("Error reading properties from application.yml",e);
 		}
+	}
+
+	public static Object getMailProperty(String key){
+		ClassLoader classLoader = AppUtil.class.getClassLoader();
+		File file = new File(classLoader.getResource("mail.properties").getFile());
+		String rootPath = file.getPath();
+		String mailConfigPath = rootPath;
+		Properties mailProperties = new Properties();
+		try {
+			mailProperties.load(new FileInputStream(mailConfigPath));
+		} catch (IOException e) {
+			throw new ApplicationRuntimeException("Error configuring email",e);
+		}
+		return mailProperties.get(key);
 	}
 }

@@ -18,6 +18,7 @@ public class AccountTrigger extends TableTriggerForCountry {
             setStateFieldPath(Paths._Account._DaqaMetaData_State);
             setTimestampPath(Paths._Account._DaqaMetaData_Timestamp);
             setPublishedFieldPath(Paths._Account._Published);
+            setObjectName("Account");
             List<String> lovsToMerge = (List<String>) ((Map)((Map)((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("matching"))).get("lovsToMerge")).get("account");
             setLovsToMerge(lovsToMerge);
             setInitialized(true);

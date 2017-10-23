@@ -9,15 +9,18 @@ import com.orchestranetworks.service.OperationException;
 import com.orchestranetworks.service.ProcedureContext;
 import com.orchestranetworks.service.ValueContextForUpdate;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
+import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
+import com.sereneast.orchestramdm.keysight.mdmcustom.email.EmailHtmlSender;
+import com.sereneast.orchestramdm.keysight.mdmcustom.email.EmailStatus;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
+import com.sereneast.orchestramdm.keysight.mdmcustom.util.AppUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.thymeleaf.context.Context;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class TableTriggerForCountry extends TableTrigger {
     private static final Logger LOGGER = LoggerFactory.getLogger(PublishService.class);
@@ -36,6 +39,8 @@ public class TableTriggerForCountry extends TableTrigger {
 
     private Path publishedFieldPath = Paths._Account._Published;
 
+    private String objectName;
+
     private List<String> lovsToMerge;
 
     private boolean initialized;
@@ -46,6 +51,27 @@ public class TableTriggerForCountry extends TableTrigger {
     }
 
     public void initialize(){
+    }
+
+    public void handleAfterCreate(AfterCreateOccurrenceContext aContext) throws OperationException{
+        //get application context
+        String username = aContext.getSession().getUserReference().getUserId();
+        if("reduser".equalsIgnoreCase(username)) {
+            ApplicationContext context = SpringContext.getApplicationContext();
+            EmailHtmlSender emailHtmlSender = (EmailHtmlSender) context.getBean("emailHtmlSender");
+            String primaryKey = aContext.getAdaptationOccurrence().get(objectPrimaryKeyPath).toString();
+            Context thymeleafContext = new Context();
+            thymeleafContext.setVariable("timezone", TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT));
+            thymeleafContext.setVariable("objectName", objectName);
+            thymeleafContext.setVariable("primaryKey", primaryKey);
+            String subject = "New record created in MDM by reduser";
+            String htmlBody = "New " + objectName + " with primary key " + primaryKey + " was created in MDM by reduser";
+            String emailTo = String.valueOf(AppUtil.getMailProperty("email.to"));
+            EmailStatus emailStatus = emailHtmlSender.sendEmail(emailTo,subject , htmlBody);
+            if (emailStatus.isError()) {
+                LOGGER.error("Error while sending email - " + emailStatus.getErrorMessage());
+            }
+        }
     }
 
     public void handleAfterModify(AfterModifyOccurrenceContext aContext) throws OperationException {
@@ -119,6 +145,23 @@ public class TableTriggerForCountry extends TableTrigger {
             }
         }else{
             LOGGER.debug("Nothing to update");
+        }
+        String username = aContext.getSession().getUserReference().getUserId();
+        if("reduser".equalsIgnoreCase(username)) {
+            ApplicationContext context = SpringContext.getApplicationContext();
+            EmailHtmlSender emailHtmlSender = (EmailHtmlSender) context.getBean("emailHtmlSender");
+            String primaryKey = aContext.getAdaptationOccurrence().get(objectPrimaryKeyPath).toString();
+            Context thymeleafContext = new Context();
+            thymeleafContext.setVariable("timezone", TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT));
+            thymeleafContext.setVariable("objectName", objectName);
+            thymeleafContext.setVariable("primaryKey", primaryKey);
+            String subject = "Record updated in MDM by reduser";
+            String htmlBody = objectName + " with primary key " + primaryKey + " was updated in MDM by reduser";
+            String emailTo = String.valueOf(AppUtil.getMailProperty("email.to"));
+            EmailStatus emailStatus = emailHtmlSender.sendEmail(emailTo,subject , htmlBody);
+            if (emailStatus.isError()) {
+                LOGGER.error("Error while sending email - " + emailStatus.getErrorMessage());
+            }
         }
     }
 
@@ -228,5 +271,13 @@ public class TableTriggerForCountry extends TableTrigger {
 
     public void setInitialized(boolean initialized) {
         this.initialized = initialized;
+    }
+
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public void setObjectName(String objectName) {
+        this.objectName = objectName;
     }
 }

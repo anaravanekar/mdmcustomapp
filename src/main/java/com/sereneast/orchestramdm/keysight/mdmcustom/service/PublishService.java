@@ -304,6 +304,8 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                     }
                     if(childrenToUpdateInJitterbit!=null && !childrenToUpdateInJitterbit.isEmpty()){
                         jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(childrenToUpdateInJitterbit));
+                    }else if("ADDRESS".equalsIgnoreCase(objectName)){
+                        jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
                     }
                     orchestraObjectToUpdateInJitterbit.setContent(jsonFieldsMapForJitterbit);
                     recordsToUpdateInJitterbit.add(orchestraObjectToUpdateInJitterbit);

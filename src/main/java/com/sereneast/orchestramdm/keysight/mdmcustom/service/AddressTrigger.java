@@ -17,6 +17,7 @@ public class AddressTrigger extends TableTriggerForCountry{
             setStateFieldPath(Paths._Address._DaqaMetaData_State);
             setTimestampPath(Paths._Address._DaqaMetaData_Timestamp);
             setPublishedFieldPath(Paths._Address._Published);
+            setObjectName("Address");
             List<String> lovsToMerge = (List<String>) ((Map)((Map)((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("matching"))).get("lovsToMerge")).get("address");
             setLovsToMerge(lovsToMerge);
             setInitialized(true);

@@ -4,23 +4,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.orchestranetworks.schema.Path;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.ApplicationProperties;
+import com.sereneast.orchestramdm.keysight.mdmcustom.email.EmailHtmlSender;
+import com.sereneast.orchestramdm.keysight.mdmcustom.email.EmailStatus;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.JitterbitRestClient;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.AppUtil;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.thymeleaf.context.Context;
 
 import javax.ws.rs.core.Response;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -73,9 +75,22 @@ public class MdmcustomApplicationTests {
 
 		System.out.println(((Map)((Map)AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("baseUrl"));
 		System.out.println(((Map)((Map)((Map)((Map)AppUtil.getAllPropertiesMap().get("keysight")).get("matching"))).get("lovsToMerge")).get("account") instanceof List);
-		List<String> testList = null;//new ArrayList<>();
-		for(String item:testList){
-			System.out.println("item="+item);
-		}
+
+	}
+
+//	@Test
+	public void testEmail(){
+		ApplicationContext context = SpringContext.getApplicationContext();
+		EmailHtmlSender emailHtmlSender = (EmailHtmlSender)context.getBean("emailHtmlSender");
+		String primaryKey = "1";
+		Context thymeleafContext = new Context();
+		thymeleafContext.setVariable("timezone", TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT));
+		thymeleafContext.setVariable("objectName","Account");
+		thymeleafContext.setVariable("primaryKey",primaryKey);
+		//EmailStatus emailStatus = emailHtmlSender.send("anaravanekar@serenecorp.com", "New "+"Account"+" with primary key "+primaryKey+" created by reduser", "reduser_notification", thymeleafContext);
+		String subject = "New record created in MDM by reduser";
+		String htmlBody = "New " + "Account" + " with primary key " + primaryKey + " was created in MDM by reduser";
+		String emailTo = String.valueOf(AppUtil.getMailProperty("email.to"));
+		EmailStatus emailStatus = emailHtmlSender.sendEmail(emailTo,subject , htmlBody);
 	}
 }
