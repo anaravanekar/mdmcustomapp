@@ -38,7 +38,7 @@ public class AddressUIForm extends UIForm{
 		if(StringUtils.isNotBlank(context.getCurrentRecord().getString(Paths._Address._AssignedTo))
 				&& !context.getSession().getUserReference().getUserId().equals(context.getCurrentRecord().getString(Paths._Address._AssignedTo))){
 			aBottomBar.setAllButtonsNotDisplayable();
-//			aBottomBar.setCloseButtonDisplayable(true);
+			aBottomBar.setCloseButtonDisplayable(true);
 			return;
 		}
 	}
