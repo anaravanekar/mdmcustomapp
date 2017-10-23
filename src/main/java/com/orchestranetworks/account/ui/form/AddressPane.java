@@ -546,8 +546,10 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("function calculatedFields(countryCode){");
 		//writer.addJS("alert('calculatedFields called');");
 		writer.addJS("var xhr = new XMLHttpRequest();");
+		String protocol = "true".equals(((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("ssl").toString())?"https":"http";
+		String host = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("host").toString();//"http://localhost:8080/ebx-dataservices/rest/data/v1";
 		String port = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("port").toString();//"http://localhost:8080/ebx-dataservices/rest/data/v1";
-		writer.addJS("xhr.open('GET', 'http://localhost:"+port+"/mdmcustomapp/calculatedFields/country/BReference/Account/'+countryCode);");
+		writer.addJS("xhr.open('GET', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/calculatedFields/country/BReference/Account/'+countryCode);");
 		writer.addJS("xhr.setRequestHeader('Content-Type', 'application/json');");
 		writer.addJS("xhr.onload = function() {");
 		writer.addJS("if (xhr.status === 200) {");
