@@ -217,42 +217,44 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                     }
                 }
 
-                if(parentIdPathInChild!=null){
+                if(parentIdPathInChild!=null) {
                     Adaptation container = adaptation.getContainer();
                     AdaptationTable childTable = container.getTable(childPathInSchema);
-                    final RequestResult childTableRequestResult = childTable.createRequestResult(parentIdPathInChild.format()+"='"+adaptation.get(objectPrimaryKeyPath)+"'");
+                    final RequestResult childTableRequestResult = childTable.createRequestResult(parentIdPathInChild.format() + "='" + adaptation.get(objectPrimaryKeyPath) + "'");
                     if (childTableRequestResult != null && !childTableRequestResult.isEmpty()) {
                         Map<String, Path> fieldPathMap = null;
                         ApplicationCacheUtil applicationCacheUtil = new ApplicationCacheUtil();
                         try {
                             fieldPathMap = applicationCacheUtil.getObjectDirectFields(Paths._BusinessPurpose.class.getName());
                         } catch (IllegalAccessException | ClassNotFoundException e) {
-                            throw new ApplicationRuntimeException("Error populating children",e);
+                            throw new ApplicationRuntimeException("Error populating children", e);
                         }
-                        for(Adaptation child;(child=childTableRequestResult.nextAdaptation()) != null;){
-                            if(!"ADDRESS".equalsIgnoreCase(objectName) ){
-                                if("Golden".equalsIgnoreCase(child.getString(Paths._Address._DaqaMetaData_State))) {
+                        for (Adaptation child; (child = childTableRequestResult.nextAdaptation()) != null; ) {
+                            if (!"ADDRESS".equalsIgnoreCase(objectName)) {
+                                if ("Golden".equalsIgnoreCase(child.getString(Paths._Address._DaqaMetaData_State))) {
                                     children.add(child);
                                 }
-                            }else{
-                                OrchestraObject orchestraChildToUpdateInJitterbit = new OrchestraObject();
-                                Map<String, OrchestraContent> jsonFieldsMapForJitterbit = new HashMap<>();
-                                for (String fieldName : fieldPathMap.keySet()) {
-                                    Object fieldValue = child.get(fieldPathMap.get(fieldName));
-                                    if(fieldValue instanceof List){
-                                        List objArray = (List)fieldValue;
-                                        List<OrchestraContent> contentList = new ArrayList<>();
-                                        for(Object obj:objArray){
-                                            contentList.add(new OrchestraContent(obj));
+                            } else {
+                                if ("Golden".equalsIgnoreCase(child.getString(Paths._BusinessPurpose._DaqaMetaData_State))) {
+                                    OrchestraObject orchestraChildToUpdateInJitterbit = new OrchestraObject();
+                                    Map<String, OrchestraContent> jsonFieldsMapForJitterbit = new HashMap<>();
+                                    for (String fieldName : fieldPathMap.keySet()) {
+                                        Object fieldValue = child.get(fieldPathMap.get(fieldName));
+                                        if (fieldValue instanceof List) {
+                                            List objArray = (List) fieldValue;
+                                            List<OrchestraContent> contentList = new ArrayList<>();
+                                            for (Object obj : objArray) {
+                                                contentList.add(new OrchestraContent(obj));
+                                            }
+                                            fieldValue = contentList;
                                         }
-                                        fieldValue = contentList;
+                                        jsonFieldsMapForJitterbit.put(fieldName, new OrchestraContent(fieldValue));
                                     }
-                                    jsonFieldsMapForJitterbit.put(fieldName, new OrchestraContent(fieldValue));
-                                }
 
-                                orchestraChildToUpdateInJitterbit.setContent(jsonFieldsMapForJitterbit);
-                                childrenToUpdateInJitterbit.add(orchestraChildToUpdateInJitterbit);
-                                children.add(child);
+                                    orchestraChildToUpdateInJitterbit.setContent(jsonFieldsMapForJitterbit);
+                                    childrenToUpdateInJitterbit.add(orchestraChildToUpdateInJitterbit);
+                                    children.add(child);
+                                }
                             }
                         }
                     }
