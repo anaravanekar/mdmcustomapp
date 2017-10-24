@@ -14,7 +14,7 @@ keysight:
             account:
                 - Country
             address:
-                - BusinessPurpose
+#                - BusinessPurpose
     job:
         account:
             enabled: true
