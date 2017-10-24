@@ -3,11 +3,6 @@ package com.sereneast.orchestramdm.keysight.mdmcustom.service;
 import com.onwbp.adaptation.Adaptation;
 import com.onwbp.adaptation.AdaptationTable;
 import com.onwbp.adaptation.RequestResult;
-import com.optimaize.langdetect.LanguageDetector;
-import com.optimaize.langdetect.i18n.LdLocale;
-import com.optimaize.langdetect.text.CommonTextObjectFactories;
-import com.optimaize.langdetect.text.TextObject;
-import com.optimaize.langdetect.text.TextObjectFactory;
 import com.orchestranetworks.schema.Path;
 import com.orchestranetworks.schema.trigger.*;
 import com.orchestranetworks.service.OperationException;
@@ -52,7 +47,7 @@ public class GenericTrigger extends TableTrigger {
 
     private List<Path> languageDetectionSourceFields;
 
-    protected static LanguageDetector languageDetector;
+//    protected static LanguageDetector languageDetector;
 
     private Path localeFieldPath;
 
@@ -287,7 +282,7 @@ public class GenericTrigger extends TableTrigger {
         return resultRecord;
     }
 
-    private String getLocale(LanguageDetector languageDetector, String text) {
+/*    private String getLocale(LanguageDetector languageDetector, String text) {
         LOGGER.debug("in getLocale text="+text);
         String detectedLanguage = null;
         TextObjectFactory textObjectFactory = CommonTextObjectFactories.forDetectingOnLargeText();
@@ -301,7 +296,7 @@ public class GenericTrigger extends TableTrigger {
             LOGGER.error("Language could not be detected. May be because of probability of detected language is less than minimal confidence 0.999");
         }
         return detectedLanguage;
-    }
+    }*/
 
     public boolean isInitialized() {
         return initialized;
