@@ -3,6 +3,11 @@ package com.sereneast.orchestramdm.keysight.mdmcustom.service;
 import com.onwbp.adaptation.Adaptation;
 import com.onwbp.adaptation.AdaptationTable;
 import com.onwbp.adaptation.RequestResult;
+import com.optimaize.langdetect.LanguageDetector;
+import com.optimaize.langdetect.i18n.LdLocale;
+import com.optimaize.langdetect.text.CommonTextObjectFactories;
+import com.optimaize.langdetect.text.TextObject;
+import com.optimaize.langdetect.text.TextObjectFactory;
 import com.orchestranetworks.schema.Path;
 import com.orchestranetworks.schema.trigger.*;
 import com.orchestranetworks.service.OperationException;
@@ -14,6 +19,7 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.email.EmailHtmlSender;
 import com.sereneast.orchestramdm.keysight.mdmcustom.email.EmailStatus;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.AppUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -22,8 +28,8 @@ import org.thymeleaf.context.Context;
 import java.time.LocalDateTime;
 import java.util.*;
 
-public class TableTriggerForCountry extends TableTrigger {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PublishService.class);
+public class GenericTrigger extends TableTrigger {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GenericTrigger.class);
 
     private Path daqaTargetFieldPath = Paths._Account._DaqaMetaData_TargetRecord;
 
@@ -45,12 +51,19 @@ public class TableTriggerForCountry extends TableTrigger {
 
     private boolean initialized;
 
+    private List<Path> languageDetectionSourceFields;
+
+    protected static LanguageDetector languageDetector;
+
+    private Path localeFieldPath;
+
     @Override
     public void setup(TriggerSetupContext triggerSetupContext) {
 
     }
 
     public void initialize(){
+
     }
 
     public void handleAfterCreate(AfterCreateOccurrenceContext aContext) throws OperationException{
@@ -72,10 +85,30 @@ public class TableTriggerForCountry extends TableTrigger {
                 LOGGER.error("Error while sending email - " + emailStatus.getErrorMessage());
             }
         }
+        List<String> sourceValues = new ArrayList<>();
+        String detectionSource = "";
+        LOGGER.debug("hbc languageDetectionSourceFields="+languageDetectionSourceFields);
+        if(languageDetectionSourceFields!=null){
+            for(Path path:languageDetectionSourceFields){
+                LOGGER.debug("bc path "+path);
+                String value = aContext.getOccurrenceContext().getValue(path)!=null?String.valueOf(aContext.getOccurrenceContext().getValue(path)):null;
+                LOGGER.debug("value="+value);
+                if(value!=null){
+                    sourceValues.add(value);
+                }
+            }
+            if(!sourceValues.isEmpty()){
+                detectionSource = StringUtils.join(sourceValues, " ");
+                String locale = getLocale(languageDetector, detectionSource.trim());
+                ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
+                valueContextForUpdate.setValue(locale,localeFieldPath);
+                aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
+            }
+        }
     }
 
     public void handleAfterModify(AfterModifyOccurrenceContext aContext) throws OperationException {
-        LOGGER.debug("TableTriggerForCountry handleAfterModify called...");
+        LOGGER.debug("GenericTrigger handleAfterModify called...");
         initialize();
         ProcedureContext procedureContext = aContext.getProcedureContext();
         Adaptation adaptation = aContext.getAdaptationOccurrence();
@@ -163,6 +196,36 @@ public class TableTriggerForCountry extends TableTrigger {
                 LOGGER.error("Error while sending email - " + emailStatus.getErrorMessage());
             }
         }
+        List<String> sourceValues = new ArrayList<>();
+        String detectionSource = "";
+        boolean fieldChanged = false;
+        LOGGER.debug("hbm languageDetectionSourceFields="+languageDetectionSourceFields);
+        if(languageDetectionSourceFields!=null && aContext.getChanges()!=null){
+            LOGGER.debug("bm something changed");
+            for(Path path:languageDetectionSourceFields){
+                LOGGER.debug("path "+path+" change"+aContext.getChanges().getChange(path));
+                if(aContext.getChanges().getChange(path)!=null){
+                    fieldChanged=true;
+                    break;
+                }
+            }
+            if(fieldChanged) {
+                LOGGER.debug("FIELD CHANGED");
+                for (Path path : languageDetectionSourceFields) {
+                    String value = aContext.getOccurrenceContext().getValue(path) != null ? String.valueOf(aContext.getOccurrenceContext().getValue(path)) : null;
+                    if (value != null) {
+                        sourceValues.add(value);
+                    }
+                }
+                if (!sourceValues.isEmpty()) {
+                    detectionSource = StringUtils.join(sourceValues, " ");
+                    String locale = getLocale(languageDetector, detectionSource.trim());
+                    ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
+                    valueContextForUpdate.setValue(locale,localeFieldPath);
+                    aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
+                }
+            }
+        }
     }
 
     private List<Adaptation> searchByTargetValue(ProcedureContext procedureContext,Integer mdmId,AdaptationTable adaptationTable) {
@@ -225,6 +288,22 @@ public class TableTriggerForCountry extends TableTrigger {
         return resultRecord;
     }
 
+    private String getLocale(LanguageDetector languageDetector, String text) {
+        LOGGER.debug("in getLocale text="+text);
+        String detectedLanguage = null;
+        TextObjectFactory textObjectFactory = CommonTextObjectFactories.forDetectingOnLargeText();
+        TextObject textObject = textObjectFactory.forText(text);
+        com.google.common.base.Optional<LdLocale> lang = languageDetector.detectWithMinimalConfidence(0,textObject);
+        if(lang.isPresent()){
+            LdLocale ldLocale = lang.get();
+            detectedLanguage = ldLocale.getLanguage();
+            LOGGER.info("Detected Locale: "+ ldLocale);
+        }else{
+            LOGGER.error("Language could not be detected. May be because of probability of detected language is less than minimal confidence 0.999");
+        }
+        return detectedLanguage;
+    }
+
     public boolean isInitialized() {
         return initialized;
     }
@@ -279,5 +358,21 @@ public class TableTriggerForCountry extends TableTrigger {
 
     public void setObjectName(String objectName) {
         this.objectName = objectName;
+    }
+
+    public List<Path> getLanguageDetectionSourceFields() {
+        return languageDetectionSourceFields;
+    }
+
+    public void setLanguageDetectionSourceFields(List<Path> languageDetectionSourceFields) {
+        this.languageDetectionSourceFields = languageDetectionSourceFields;
+    }
+
+    public Path getLocaleFieldPath() {
+        return localeFieldPath;
+    }
+
+    public void setLocaleFieldPath(Path localeFieldPath) {
+        this.localeFieldPath = localeFieldPath;
     }
 }
