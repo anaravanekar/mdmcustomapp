@@ -4,19 +4,13 @@
 package com.sereneast.orchestramdm.keysight.mdmcustom.service;
 
 import com.onwbp.adaptation.Adaptation;
-import com.orchestranetworks.service.Procedure;
 import com.orchestranetworks.service.ProcedureResult;
-import com.orchestranetworks.service.ProgrammaticService;
-import com.orchestranetworks.service.ValueContextForUpdate;
 import com.orchestranetworks.ui.selection.RecordEntitySelection;
 import com.orchestranetworks.userservice.*;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths._Account;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.ModifiedByStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Locale;
 
 public class RecordUpdateShowUpdatedByService implements UserService<RecordEntitySelection>
 {
@@ -185,21 +179,22 @@ public class RecordUpdateShowUpdatedByService implements UserService<RecordEntit
 		aWriter.endTableFormRow();
 		aWriter.add("</td>");
 		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
-		aWriter.startTableFormRow();
-		aWriter.addFormRow(Paths._Account._AccountDescription);
-		aWriter.endTableFormRow();
+//		aWriter.startTableFormRow();
+//		aWriter.addFormRow(Paths._Account._AccountDescription);
+//		aWriter.endTableFormRow();
 		aWriter.add("</td>");
 		aWriter.add("</tr>");
 
 		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
 		aWriter.startTableFormRow();
-		aWriter.addFormRow(Paths._Account._Alias);
+		aWriter.addFormRow(Paths._Account._NamePronunciation);
+//		aWriter.addFormRow(Paths._Account._Alias);
 		aWriter.endTableFormRow();
 		aWriter.add("</td>");
 		aWriter.add("<td style=\"" + CELL_STYLE + "\">");
-		aWriter.startTableFormRow();
-		aWriter.addFormRow(Paths._Account._NamePronunciation);
-		aWriter.endTableFormRow();
+//		aWriter.startTableFormRow();
+//		aWriter.addFormRow(Paths._Account._NamePronunciation);
+//		aWriter.endTableFormRow();
 		aWriter.add("</td>");
 		aWriter.add("</tr>");
 
@@ -356,7 +351,7 @@ public class RecordUpdateShowUpdatedByService implements UserService<RecordEntit
 		aWriter.add("</tr>");
 		aWriter.add("<tr>");
 
-		aWriter.add("<tr>");
+/*		aWriter.add("<tr>");
 		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
 		aWriter.startTableFormRow();
 		aWriter.addFormRow(Paths._Account._LastCreditReviewDate);
@@ -366,9 +361,9 @@ public class RecordUpdateShowUpdatedByService implements UserService<RecordEntit
 
 		aWriter.add("</td>");
 		aWriter.add("</tr>");
-		aWriter.add("<tr>");
+		aWriter.add("<tr>");*/
 
-		aWriter.add("<tr>");
+/*		aWriter.add("<tr>");
 		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
 		aWriter.startTableFormRow();
 		aWriter.addFormRow(Paths._Account._NextCreditReviewDate);
@@ -378,9 +373,9 @@ public class RecordUpdateShowUpdatedByService implements UserService<RecordEntit
 
 		aWriter.add("</td>");
 		aWriter.add("</tr>");
-		aWriter.add("<tr>");
+		aWriter.add("<tr>");*/
 
-		aWriter.add("<tr>");
+/*		aWriter.add("<tr>");
 		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE + "\">");
 		aWriter.startTableFormRow();
 		aWriter.addFormRow(Paths._Account._CreditReviewCycle);
@@ -390,7 +385,7 @@ public class RecordUpdateShowUpdatedByService implements UserService<RecordEntit
 
 		aWriter.add("</td>");
 		aWriter.add("</tr>");
-		aWriter.add("<tr>");
+		aWriter.add("<tr>");*/
 
 		aWriter.add("<tr>");
 		aWriter.add("<td  colspan=\"1\" style=\"" + CELL_STYLE + "\">");

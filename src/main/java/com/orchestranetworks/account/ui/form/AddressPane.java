@@ -108,10 +108,10 @@ public class AddressPane implements UIFormPane {
 		writer.addWidget(_IdentifyingAddress);
 		writer.add("</td>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_SiteId);
+//		writer.addLabel(_SiteId);
 		writer.add("</td>");
 		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_SiteId);
+//		writer.addWidget(_SiteId);
 		writer.add("</td>");
 		writer.add("</tr>");
 
@@ -523,11 +523,11 @@ public class AddressPane implements UIFormPane {
 		writer.addWidget(_SystemName);
 		writer.add("</td></tr>");
 
-		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+/*		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_KeysightSFAAddressId);
 		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
 		writer.addWidget(_KeysightSFAAddressId);
-		writer.add("</td></tr>");
+		writer.add("</td></tr>");*/
 
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_BatchCode);

@@ -47,7 +47,7 @@ public class AddressTrigger extends GenericTrigger {
             languageDetectionSourceFields.add(Paths._Address._AddressLine3);
             languageDetectionSourceFields.add(Paths._Address._AddressLine4);
             setLanguageDetectionSourceFields(languageDetectionSourceFields);
-            setLocaleFieldPath(Paths._Address._Locale);
+//            setLocaleFieldPath(Paths._Address._Locale);
         }
     }
 }

@@ -44,7 +44,7 @@ public class AccountTrigger extends GenericTrigger {
             List<Path> languageDetectionSourceFields = new ArrayList<>();
             languageDetectionSourceFields.add(Paths._Account._AccountName);
             setLanguageDetectionSourceFields(languageDetectionSourceFields);
-            setLocaleFieldPath(Paths._Account._Locale);
+//            setLocaleFieldPath(Paths._Account._Locale);
         }
     }
 }

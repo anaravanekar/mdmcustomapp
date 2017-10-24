@@ -19,7 +19,6 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.email.EmailHtmlSender;
 import com.sereneast.orchestramdm.keysight.mdmcustom.email.EmailStatus;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.AppUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -85,7 +84,7 @@ public class GenericTrigger extends TableTrigger {
                 LOGGER.error("Error while sending email - " + emailStatus.getErrorMessage());
             }
         }
-        List<String> sourceValues = new ArrayList<>();
+        /*List<String> sourceValues = new ArrayList<>();
         String detectionSource = "";
         LOGGER.debug("hbc languageDetectionSourceFields="+languageDetectionSourceFields);
         if(languageDetectionSourceFields!=null){
@@ -104,7 +103,7 @@ public class GenericTrigger extends TableTrigger {
                 valueContextForUpdate.setValue(locale,localeFieldPath);
                 aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
             }
-        }
+        }*/
     }
 
     public void handleAfterModify(AfterModifyOccurrenceContext aContext) throws OperationException {
@@ -196,7 +195,7 @@ public class GenericTrigger extends TableTrigger {
                 LOGGER.error("Error while sending email - " + emailStatus.getErrorMessage());
             }
         }
-        List<String> sourceValues = new ArrayList<>();
+     /*   List<String> sourceValues = new ArrayList<>();
         String detectionSource = "";
         boolean fieldChanged = false;
         LOGGER.debug("hbm languageDetectionSourceFields="+languageDetectionSourceFields);
@@ -225,7 +224,7 @@ public class GenericTrigger extends TableTrigger {
                     aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
                 }
             }
-        }
+        }*/
     }
 
     private List<Adaptation> searchByTargetValue(ProcedureContext procedureContext,Integer mdmId,AdaptationTable adaptationTable) {
