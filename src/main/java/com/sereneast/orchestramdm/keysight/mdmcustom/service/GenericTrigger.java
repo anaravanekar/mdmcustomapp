@@ -297,6 +297,12 @@ public class GenericTrigger extends TableTrigger {
         if(lang.isPresent()){
             LdLocale ldLocale = lang.get();
             detectedLanguage = ldLocale.getLanguage();
+            if("ja".equalsIgnoreCase(detectedLanguage)||"ko".equalsIgnoreCase(detectedLanguage) || "zh".equalsIgnoreCase(detectedLanguage)
+                    || "zh-CN".equalsIgnoreCase(detectedLanguage) || "zh-KW".equalsIgnoreCase(detectedLanguage)){
+                detectedLanguage="ja";
+            }else{
+                detectedLanguage=null;
+            }
             LOGGER.info("Detected Locale: "+ ldLocale);
         }else{
             LOGGER.error("Language could not be detected. May be because of probability of detected language is less than minimal confidence 0.999");
