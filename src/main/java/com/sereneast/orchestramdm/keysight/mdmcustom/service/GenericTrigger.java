@@ -3,6 +3,11 @@ package com.sereneast.orchestramdm.keysight.mdmcustom.service;
 import com.onwbp.adaptation.Adaptation;
 import com.onwbp.adaptation.AdaptationTable;
 import com.onwbp.adaptation.RequestResult;
+import com.optimaize.langdetect.LanguageDetector;
+import com.optimaize.langdetect.i18n.LdLocale;
+import com.optimaize.langdetect.text.CommonTextObjectFactories;
+import com.optimaize.langdetect.text.TextObject;
+import com.optimaize.langdetect.text.TextObjectFactory;
 import com.orchestranetworks.schema.Path;
 import com.orchestranetworks.schema.trigger.*;
 import com.orchestranetworks.service.OperationException;
@@ -14,6 +19,7 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.email.EmailHtmlSender;
 import com.sereneast.orchestramdm.keysight.mdmcustom.email.EmailStatus;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.AppUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -47,7 +53,7 @@ public class GenericTrigger extends TableTrigger {
 
     private List<Path> languageDetectionSourceFields;
 
-//    protected static LanguageDetector languageDetector;
+    protected static LanguageDetector languageDetector;
 
     private Path localeFieldPath;
 
@@ -79,7 +85,7 @@ public class GenericTrigger extends TableTrigger {
                 LOGGER.error("Error while sending email - " + emailStatus.getErrorMessage());
             }
         }
-        /*List<String> sourceValues = new ArrayList<>();
+        List<String> sourceValues = new ArrayList<>();
         String detectionSource = "";
         LOGGER.debug("hbc languageDetectionSourceFields="+languageDetectionSourceFields);
         if(languageDetectionSourceFields!=null){
@@ -98,7 +104,7 @@ public class GenericTrigger extends TableTrigger {
                 valueContextForUpdate.setValue(locale,localeFieldPath);
                 aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
             }
-        }*/
+        }
     }
 
     public void handleAfterModify(AfterModifyOccurrenceContext aContext) throws OperationException {
@@ -190,7 +196,7 @@ public class GenericTrigger extends TableTrigger {
                 LOGGER.error("Error while sending email - " + emailStatus.getErrorMessage());
             }
         }
-     /*   List<String> sourceValues = new ArrayList<>();
+        List<String> sourceValues = new ArrayList<>();
         String detectionSource = "";
         boolean fieldChanged = false;
         LOGGER.debug("hbm languageDetectionSourceFields="+languageDetectionSourceFields);
@@ -219,7 +225,7 @@ public class GenericTrigger extends TableTrigger {
                     aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
                 }
             }
-        }*/
+        }
     }
 
     private List<Adaptation> searchByTargetValue(ProcedureContext procedureContext,Integer mdmId,AdaptationTable adaptationTable) {
@@ -282,7 +288,7 @@ public class GenericTrigger extends TableTrigger {
         return resultRecord;
     }
 
-/*    private String getLocale(LanguageDetector languageDetector, String text) {
+    private String getLocale(LanguageDetector languageDetector, String text) {
         LOGGER.debug("in getLocale text="+text);
         String detectedLanguage = null;
         TextObjectFactory textObjectFactory = CommonTextObjectFactories.forDetectingOnLargeText();
@@ -296,7 +302,7 @@ public class GenericTrigger extends TableTrigger {
             LOGGER.error("Language could not be detected. May be because of probability of detected language is less than minimal confidence 0.999");
         }
         return detectedLanguage;
-    }*/
+    }
 
     public boolean isInitialized() {
         return initialized;

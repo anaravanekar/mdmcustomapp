@@ -117,6 +117,7 @@ public interface Paths
 		public static final Path _AssignedTo = Path.parse("./AssignedTo");
 		public static final Path _Published = Path.parse("./Published");
 		public static final Path _BatchCode = Path.parse("./BatchCode");
+		public static final Path _Locale = Path.parse("./Locale");
 		public static final Path _RelatedAddress = Path.parse("./RelatedAddress");
 		public static final Path _MergedTargetRecord = Path.parse("./MergedTargetRecord");
 	} 
@@ -241,6 +242,7 @@ public interface Paths
 		public static final Path _AssignedTo = Path.parse("./AssignedTo");
 		public static final Path _Published = Path.parse("./Published");
 		public static final Path _BatchCode = Path.parse("./BatchCode");
+		public static final Path _Locale = Path.parse("./Locale");
 		public static final Path _SpecialHandling = Path.parse("./SpecialHandling");
 		public static final Path _RelatedBusinessPurpose = Path.parse("./RelatedBusinessPurpose");
 		public static final Path _MergedTargetRecord = Path.parse("./MergedTargetRecord");
