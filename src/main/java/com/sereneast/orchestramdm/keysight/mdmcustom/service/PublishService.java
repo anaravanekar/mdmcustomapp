@@ -254,7 +254,19 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                                     Path tempTablePath = tablePathInSchema;
                                     objectPrimaryKeyPath = Paths._BusinessPurpose._MDMPurposeId;
                                     tablePathInSchema = Paths._BusinessPurpose.getPathInSchema();
-                                    List<OrchestraObject> suspects = getSuspects(child);
+                                    List<OrchestraObject> suspects = new ArrayList<>();
+                                    List<OrchestraObject> suspectsFound = getSuspects(child);
+                                    OrchestraObject orchestraObject = new OrchestraObject();
+                                    Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
+                                    jsonFieldsMap.put(objectPrimaryKeyPath.format().replaceAll("\\.\\/", ""),new OrchestraContent(child.get(objectPrimaryKeyPath)));
+                                    jsonFieldsMap.put(systemIdPath.format().replaceAll("\\.\\/", ""),new OrchestraContent(child.get(systemIdPath)));
+                                    jsonFieldsMap.put(systemNamePath.format().replaceAll("\\.\\/", ""),new OrchestraContent(child.get(systemNamePath)));
+                                    jsonFieldsMap.put("DQState",new OrchestraContent(child.get(Path.parse("./DaqaMetaData/State"))));
+                                    orchestraObject.setContent(jsonFieldsMap);
+                                    suspects.add(orchestraObject);
+                                    if(suspectsFound!=null && !suspectsFound.isEmpty()){
+                                        suspects.addAll(suspectsFound);
+                                    }
                                     objectPrimaryKeyPath = tempAddressKeyPath;
                                     tablePathInSchema = tempTablePath;
                                     if (suspects != null && !suspects.isEmpty()) {
@@ -306,9 +318,20 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                         jsonFieldsMapForJitterbit.put(fieldName, new OrchestraContent(fieldValue));
                     }
                     //Find cross references for the object
-                    List<OrchestraObject> suspects = null;
+                    List<OrchestraObject> suspects = new ArrayList<>();
                     if (!"BUSINESSPURPOSE".equalsIgnoreCase(objectName)) {
-                        suspects = getSuspects(adaptation);
+                        List<OrchestraObject> suspectsFound = getSuspects(adaptation);
+                        OrchestraObject orchestraObject = new OrchestraObject();
+                        Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
+                        jsonFieldsMap.put(objectPrimaryKeyPath.format().replaceAll("\\.\\/", ""),new OrchestraContent(adaptation.get(objectPrimaryKeyPath)));
+                        jsonFieldsMap.put(systemIdPath.format().replaceAll("\\.\\/", ""),new OrchestraContent(adaptation.get(systemIdPath)));
+                        jsonFieldsMap.put(systemNamePath.format().replaceAll("\\.\\/", ""),new OrchestraContent(adaptation.get(systemNamePath)));
+                        jsonFieldsMap.put("DQState",new OrchestraContent(adaptation.get(Path.parse("./DaqaMetaData/State"))));
+                        orchestraObject.setContent(jsonFieldsMap);
+                        suspects.add(orchestraObject);
+                        if(suspectsFound!=null && !suspectsFound.isEmpty()){
+                            suspects.addAll(suspectsFound);
+                        }
                     }
                     if (suspects != null && !suspects.isEmpty()) {
                         jsonFieldsMapForJitterbit.put(CROSS_REFERENCES_LABEL, new OrchestraContent(suspects));
@@ -471,6 +494,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                 jsonFieldsMap.put(objectPrimaryKeyPath.format().replaceAll("\\.\\/", ""),new OrchestraContent(tableRequestResultRecord.get(objectPrimaryKeyPath)));
                 jsonFieldsMap.put(systemIdPath.format().replaceAll("\\.\\/", ""),new OrchestraContent(tableRequestResultRecord.get(systemIdPath)));
                 jsonFieldsMap.put(systemNamePath.format().replaceAll("\\.\\/", ""),new OrchestraContent(tableRequestResultRecord.get(systemNamePath)));
+                jsonFieldsMap.put("DQState",new OrchestraContent(tableRequestResultRecord.get(Path.parse("./DaqaMetaData/State"))));
                 List<OrchestraObject> childSuspectList = getSuspects(tableRequestResultRecord);
                 if(childSuspectList!=null && !childSuspectList.isEmpty()){
                     //jsonFieldsMap.put(CROSS_REFERENCES_LABEL,new OrchestraContent(childSuspectList));
