@@ -29,7 +29,7 @@ public class ApplicationCacheUtil {
 				String key = path.format().replaceAll("\\.\\/", "");
 				if(!key.contains("DaqaMetaData") && !key.contains("MergedTargetRecord") && !key.contains("RelatedAddress") && !key.contains("RelatedBusinessPurpose")
 						&& !key.contains("Notes") && !key.contains("AssignedTo") && !key.contains("BatchCode")
-						&& !key.contains("Source")) {
+						&& !key.contains("Source") && !key.contains("Locale")) {
 //					LOGGER.debug(String.valueOf(path));
 //					LOGGER.debug(key);
 					fields.put(key,path);
