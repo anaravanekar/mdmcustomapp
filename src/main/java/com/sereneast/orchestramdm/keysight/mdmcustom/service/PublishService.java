@@ -1,6 +1,7 @@
 package com.sereneast.orchestramdm.keysight.mdmcustom.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.onwbp.adaptation.Adaptation;
 import com.onwbp.adaptation.AdaptationTable;
 import com.onwbp.adaptation.RequestResult;
@@ -27,6 +28,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class PublishService implements UserService<TableViewEntitySelection>,ApplicationContextAware
@@ -414,6 +416,9 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
     private void publishToJitterbit(List<OrchestraObject> recordsToUpdateInJitterbit){
         try {
             ObjectMapper mapper = new ObjectMapper();
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            mapper.setDateFormat(df);
             OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
             orchestraObjectList.setRows(recordsToUpdateInJitterbit);
            /* JitterbitRestClient jitterbitRestClient = new JitterbitRestClient();
@@ -460,6 +465,9 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             obj.getContent().put(flagFieldPath.format().replaceAll("\\.\\/", ""),new OrchestraContent("Y"));
         }
         ObjectMapper mapper = new ObjectMapper();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.setDateFormat(df);
         OrchestraRestClient orchestraRestClient = new OrchestraRestClient();
         orchestraRestClient.setBaseUrl(mdmRestBaseUrl);
         orchestraRestClient.setFeature(HttpAuthenticationFeature.basic(mdmRestUsername, mdmrp));

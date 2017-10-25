@@ -1,11 +1,10 @@
 package com.sereneast.orchestramdm.keysight.mdmcustom.rest.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.ApplicationProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectListResponse;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraResponseDetails;
-import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +15,7 @@ import javax.ws.rs.client.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.Map;
 
@@ -76,6 +76,9 @@ public class OrchestraRestClient {
             if (response.getStatus() == 200) {
                 response.bufferEntity();
                 ObjectMapper mapper = new ObjectMapper();
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                mapper.setDateFormat(df);
                 OrchestraObjectListResponse responseJson = mapper.readValue(response.readEntity(String.class), OrchestraObjectListResponse.class);
                 LOGGER.trace(mapper.writeValueAsString(responseJson));
                 return responseJson;
@@ -89,6 +92,9 @@ public class OrchestraRestClient {
     public Response insert(final String dataSpace, final String dataSet, final String path, OrchestraObjectList requestObject, final Map<String,String> parameters) throws IOException {
         Client client = ClientBuilder.newClient();
         ObjectMapper mapper = new ObjectMapper();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.setDateFormat(df);
         try {
             client.register(feature);
             WebTarget target = client.target(baseUrl).path(dataSpace).path(dataSet).path(path);
