@@ -79,7 +79,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
 
     private static final int RETRY_WAIT_MILLIS = 1000;
 
-    private static final String CROSS_REFERENCES_LABEL = "CrossReferences";
+    private static final String CROSS_REFERENCES_LABEL = "CrossReference";
 
     private String mdmRestBaseUrl;
 
