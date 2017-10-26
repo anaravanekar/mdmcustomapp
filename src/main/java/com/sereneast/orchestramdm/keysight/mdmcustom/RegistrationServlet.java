@@ -37,6 +37,20 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Promote and Publish",
 				"",-1,
 				toPath("/root/Address")));
+		aContext.registerUserService(new TableViewSampleServiceDeclaration(
+				ServiceKey.forModuleServiceName("mdmcustomapp",AlignForeignKeysAccountService.class.getSimpleName()),
+				AlignForeignKeysAccountService.class,
+				"Align foreign keys",
+				"Align foreign keys",
+				"",-1,
+				toPath("/root/Account")));
+		aContext.registerUserService(new TableViewSampleServiceDeclaration(
+				ServiceKey.forModuleServiceName("mdmcustomapp",AlignForeignKeysAddressService.class.getSimpleName()),
+				AlignForeignKeysAddressService.class,
+				"Align foreign keys",
+				"Align foreign keys",
+				"",-1,
+				toPath("/root/Address")));
 /*		aContext.registerUserService(new TableViewSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",AccountPublishRecursiveService.class.getSimpleName()),
 				AccountPublishRecursiveService.class,

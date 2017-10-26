@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+
 import static com.sereneast.orchestramdm.keysight.mdmcustom.Paths._Address.*;
 
 public class AddressPane implements UIFormPane {
@@ -20,7 +21,6 @@ public class AddressPane implements UIFormPane {
 
 	@Override
 	public void writePane(UIFormPaneWriter writer, UIFormContext context) {
-//		try {
 		String currentUserId = context.getSession().getUserReference().getUserId();
 		String openedByUser = context.getValueContext().getValue(Paths._Address._AssignedTo)!=null?context.getValueContext().getValue(Paths._Address._AssignedTo).toString():null;
 		LOGGER.debug("currentUsereId:"+currentUserId);
@@ -28,15 +28,6 @@ public class AddressPane implements UIFormPane {
 		if(StringUtils.isNotBlank(openedByUser) && !currentUserId.equalsIgnoreCase(openedByUser)) {
 			writer.add("<div");writer.addSafeAttribute("style", "margin-left: 5px;");writer.add(">");writer.add("<b><font color=\"red\">Note: This record is currently being edited by " +openedByUser+". Any changes made cannot be saved.</font></b>");writer.add("</div>");
 		}
-//writer.add("<div");writer.addSafeAttribute("style", "display: inline-block;");writer.add(">");writer.startTableFormRow();
-//writer.endTableFormRow();writer.add("</div>");
-/*
-		writer.add("<div");writer.addSafeAttribute("style", "display: inline-block;");writer.add(">");writer.startTableFormRow();writer.addFormRow(_AssignedTo);writer.endTableFormRow();writer.add("</div>");writer.add("<div");writer.addSafeAttribute("style", "display: inline-block;");writer.add(">");writer.startTableFormRow();writer.addFormRow(_Published);writer.endTableFormRow();writer.add("</div>");
-		writer.add("<div");writer.addSafeAttribute("style", "display: inline-block;");writer.add(">");writer.startTableFormRow();writer.addFormRow(_OperatingUnit);writer.endTableFormRow();writer.add("</div>");writer.add("<div");writer.addSafeAttribute("style", "display: inline-block;");writer.add(">");writer.startTableFormRow();writer.addFormRow(_Status);writer.endTableFormRow();writer.add("</div>");
-		writer.add("<div");writer.addSafeAttribute("style", "display: inline-block;");writer.add(">");writer.startTableFormRow();writer.addFormRow(_RPLCheck);writer.endTableFormRow();writer.add("</div>");writer.add("<div");writer.addSafeAttribute("style", "display: inline-block;");writer.add(">");writer.startTableFormRow();writer.addFormRow(_Reference);writer.endTableFormRow();writer.add("</div>");
-		writer.add("<div");writer.addSafeAttribute("style", "display: inline-block;");writer.add(">");writer.startTableFormRow();writer.addFormRow(_MDMAddressId);writer.endTableFormRow();writer.add("</div>");writer.add("<div");writer.addSafeAttribute("style", "display: inline-block;");writer.add(">");writer.startTableFormRow();writer.addFormRow(_InternalAddressId);writer.endTableFormRow();writer.add("</div>");
-		writer.add("<div");writer.addSafeAttribute("style", "display: inline-block;");writer.add(">");writer.startTableFormRow();writer.addFormRow(_IdentifyingAddress);writer.endTableFormRow();writer.add("</div>");writer.add("<div");writer.addSafeAttribute("style", "display: inline-block;");writer.add(">");writer.startTableFormRow();writer.addFormRow(_SiteId);writer.endTableFormRow();writer.add("</div>");
-*/
 
 		writer.add("<table width=\"50%\" >");
 
@@ -547,8 +538,8 @@ public class AddressPane implements UIFormPane {
 		//writer.addJS("alert('calculatedFields called');");
 		writer.addJS("var xhr = new XMLHttpRequest();");
 		String protocol = "true".equals(((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("ssl").toString())?"https":"http";
-		String host = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("host").toString();//"http://localhost:8080/ebx-dataservices/rest/data/v1";
-		String port = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("port").toString();//"http://localhost:8080/ebx-dataservices/rest/data/v1";
+		String host = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("host").toString();
+		String port = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("port").toString();
 		writer.addJS("xhr.open('GET', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/calculatedFields/country/BReference/Account/'+countryCode);");
 		writer.addJS("xhr.setRequestHeader('Content-Type', 'application/json');");
 		writer.addJS("xhr.onload = function() {");
@@ -556,8 +547,9 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("var calculatedFieldsJson = JSON.parse(xhr.responseText);");
 		writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('OperatingUnit')){");
 		writer.addJS("var value = calculatedFieldsJson.OperatingUnit;");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._OperatingUnit).format()).addJS("\", ").addJS(
-				"value").addJS(");");
+		/*writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._OperatingUnit).format()).addJS("\", ").addJS(
+				"value").addJS(");");*/
+		writer.addJS_setNodeValue("value",Paths._Address._OperatingUnit);
 		writer.addJS("}");writer.addJS("else{");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._OperatingUnit).format()).addJS("\", ").addJS(
 				"null").addJS(");");
@@ -572,8 +564,10 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("}");
 		writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('AddressState')){");
 		writer.addJS("var value = calculatedFieldsJson.AddressState;");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._AddressState).format()).addJS("\", ").addJS(
-				"value").addJS(");");
+		writer.addJS_setNodeValue("value",Paths._Address._AddressState);
+		writer.addJS("alert('setnodevalue called');");
+/*		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._AddressState).format()).addJS("\", ").addJS(
+				"value").addJS(");")*/;
 		writer.addJS("}");writer.addJS("else{");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._AddressState).format()).addJS("\", ").addJS(
 				"null").addJS(");");
@@ -590,10 +584,5 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("};");
 		writer.addJS("xhr.send();");
 		writer.addJS("}");
-
-	/*	}catch(IllegalAccessException | ClassNotFoundException e){
-			LOGGER.error("Error generating address pane",e);
-			throw new ApplicationRuntimeException("Error generating address pane",e);
-		}*/
 	}
 }
