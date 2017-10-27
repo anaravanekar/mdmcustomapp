@@ -288,28 +288,28 @@
         $(document).ready(function() {
             var searchableColumns = [
                 ["MDMACCOUNTID", 0],
-                ["ACCOUNTNUMBER", 1],
+                ["INTERNALACCOUNTID", 1],
                 ["ACCOUNTNAME", 2],
                 ["DAQAMETADATA_STATE", 4],
                 ["DAQAMETADATA_CLUSTERID", 5]
             ];
             var searchableValues = [
                 ["MDMACCOUNTID", ""],
-                ["ACCOUNTNUMBER", ""],
+                ["INTERNALACCOUNTID", ""],
                 ["ACCOUNTNAME", ""],
                 ["DAQAMETADATA_STATE", ""],
                 ["DAQAMETADATA_CLUSTERID", ""]
             ];
             var searchableColumnsMap = new Map();
             searchableColumnsMap.set("MDMACCOUNTID", 0);
-            searchableColumnsMap.set("ACCOUNTNUMBER", 1);
+            searchableColumnsMap.set("INTERNALACCOUNTID", 1);
             searchableColumnsMap.set("ACCOUNTNAME", 2);
             searchableColumnsMap.set("DAQAMETADATA_STATE", 4);
             searchableColumnsMap.set("DAQAMETADATA_CLUSTERID", 5);
 
             var searchValuesMap = new Map();
             searchValuesMap.set("MDMACCOUNTID", "");
-            searchValuesMap.set("ACCOUNTNUMBER", "");
+            searchValuesMap.set("INTERNALACCOUNTID", "");
             searchValuesMap.set("ACCOUNTNAME", "");
             searchValuesMap.set("DAQAMETADATA_STATE", "");
             searchValuesMap.set("DAQAMETADATA_CLUSTERID", "");
@@ -331,223 +331,51 @@
                 },
                 scrollY: true,
                 scrollX: true,
-                columns: [{
-                        'title': 'MDM Account Id',
-                        'data': 'MDMACCOUNTID',
-                        'name': 'MDMACCOUNTID',
-                         'searchable': true
-                    },
-                    {
-                        'title': 'Account Number',
-                        'data': 'ACCOUNTNUMBER',
-                        'name': 'ACCOUNTNUMBER',
-                        'searchable': true
-                    },
-                    {
-                        'title': 'Account Name',
-                        'data': 'ACCOUNTNAME',
-                        'name': 'ACCOUNTNAME',
-                        'searchable': true
-                    },
-                    {
-                        "title": 'Address',
-                        "data": null,
-                        "defaultContent": "<span class='addrlink glyphicon glyphicon-eject'></span>",
-                        "searchable": false,
-                        "orderable": false
-                    },
-                    {
-                        'title': 'State',
-                        'data': 'DAQAMETADATA_STATE',
-                        'name': 'DAQAMETADATA_STATE',
-                        'searchable': true
-                    },
-                    {
-                        'title': 'Cluster',
-                        'data': 'DAQAMETADATA_CLUSTERID',
-                        'name': 'DAQAMETADATA_CLUSTERID',
-                        'searchable': true
-                    },
-                    {
-                        'title': 'Score(%)',
-                        'data': 'DAQAMETADATA_SCORE',
-                        'name': 'DAQAMETADATA_SCORE',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Target record',
-                        'data': 'DAQAMETADATA_TARGETRECORD_',
-                        'name': 'DAQAMETADATA_TARGETRECORD_',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Status',
-                        'data': 'STATUS',
-                        'name': 'STATUS',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'System Id',
-                        'data': 'SYSTEMID',
-                        'name': 'SYSTEMID',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'System Name',
-                        'data': 'SYSTEMNAME',
-                        'name': 'SYSTEMNAME',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Customer Type',
-                        'data': 'CUSTOMERTYPE',
-                        'name': 'CUSTOMERTYPE',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Registry Id',
-                        'data': 'REGISTRYID',
-                        'name': 'REGISTRYID',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Alias',
-                        'data': 'ALIAS',
-                        'name': 'ALIAS',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Name Pronunciation',
-                        'data': 'NAMEPRONUNCIATION',
-                        'name': 'NAMEPRONUNCIATION',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Taxpayer Id',
-                        'data': 'TAXPAYERID',
-                        'name': 'TAXPAYERID',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Tax Registration Number',
-                        'data': 'TAXREGISTRATIONNUMBER',
-                        'name': 'TAXREGISTRATIONNUMBER',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Customer Category',
-                        'data': 'CUSTOMERCATEGORY',
-                        'name': 'CUSTOMERCATEGORY',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Account Description',
-                        'data': 'ACCOUNTDESCRIPTION',
-                        'name': 'ACCOUNTDESCRIPTION',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Region',
-                        'data': 'REGION',
-                        'name': 'REGION',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Classification',
-                        'data': 'CLASSIFICATION',
-                        'name': 'CLASSIFICATION',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Account Type',
-                        'data': 'ACCOUNTTYPE',
-                        'name': 'ACCOUNTTYPE',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Sales Channel',
-                        'data': 'SALESCHANNEL',
-                        'name': 'SALESCHANNEL',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Reference',
-                        'data': 'REFERENCE',
-                        'name': 'REFERENCE',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'NLS Language Code',
-                        'data': 'NLSLANGUAGECODE',
-                        'name': 'NLSLANGUAGECODE',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Name Local Language',
-                        'data': 'NAMELOCALLANGUAGE',
-                        'name': 'NAMELOCALLANGUAGE',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Customer Screening',
-                        'data': 'CUSTOMERSCREENING',
-                        'name': 'CUSTOMERSCREENING',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Last Credit Review Date',
-                        'data': 'LASTCREDITREVIEWDATE',
-                        'name': 'LASTCREDITREVIEWDATE',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Next Credit Review Date',
-                        'data': 'NEXTCREDITREVIEWDATE',
-                        'name': 'NEXTCREDITREVIEWDATE',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Credit Review Cycle',
-                        'data': 'CREDITREVIEWCYCLE',
-                        'name': 'CREDITREVIEWCYCLE',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Parent Party',
-                        'data': 'PARENTPARTY',
-                        'name': 'PARENTPARTY',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Emg Last Trans',
-                        'data': 'EMGLASTTRANS',
-                        'name': 'EMGLASTTRANS',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Grouping Description',
-                        'data': 'GROUPINGDESCRIPTION',
-                        'name': 'GROUPINGDESCRIPTION',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Grouping Id',
-                        'data': 'GROUPINGID',
-                        'name': 'GROUPINGID',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'IXIA Classification',
-                        'data': 'IXIACLASSIFICATION',
-                        'name': 'IXIACLASSIFICATION',
-                        'searchable': false
-                    },
-                    {
-                        'title': 'Profile Class',
-                        'data': 'PROFILECLASS',
-                        'name': 'PROFILECLASS',
-                        'searchable': false
-                    }
+                columns: [
+                            {'title':'MDM Account Id','data':'MDMACCOUNTID','name':'MDMACCOUNTID','searcheable':true},
+                            {'title':'Internal Account Id','data':'INTERNALACCOUNTID','name':'INTERNALACCOUNTID','searcheable':true},
+                            {'title':'Account Name','data':'ACCOUNTNAME','name':'ACCOUNTNAME','searcheable':true},
+                            {
+                                "title": 'Address',
+                                "data": null,
+                                "defaultContent": "<span class='addrlink glyphicon glyphicon-eject'></span>",
+                                "searchable": false,
+                                "orderable": false
+                            },
+                            {'title':'DQ State','data':'DAQAMETADATA_STATE','name':'DAQAMETADATA_STATE','searcheable':true},
+                            {'title':'DQ Cluster Id','data':'DAQAMETADATA_CLUSTERID','name':'DAQAMETADATA_CLUSTERID','searcheable':true},
+                            {'title':'DQ Score','data':'DAQAMETADATA_SCORE','name':'DAQAMETADATA_SCORE','searcheable':false},
+                            {'title':'DQ Target','data':'DAQAMETADATA_TARGETRECORD_','name':'DAQAMETADATA_TARGETRECORD_','searcheable':false},
+                            {'title':'Status','data':'STATUS','name':'STATUS','searcheable':false},
+                            {'title':'System Id','data':'SYSTEMID','name':'SYSTEMID','searcheable':false},
+                            {'title':'System Name','data':'SYSTEMNAME','name':'SYSTEMNAME','searcheable':false},
+                            {'title':'Customer Type','data':'CUSTOMERTYPE','name':'CUSTOMERTYPE','searcheable':false},
+                            {'title':'Registry Id','data':'REGISTRYID','name':'REGISTRYID','searcheable':false},
+                            {'title':'Name Pronunciation','data':'NAMEPRONUNCIATION','name':'NAMEPRONUNCIATION','searcheable':false},
+                            {'title':'Taxpayer Id','data':'TAXPAYERID','name':'TAXPAYERID','searcheable':false},
+                            {'title':'Tax Registration Number','data':'TAXREGISTRATIONNUMBER','name':'TAXREGISTRATIONNUMBER','searcheable':false},
+                            {'title':'Customer Category','data':'CUSTOMERCATEGORY','name':'CUSTOMERCATEGORY','searcheable':false},
+                            {'title':'Region','data':'REGION','name':'REGION','searcheable':false},
+                            {'title':'Classification','data':'CLASSIFICATION','name':'CLASSIFICATION','searcheable':false},
+                            {'title':'Account Type','data':'ACCOUNTTYPE','name':'ACCOUNTTYPE','searcheable':false},
+                            {'title':'Sales Channel','data':'SALESCHANNEL','name':'SALESCHANNEL','searcheable':false},
+                            {'title':'Reference','data':'REFERENCE','name':'REFERENCE','searcheable':false},
+                            {'title':'NLS Language Code','data':'NLSLANGUAGECODE','name':'NLSLANGUAGECODE','searcheable':false},
+                            {'title':'Name Local Language','data':'NAMELOCALLANGUAGE','name':'NAMELOCALLANGUAGE','searcheable':false},
+                            {'title':'Customer Screening','data':'CUSTOMERSCREENING','name':'CUSTOMERSCREENING','searcheable':false},
+                            {'title':'Parent Party','data':'PARENTPARTY','name':'PARENTPARTY','searcheable':false},
+                            {'title':'Emg Last Trans','data':'EMGLASTTRANS','name':'EMGLASTTRANS','searcheable':false},
+                            {'title':'Grouping Description','data':'GROUPINGDESCRIPTION','name':'GROUPINGDESCRIPTION','searcheable':false},
+                            {'title':'Grouping Id','data':'GROUPINGID','name':'GROUPINGID','searcheable':false},
+                            {'title':'Profile Class','data':'PROFILECLASS','name':'PROFILECLASS','searcheable':false},
+                            {'title':'Assigned To','data':'ASSIGNEDTO','name':'ASSIGNEDTO','searcheable':false},
+                            {'title':'ISG Classification','data':'ISGCLASSIFICATION','name':'ISGCLASSIFICATION','searcheable':false},
+                            {'title':'Notes','data':'NOTES','name':'NOTES','searcheable':false},
+                            {'title':'Payment End Date','data':'PAYMENTENDDATE','name':'PAYMENTENDDATE','searcheable':false},
+                            {'title':'Payment Receipt Method','data':'PAYMENTRECEIPTMETHOD','name':'PAYMENTRECEIPTMETHOD','searcheable':false},
+                            {'title':'Payment Start Date','data':'PAYMENTSTARTDATE','name':'PAYMENTSTARTDATE','searcheable':false},
+                            {'title':'Primary Payment','data':'PRIMARYPAYMENT','name':'PRIMARYPAYMENT','searcheable':false},
+                            {'title':'Published','data':'PUBLISHED','name':'PUBLISHED','searcheable':false}
                 ],
                 /*colReorder: {
                     realtime: false
@@ -582,9 +410,10 @@
 
                     $("#accountTable").on('click', '.addrlink', function() {
                         var rowData = accountTable.cell(this.parentElement).data();
-                        var accountName = rowData["ACCOUNTNAME"];
+                        var accountName = rowData
+                        ["ACCOUNTNAME"];
                         var mdmId = rowData["MDMACCOUNTID"];
-                        var accountNumber = rowData["ACCOUNTNUMBER"];
+                        var accountNumber = rowData["INTERNALACCOUNTID"];
                         //console.log(rowData);
                         //console.log(rowData["ACCOUNTNAME"]);
                         //console.log($('#' + mdmId + '-addresses').length);
@@ -621,7 +450,7 @@
                                 /* height: 310,*/
                                 /* width: 1200, */
                                 minWidth: 400,
-                                title: "Addresses for " + accountName + ", Account No. " + accountNumber,
+                                title: "Addresses for " + accountName + ", Internal Account Id : " + accountNumber,
                                 close: function(e, ui) {
                                     $(this).dialog('destroy').remove();
                                 }
@@ -634,7 +463,7 @@
             }); //dataTable initialization
            
            
-            var searchHtml ='&nbsp;&nbsp;&nbsp;MDM Account ID<input id="search-0" name="MDMACCOUNTID" type="text"  class="searchBox"/>Account No<input id="search-1" name="ACCOUNTNUMBER" type="text" class="searchBox"/>Account Name<input id="search-2" name="ACCOUNTNAME" type="text" class="searchBox"/>DQ State<input id="search-4" name="DAQAMETADATA_STATE" type="text" class="searchBox"/>Cluster Id<input id="search-5" name="DAQAMETADATA_CLUSTERID" type="text" class="searchBox"/><input id="clearSearch" value="Clear" type="button" class="searchButton"/><input id="addressByCluster" value="Get Addresses" type="button" class="searchButton"/>';
+            var searchHtml ='&nbsp;&nbsp;&nbsp;MDM Account ID<input id="search-0" name="MDMACCOUNTID" type="text"  class="searchBox"/>Internal Acc Id<input id="search-1" name="INTERNALACCOUNTID" type="text" class="searchBox"/>Account Name<input id="search-2" name="ACCOUNTNAME" type="text" class="searchBox"/>DQ State<input id="search-4" name="DAQAMETADATA_STATE" type="text" class="searchBox"/>Cluster Id<input id="search-5" name="DAQAMETADATA_CLUSTERID" type="text" class="searchBox"/><input id="clearSearch" value="Clear" type="button" class="searchButton"/><input id="addressByCluster" value="Get Addresses" type="button" class="searchButton"/>';
             $("div.toolbar").html(searchHtml);
 
             $("#addressByCluster").on('click', function(e) {
