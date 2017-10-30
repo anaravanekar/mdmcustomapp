@@ -10,6 +10,7 @@ import com.orchestranetworks.service.Procedure;
 import com.orchestranetworks.service.ProcedureResult;
 import com.orchestranetworks.service.ProgrammaticService;
 import com.orchestranetworks.service.ValueContextForUpdate;
+import com.orchestranetworks.ui.UICSSClasses;
 import com.orchestranetworks.ui.selection.TableViewEntitySelection;
 import com.orchestranetworks.userservice.*;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
@@ -29,6 +30,7 @@ import org.springframework.context.ApplicationContextAware;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 
 public class PublishService implements UserService<TableViewEntitySelection>,ApplicationContextAware
@@ -172,6 +174,41 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
 
     private void writeForm(UserServicePaneContext aContext, UserServicePaneWriter aWriter){
         LOGGER.debug("In writeform");
+        String urlForClose = aWriter.getURLForEndingService();
+        LOGGER.debug("urlForClose="+urlForClose);
+
+        String divId = "publishMessageDiv";
+        aWriter.add("<div ");
+        aWriter.addSafeAttribute("id", divId);
+        aWriter.add("></div>");
+
+        aWriter.addJS_cr();
+        aWriter.addJS_cr("function callAjax(url, targetDivId) {");
+        aWriter.addJS_cr("  var ajaxHandler = new EBX_AJAXResponseHandler();");
+
+        aWriter.addJS_cr("  ajaxHandler.handleAjaxResponseSuccess = function(responseContent) {");
+        aWriter.addJS_cr("    var element = document.getElementById(targetDivId);");
+        aWriter.addJS_cr("    element.innerHTML = responseContent;");
+        aWriter.addJS_cr("  };");
+
+        aWriter.addJS_cr("  ajaxHandler.handleAjaxResponseFailed = function(responseContent) {");
+        aWriter.addJS_cr("    var element = document.getElementById(targetDivId);");
+        aWriter.addJS_cr("    element.innerHTML = \"<span class='" + UICSSClasses.TEXT.ERROR
+                + "'>An error occurred in processing the request.</span>\";");
+        aWriter.addJS_cr("  }");
+
+        aWriter.addJS_cr("  ajaxHandler.sendRequest(url);");
+        aWriter.addJS_cr("}");
+
+        // Generate the URL of the Ajax callback.
+        String url = aWriter.getURLForAjaxRequest((userServiceAjaxContext, userServiceAjaxResponse) -> {
+            PublishService.this.ajaxCallback(userServiceAjaxContext, userServiceAjaxResponse,aContext);
+        });
+        aWriter.addJS("ebx_confirm({question: \"Do you want to publish selected records?\", jsCommandYes: \"callAjax('"+url+"','"+divId+"');\", labelYes: \"Yes\", labelNo: \"No\", jsCommandNo: \"window.location.href='"+urlForClose+"';\" });");
+     }
+
+    private void ajaxCallback(UserServiceAjaxContext ajaxContext,UserServiceAjaxResponse anAjaxResponse,UserServicePaneContext aContext) {
+        LOGGER.debug("In ajaxCallback");
         String finalMessage = null;
         List<Adaptation> selectedRecords = new ArrayList<>();
         try {
@@ -183,12 +220,45 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                 }else{
                     throw new ApplicationRuntimeException("Only Golden records can be published. Please select Golden records and try again.");
                 }
+                if(!validateRecord(objectName,adaptation.getContainer(),adaptation)){
+                    throw new ApplicationRuntimeException("At least one child record with Golden state must be present to publish.");
+                }
             }
             finalMessage = promoteAndPublish(selectedRecords, aContext);
         }catch(ApplicationRuntimeException e){
             finalMessage = e.getMessage();
         }
-        aWriter.add(finalMessage);
+        anAjaxResponse.getWriter().add(finalMessage);
+    }
+
+    private boolean validateRecord(String objectName, Adaptation container,Adaptation adaptation) {
+        String condition = null;
+        AdaptationTable childTable = null;
+        boolean valid = false;
+        if ("ACCOUNT".equalsIgnoreCase(objectName)) {
+            condition = Paths._Address._MDMAccountId.format()+" = '"+String.valueOf(adaptation.get(Paths._Account._MDMAccountId))+"'";
+            childTable = container.getTable(Paths._Address.getPathInSchema());
+        } else if ("ADDRESS".equalsIgnoreCase(objectName)) {
+            condition = Paths._BusinessPurpose._MDMAddressId.format()+" = '"+String.valueOf(adaptation.get(Paths._Address._MDMAddressId))+"'";
+            childTable = container.getTable(Paths._BusinessPurpose.getPathInSchema());
+        }
+        final RequestResult childTableRequestResult = childTable.createRequestResult(condition);
+        if (childTableRequestResult != null && !childTableRequestResult.isEmpty()) {
+            for (Adaptation child; (child = childTableRequestResult.nextAdaptation()) != null; ) {
+                if("GOLDEN".equalsIgnoreCase(String.valueOf(child.get(daqaStateFieldPath)))){
+                    if("ACCOUNT".equalsIgnoreCase(objectName)){
+                        if(validateRecord("ADDRESS",container,child)){
+                            valid = true;
+                            break;
+                        }
+                    }else{
+                        valid = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return valid;
     }
 
     public String promoteAndPublish(List<Adaptation> selectedRecords,UserServicePaneContext aContext){
@@ -198,6 +268,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
         List<OrchestraObject>  recordsToUpdateInJitterbit = new ArrayList<>();
         List<OrchestraObject>  childrenToUpdateInJitterbit = new ArrayList<>();
         List<Adaptation> children = new ArrayList<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         try {
             // Set up requests
             for (Adaptation adaptation : selectedRecords) {
@@ -298,6 +369,10 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                         }
                         fieldValue = contentList;
                     }
+                    /*if("LastPublished".equals(fieldName)){
+                        if(fieldValue!=null)
+                            fieldValue = sdf.format(adaptation.getDate(fieldPathMap.get(fieldName)));
+                    }*/
                     jsonFieldsMapForReference.put(fieldName, new OrchestraContent(fieldValue));
                 }
                 orchestraObjectToUpdateInReference.setContent(jsonFieldsMapForReference);
@@ -317,6 +392,10 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                             }
                             fieldValue = contentList;
                         }
+                        /*if("LastPublished".equals(fieldName)){
+                            if(fieldValue!=null)
+                                fieldValue = sdf.format(adaptation.getDate(fieldPathMap.get(fieldName)));
+                        }*/
                         jsonFieldsMapForJitterbit.put(fieldName, new OrchestraContent(fieldValue));
                     }
                     //Find cross references for the object
@@ -445,11 +524,14 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
     }
 
     private void updateFlagToSuccess(UserServicePaneContext aContext,List<Adaptation> selectedRecords,List<OrchestraObject> recordsToUpdateInReference){
+        Date currentTime = Date.from(Instant.now());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         for (int i=0;i<selectedRecords.size();i++) {
             Adaptation record = selectedRecords.get(i);
             Procedure procedure = procedureContext -> {
                 ValueContextForUpdate valueContextForUpdate = procedureContext.getContext(record.getAdaptationName());
                 valueContextForUpdate.setValue("Y", flagFieldPath);//TODO change
+                valueContextForUpdate.setValue(currentTime,Paths._Address._LastPublished);
                 procedureContext.doModifyContent(record, valueContextForUpdate);
             };
             ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), record.getHome());
@@ -463,6 +545,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             }
             OrchestraObject obj = recordsToUpdateInReference.get(i);
             obj.getContent().put(flagFieldPath.format().replaceAll("\\.\\/", ""),new OrchestraContent("Y"));
+            obj.getContent().put(Path.parse("./LastPublished").format().replaceAll("\\.\\/", ""),new OrchestraContent(sdf.format(currentTime)));
         }
         ObjectMapper mapper = new ObjectMapper();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");

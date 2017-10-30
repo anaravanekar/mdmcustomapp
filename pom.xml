@@ -103,7 +103,7 @@
 			<groupId>com.optimaize.langdetect</groupId>
 			<artifactId>language-detector-sources</artifactId>
 			<version>1.2</version>
-			<scope>provided</scope>
+			<!--<scope>provided</scope>-->
 		</dependency>
 		<!-- Provided -->
 

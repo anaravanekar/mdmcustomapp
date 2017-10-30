@@ -17,6 +17,7 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.email.EmailHtmlSender;
 import com.sereneast.orchestramdm.keysight.mdmcustom.email.EmailStatus;
+import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.AppUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -68,6 +69,24 @@ public class GenericTrigger extends TableTrigger {
 
     public void handleAfterCreate(AfterCreateOccurrenceContext aContext) throws OperationException{
         //get application context
+        if("ADDRESS".equalsIgnoreCase(objectName) && aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null){
+            Object internalAccountId = null;
+            Integer addressMdmAccountId = Integer.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId).toString());
+            String condition = Paths._Account._MDMAccountId.format()+" = "+addressMdmAccountId;
+            Adaptation container = aContext.getTable().getContainerAdaptation();
+            AdaptationTable parentTable = container.getTable(Paths._Account.getPathInSchema());
+            final RequestResult parentTableRequestResult = parentTable.createRequestResult(condition);
+            if (parentTableRequestResult != null && !parentTableRequestResult.isEmpty()) {
+                LOGGER.debug("Parent found");
+                Adaptation adaptation = parentTableRequestResult.nextAdaptation();
+                internalAccountId = adaptation.get(Paths._Account._InternalAccountId);
+                ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
+                valueContextForUpdate.setValue(internalAccountId,Paths._Address._InternalAccountId);
+                aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
+            } else {
+                LOGGER.error("Parent account not found");
+            }
+        }
         String username = aContext.getSession().getUserReference().getUserId();
         if("reduser".equalsIgnoreCase(username)) {
             ApplicationContext context = SpringContext.getApplicationContext();
@@ -109,6 +128,25 @@ public class GenericTrigger extends TableTrigger {
 
     public void handleAfterModify(AfterModifyOccurrenceContext aContext) throws OperationException {
         LOGGER.debug("GenericTrigger handleAfterModify called...");
+        if( "ADDRESS".equalsIgnoreCase(objectName) && aContext.getChanges().getChange(Paths._Address._MDMAccountId)!=null &&
+               aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null){
+            Object internalAccountId = null;
+            Integer addressMdmAccountId = Integer.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId).toString());
+            String condition = Paths._Account._MDMAccountId.format()+" = "+addressMdmAccountId;
+            Adaptation container = aContext.getTable().getContainerAdaptation();
+            AdaptationTable parentTable = container.getTable(Paths._Account.getPathInSchema());
+            final RequestResult parentTableRequestResult = parentTable.createRequestResult(condition);
+            if (parentTableRequestResult != null && !parentTableRequestResult.isEmpty()) {
+                LOGGER.debug("Parent found");
+                Adaptation adaptation = parentTableRequestResult.nextAdaptation();
+                internalAccountId = adaptation.get(Paths._Account._InternalAccountId);
+                ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
+                valueContextForUpdate.setValue(internalAccountId,Paths._Address._InternalAccountId);
+                aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
+            } else {
+                LOGGER.error("Parent account not found");
+            }
+        }
         initialize();
         ProcedureContext procedureContext = aContext.getProcedureContext();
         Adaptation adaptation = aContext.getAdaptationOccurrence();
