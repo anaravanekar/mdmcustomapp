@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<script type="text/javascript" src="vendor/colResizable-1.6.min.js"></script>
+
+<div class="table-responsive" th:fragment="contents">
+    <th:block th:unless="${#lists.isEmpty(resultList)}">
+        <table th:id="'businessPurposeTable'+${addressId}" class="table table-condensed bp-table account-address-table">
+            <thead>
+            <th th:each="column: ${columnlist}" th:text="${column}"></th>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${resultList}">
+                <td th:each="entry : ${item}"
+                    th:text="${entry.value}" th:class="${#strings.toUpperCase(#strings.replace(entry.key,' ',''))}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <!--<button class="toggleHeaderButton" type="button">Show/Hide Header</button>-->
+    </th:block>
+    <th:block th:if="${#lists.isEmpty(resultList)}">
+        <span> No data found </span>
+    </th:block>
+</div>
+</html>
