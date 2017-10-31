@@ -51,6 +51,13 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Align foreign keys",
 				"",-1,
 				toPath("/root/Address")));
+		aContext.registerUserService(new TableViewSampleServiceDeclaration(
+				ServiceKey.forModuleServiceName("mdmcustomapp",ClusterViewService.class.getSimpleName()),
+				ClusterViewService.class,
+				"Cluster View",
+				"Cluster View",
+				"",1,
+				toPath("/root/Account")));
 /*		aContext.registerUserService(new TableViewSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",AccountPublishRecursiveService.class.getSimpleName()),
 				AccountPublishRecursiveService.class,

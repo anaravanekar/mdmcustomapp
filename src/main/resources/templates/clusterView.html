@@ -1,0 +1,168 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Accounts</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!--<link href="../../vendor/jquery-ui-1.12.1/jquery-ui.css" rel="stylesheet"/>-->
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous"/>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css" />
+    
+   <style type="text/css">
+        .datatable-container {
+            margin: 0px;
+            padding: 0px 0px 0px 0px;
+            background: #efefef;
+            position: absolute;
+            left: 0;
+            right: 0px;
+            bottom: 0;
+            top: 0;
+        }
+        div.dataTables_wrapper div.dataTables_filter {
+		    margin-right: 62px;
+		    margin-top: 5px;
+		}
+		.dataTables_scroll {
+            background: #ffffff;
+            padding: 0px 0px 0px;
+            /*border-radius: 5px 5px 5px 5px;*/
+        }
+        .table>thead>tr>th {
+		    font-weight: 100;
+		}
+        table.table.tb-colored thead {
+            background: #696f94;
+            color: #ffffff;
+        }
+        .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+            /*min-width: 157px;*/
+            white-space: nowrap;
+            font-size: 13px;
+            padding: 3px 8px;
+        }
+		table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after {
+            bottom: 2px;
+        }
+        td.details-control {
+            text-align:center;
+            color:forestgreen;
+            cursor: pointer;
+        }
+        tr.shown td.details-control {
+            text-align:center;
+            color:red;
+        }
+        .bp-table {
+            width: 40%;
+            max-width:75%;
+        }
+        table.table.bp-table thead {
+            background: #a1a5ba;
+            color: #ffffff;
+        }
+    </style>
+</head>
+
+<body>
+<th:block th:unless="${#strings.isEmpty(clusterId)}">
+<input id="selectedClusterId" name="selectedClusterId" type="hidden" th:value="${clusterId}"></input>
+<div class="datatable-container data-container" id="clusterViewContainer">
+</div>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<!--<script src="../../vendor/jquery-ui-1.12.1/jquery-ui.js"></script>-->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/colreorder/1.4.1/js/dataTables.colReorder.min.js"></script>
+<script type="text/javascript" src="vendor/colResizable-1.6.min.js"></script>
+<script type="text/javascript" src="vendor/dataTables.colResize.js"></script>
+<script type="text/javascript" th:inline="javascript">
+        /*<![CDATA[*/
+        	
+     	
+        $(document).ready(function() {
+        var clusterId = $("#selectedClusterId").val();
+                                    $.ajax({
+                                url: "account/" + clusterId + "/claddress",
+                                success: function(data) {
+                                    $("#clusterViewContainer").html(data);
+                                    $("#addressTable" + clusterId).DataTable({
+                                       "searching": true,
+                                        pageLength: "50",
+                                        scrollY: true,
+                                        scrollX: true,
+                                        minHeight: 150,
+                                		"colResize": {
+                                			"tableWidthFixed": false
+                                		},
+                                        colReorder: true,
+                                        "columnDefs": [{
+                                          "targets": 0,
+                                          "searchable": false,
+                                          "className": 'details-control',
+                                          "orderable": false,
+                                          "data": null,
+                                          "defaultContent": '',
+                                          "render": function () {
+                                            return '<i class="fa fa-plus-square" aria-hidden="true"></i>';
+                                           }
+                                        }],
+										 "initComplete": function(settings, json) {
+											 $("#addressTable" + clusterId).colResizable();
+										 }
+                                    });
+                                }
+                            });
+
+         // Add event listener for opening and closing details
+         $('body').on('click','td.details-control',function () {
+//            console.log('details clicked');
+              var tr = $(this).closest('tr');
+              var tableId = $(this).closest('table').attr('id');
+              var table = $('#'+tableId).DataTable();
+             var tdi = tr.find("i.fa");
+             var row = table.row(tr);
+             var mdmAddressId = $(tr).find('td.MDMADDRESSID').text();
+//             console.log('mdmAddressId='+mdmAddressId);
+//            console.log('isshown'+row.child.isShown());
+             if (row.child.isShown()) {
+                 // This row is already open - close it
+                 row.child.hide();
+                 tr.removeClass('shown');
+                 tdi.first().removeClass('fa-minus-square');
+                 tdi.first().addClass('fa-plus-square');
+             }
+             else {
+                 // Open this row
+                 $.ajax({
+                    url: "address/" + mdmAddressId + "/businessPurpose",
+                    success: function(data) {
+//                        console.log('bp data='+data);
+                        row.child(data).show();
+                    }
+                });
+                 tr.addClass('shown');
+                 tdi.first().removeClass('fa-plus-square');
+                 tdi.first().addClass('fa-minus-square');
+             }
+         });
+
+         /* $("#addressTable" + clusterId).DataTable().on("user-select", function (e, dt, type, cell, originalEvent) {
+             if ($(cell.node()).hasClass("details-control")) {
+                 e.preventDefault();
+             }
+         });*/
+        }); //document ready
+        /*]]>*/
+    </script>
+
+</th:block>
+<th:block th:if="${#strings.isEmpty(clusterId)}">
+    <span> No data found </span>
+</th:block>
+</body>
+
+</html>
