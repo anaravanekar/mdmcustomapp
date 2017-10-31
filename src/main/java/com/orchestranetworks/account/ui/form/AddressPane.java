@@ -92,10 +92,30 @@ public class AddressPane implements UIFormPane {
 		writer.add("</tr>");
 
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.addLabel(_RMTId);
+		writer.add("</td><td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.addWidget(_RMTId);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.addLabel(_LastPublished);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.addWidget(_LastPublished);
+		writer.add("</td>");
+		writer.add("</tr>");
+
+		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_MDMAccountId);
-		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.add("</td><td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
 		writer.addWidget(_MDMAccountId);
-		writer.add("</td></tr>");
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.addLabel(_InternalAccountId);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.addWidget(_InternalAccountId);
+		writer.add("</td>");
+		writer.add("</tr>");
 
 		writer.add("<tr>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
