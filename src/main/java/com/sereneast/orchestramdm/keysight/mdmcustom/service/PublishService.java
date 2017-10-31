@@ -221,7 +221,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                     throw new ApplicationRuntimeException("Only Golden records can be published. Please select Golden records and try again.");
                 }
                 if(!validateRecord(objectName,adaptation.getContainer(),adaptation)){
-                    throw new ApplicationRuntimeException("At least one golden state address and at least one golden state busness purpose is mandatory for publish.");
+                    throw new ApplicationRuntimeException("At least one golden state address and at least one golden state business purpose is mandatory for publish.");
                 }
             }
             finalMessage = promoteAndPublish(selectedRecords, aContext);
