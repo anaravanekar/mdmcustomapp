@@ -69,7 +69,7 @@ public class GenericTrigger extends TableTrigger {
 
     public void handleAfterCreate(AfterCreateOccurrenceContext aContext) throws OperationException{
         //get application context
-        if("ADDRESS".equalsIgnoreCase(objectName) && aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null){
+        /*if("ADDRESS".equalsIgnoreCase(objectName) && aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null){
             Object internalAccountId = null;
             Integer addressMdmAccountId = Integer.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId).toString());
             String condition = Paths._Account._MDMAccountId.format()+" = "+addressMdmAccountId;
@@ -86,7 +86,7 @@ public class GenericTrigger extends TableTrigger {
             } else {
                 LOGGER.error("Parent account not found");
             }
-        }
+        }*/
         String username = aContext.getSession().getUserReference().getUserId();
         if("reduser".equalsIgnoreCase(username)) {
             ApplicationContext context = SpringContext.getApplicationContext();
@@ -128,7 +128,7 @@ public class GenericTrigger extends TableTrigger {
 
     public void handleAfterModify(AfterModifyOccurrenceContext aContext) throws OperationException {
         LOGGER.debug("GenericTrigger handleAfterModify called...");
-        if( "ADDRESS".equalsIgnoreCase(objectName) && aContext.getChanges().getChange(Paths._Address._MDMAccountId)!=null &&
+     /*   if( "ADDRESS".equalsIgnoreCase(objectName) && aContext.getChanges().getChange(Paths._Address._MDMAccountId)!=null &&
                aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null){
             Object internalAccountId = null;
             Integer addressMdmAccountId = Integer.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId).toString());
@@ -146,7 +146,7 @@ public class GenericTrigger extends TableTrigger {
             } else {
                 LOGGER.error("Parent account not found");
             }
-        }
+        }*/
         initialize();
         ProcedureContext procedureContext = aContext.getProcedureContext();
         Adaptation adaptation = aContext.getAdaptationOccurrence();
