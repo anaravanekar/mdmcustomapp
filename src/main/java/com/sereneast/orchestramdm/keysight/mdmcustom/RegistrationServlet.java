@@ -58,6 +58,13 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Cluster View",
 				"",1,
 				toPath("/root/Account")));
+		aContext.registerUserService(new TableViewSampleServiceDeclaration(
+				ServiceKey.forModuleServiceName("mdmcustomapp",CustomMasterDataViewService.class.getSimpleName()),
+				CustomMasterDataViewService.class,
+				"Custom Master Data View",
+				"Custom Master Data View",
+				"",-2,
+				new Path[]{Paths._Account.getPathInSchema(),Paths._Address.getPathInSchema()}));
 /*		aContext.registerUserService(new TableViewSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",AccountPublishRecursiveService.class.getSimpleName()),
 				AccountPublishRecursiveService.class,

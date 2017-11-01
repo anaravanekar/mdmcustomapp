@@ -1,5 +1,6 @@
 # Application properties (Begin with prefix=keysight)
 keysight:
+    masterUserId: admin
     orchestraRest:
         username: admin
         password: Serene*123

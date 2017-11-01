@@ -3,6 +3,8 @@ package com.sereneast.orchestramdm.keysight.mdmcustom.rest.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.ApplicationProperties;
+import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
+import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectListResponse;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
@@ -125,6 +127,33 @@ public class OrchestraRestClient {
                 LOGGER.info("response: "+mapper.writeValueAsString(response.getEntity()));
                 throw new RuntimeException("Error inserting records");
             }*/
+        }finally{
+            client.close();
+        }
+    }
+
+    public Response updateField(final String dataSpace, final String dataSet, final String path, OrchestraContent content, final Map<String,String> parameters) throws IOException {
+        Client client = ClientBuilder.newClient();
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.setDateFormat(df);
+        try {
+            client.register(feature);
+            WebTarget target = client.target(baseUrl).path(dataSpace).path(dataSet).path(path);
+            if (parameters != null)
+                for (Map.Entry<String, String> entry : parameters.entrySet())
+                    target = target.queryParam(entry.getKey(), entry.getValue());
+            Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON);
+            LOGGER.debug("rest url for reference:"+target.toString());
+            LOGGER.info("TIME: {} Updating {} field", LocalTime.now(),path);
+            Response response = invocationBuilder.put(Entity.json(mapper.writeValueAsString(content)));
+            LOGGER.info("TIME: {} Updated {} field",LocalTime.now(),path);
+
+            LOGGER.info(String.valueOf(response.getStatus()));
+            LOGGER.info(response.getStatusInfo().toString());
+
+            return response;
         }finally{
             client.close();
         }

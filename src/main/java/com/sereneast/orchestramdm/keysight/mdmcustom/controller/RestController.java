@@ -4,11 +4,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.onwbp.adaptation.Adaptation;
-import com.onwbp.adaptation.AdaptationTable;
-import com.onwbp.adaptation.RequestResult;
-import com.orchestranetworks.schema.Path;
-import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.ApplicationProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.*;
@@ -20,14 +15,11 @@ import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,6 +54,36 @@ public class RestController {
             LOGGER.error("", e);
         }
         return result;
+    }
+
+    @RequestMapping(value = "/account/updateAssignment/{dataSpace}/{mdmAccountId}/{newAssignedTo}", method = RequestMethod.POST)
+    public void updateAssignmentAccount(@PathVariable("mdmAccountId") String mdmAccountId,@PathVariable("dataSpace") String dataSpace,@PathVariable("newAssignedTo") String newAssignedTo){
+        String mdmRestBaseUrl = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("baseUrl").toString();//"http://localhost:8080/ebx-dataservices/rest/data/v1";
+        String mdmRestUsername = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("username").toString();//"admin"; // TODO: read from properties file
+        String mdmrp = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("password").toString();//"admin";
+        OrchestraRestClient orchestraRestClient = new OrchestraRestClient();
+        orchestraRestClient.setBaseUrl(mdmRestBaseUrl);
+        orchestraRestClient.setFeature(HttpAuthenticationFeature.basic(mdmRestUsername, mdmrp));
+        try {
+            orchestraRestClient.updateField(dataSpace,"Account","root/Account/"+mdmAccountId+"/AssignedTo",new OrchestraContent(newAssignedTo),null);
+        } catch (IOException e) {
+            throw new ApplicationRuntimeException("Error udpating Assinged To field for account");
+        }
+    }
+
+    @RequestMapping(value = "/address/updateAssignment/{dataSpace}/{mdmAddressId}/{newAssignedTo}", method = RequestMethod.POST)
+    public void updateAssignmentAddress(@PathVariable("mdmAddressId") String mdmAddressId,@PathVariable("dataSpace") String dataSpace,@PathVariable("newAssignedTo") String newAssignedTo){
+        String mdmRestBaseUrl = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("baseUrl").toString();//"http://localhost:8080/ebx-dataservices/rest/data/v1";
+        String mdmRestUsername = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("username").toString();//"admin"; // TODO: read from properties file
+        String mdmrp = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("password").toString();//"admin";
+        OrchestraRestClient orchestraRestClient = new OrchestraRestClient();
+        orchestraRestClient.setBaseUrl(mdmRestBaseUrl);
+        orchestraRestClient.setFeature(HttpAuthenticationFeature.basic(mdmRestUsername, mdmrp));
+        try {
+            orchestraRestClient.updateField(dataSpace,"Account","root/Address/"+mdmAddressId+"/AssignedTo",new OrchestraContent(newAssignedTo),null);
+        } catch (IOException e) {
+            throw new ApplicationRuntimeException("Error udpating Assinged To field for address");
+        }
     }
 
     @RequestMapping(value = "/crossReferences/{dataSpace}/{dataSet}/{table}/{mdmId}", method = RequestMethod.GET)

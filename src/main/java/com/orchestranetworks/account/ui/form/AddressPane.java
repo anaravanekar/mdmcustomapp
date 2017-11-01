@@ -1,5 +1,7 @@
 package com.orchestranetworks.account.ui.form;
 
+import com.onwbp.base.text.UserMessageString;
+import com.orchestranetworks.ui.UIButtonSpecJSAction;
 import com.orchestranetworks.ui.form.UIFormContext;
 import com.orchestranetworks.ui.form.UIFormPane;
 import com.orchestranetworks.ui.form.UIFormPaneWriter;
@@ -9,11 +11,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
 import java.util.Map;
 
+import static com.sereneast.orchestramdm.keysight.mdmcustom.Paths._Account._AssignedTo;
 import static com.sereneast.orchestramdm.keysight.mdmcustom.Paths._Address.*;
 
 public class AddressPane implements UIFormPane {
+	String masterUserId = ((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("masterUserId").toString();
 	private static final Logger LOGGER = LoggerFactory.getLogger(AddressPane.class);
 	public static final String CELL_STYLE_LEFT = "width:25%;  vertical-align:top;";
 	public static final String CELL_STYLE_RIGHT = "width:25%; vertical-align:top;text-align:right;";
@@ -31,21 +36,40 @@ public class AddressPane implements UIFormPane {
 
 		writer.add("<table width=\"50%\" >");
 
-		writer.add("<tr>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_AssignedTo);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_AssignedTo);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_Published);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_Published);
-		writer.add("</td>");
-		writer.add("</tr>");
+		if(StringUtils.isNotBlank(openedByUser) && !currentUserId.equalsIgnoreCase(openedByUser)
+				&& currentUserId.equalsIgnoreCase(masterUserId)) {
+			UserMessageString buttonLabel = new UserMessageString();
+			buttonLabel.setString(Locale.ENGLISH,"Save Assigned To");
+			String dataSpace = "B"+context.getCurrentRecord().getHome().getLabelOrName(Locale.ENGLISH);
+			String mdmdAddressId = String.valueOf(context.getCurrentRecord().get(_MDMAddressId));
+			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_AssignedTo);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_AssignedTo);writer.add("</td>");
+			writer.add("<td colspan=\"2\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addButtonJavaScript(new UIButtonSpecJSAction(buttonLabel,"saveAssignment('"+dataSpace+"',ebx_form_getValue(\""+writer.getPrefixedPath(_AssignedTo).format()+"\"),'address',"+mdmdAddressId+")"));writer.add("</td>");
+			writer.add("</tr>");
 
+			writer.add("<tr>");
+			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_Published);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_Published);
+			writer.add("</td><td></td><td></td>");
+			writer.add("</tr>");
+		}else {
+			writer.add("<tr>");
+			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_AssignedTo);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_AssignedTo);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_Published);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_Published);
+			writer.add("</td>");
+			writer.add("</tr>");
+		}
 		writer.add("<tr>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_OperatingUnit);
@@ -532,10 +556,10 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("if (xhr.status === 200) {");
 		writer.addJS("var calculatedFieldsJson = JSON.parse(xhr.responseText);");
 		writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('OperatingUnit')){");
-		writer.addJS("var value = calculatedFieldsJson.OperatingUnit;");
-		/*writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._OperatingUnit).format()).addJS("\", ").addJS(
-				"value").addJS(");");*/
-		writer.addJS_setNodeValue("value",Paths._Address._OperatingUnit);
+		writer.addJS("var value = {\"key\":calculatedFieldsJson.OperatingUnit,\"label\":calculatedFieldsJson.OperatingUnit};");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._OperatingUnit).format()).addJS("\", ").addJS(
+				"value").addJS(");");
+//		writer.addJS_setNodeValue("value",Paths._Address._OperatingUnit);
 		writer.addJS("}");writer.addJS("else{");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._OperatingUnit).format()).addJS("\", ").addJS(
 				"null").addJS(");");
@@ -551,7 +575,7 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('AddressState')){");
 		writer.addJS("var value = calculatedFieldsJson.AddressState;");
 		writer.addJS_setNodeValue("value",Paths._Address._AddressState);
-		writer.addJS("alert('setnodevalue called');");
+//		writer.addJS("alert('setnodevalue called');");
 /*		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._AddressState).format()).addJS("\", ").addJS(
 				"value").addJS(");")*/;
 		writer.addJS("}");writer.addJS("else{");
@@ -566,6 +590,18 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._Province).format()).addJS("\", ").addJS(
 				"null").addJS(");");
 		writer.addJS("}");
+		writer.addJS("}");
+		writer.addJS("};");
+		writer.addJS("xhr.send();");
+		writer.addJS("}");
+
+		writer.addJS("function saveAssignment(dataSpace,newAssignment,table,primaryKey){");
+		writer.addJS("var xhr = new XMLHttpRequest();");
+		writer.addJS("xhr.open('POST', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/'+table+'/updateAssignment/'+dataSpace+'/'+primaryKey+'/'+newAssignment.key);");
+		writer.addJS("xhr.setRequestHeader('Content-Type', 'application/json');");
+		writer.addJS("xhr.onload = function() {");
+		writer.addJS("if (xhr.status === 200) {");
+//		writer.addJS("console.log('update assingment successful');");
 		writer.addJS("}");
 		writer.addJS("};");
 		writer.addJS("xhr.send();");

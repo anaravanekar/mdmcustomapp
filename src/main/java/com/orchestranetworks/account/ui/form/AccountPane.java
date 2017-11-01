@@ -1,12 +1,18 @@
 package com.orchestranetworks.account.ui.form;
 
+import com.onwbp.base.text.UserMessageString;
+import com.orchestranetworks.ui.UIButtonSpecJSAction;
 import com.orchestranetworks.ui.form.UIFormContext;
 import com.orchestranetworks.ui.form.UIFormPane;
 import com.orchestranetworks.ui.form.UIFormPaneWriter;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
+import com.sereneast.orchestramdm.keysight.mdmcustom.util.AppUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Locale;
+import java.util.Map;
 
 import static com.sereneast.orchestramdm.keysight.mdmcustom.Paths._Account.*;
 
@@ -20,7 +26,7 @@ public class AccountPane implements UIFormPane {
 
 	@Override
 	public void writePane(UIFormPaneWriter writer, UIFormContext context) {
-
+		String masterUserId = ((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("masterUserId").toString();
 		String currentUserId = context.getSession().getUserReference().getUserId();
 		String openedByUser = context.getValueContext().getValue(Paths._Account._AssignedTo)!=null?context.getValueContext().getValue(Paths._Account._AssignedTo).toString():null;
 		LOGGER.debug("currentUsereId:"+currentUserId);
@@ -38,7 +44,17 @@ public class AccountPane implements UIFormPane {
 
 		writer.add("<table width=\"50%\" >");
 
-		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_AssignedTo);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_AssignedTo);writer.add("</td></tr>");
+		if(StringUtils.isNotBlank(openedByUser) && !currentUserId.equalsIgnoreCase(openedByUser)
+				&& currentUserId.equalsIgnoreCase(masterUserId)) {
+			UserMessageString buttonLabel = new UserMessageString();
+			buttonLabel.setString(Locale.ENGLISH,"Save Assigned To");
+			String mdmdAccountId = String.valueOf(context.getCurrentRecord().get(_MDMAccountId));
+			String dataSpace = "B"+context.getCurrentRecord().getHome().getLabelOrName(Locale.ENGLISH);
+			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_AssignedTo);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_AssignedTo);writer.add("</td>");
+			writer.add("<td colspan=\"2\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_LEFT + "\"><font color=\"#606060\">");writer.addButtonJavaScript(new UIButtonSpecJSAction(buttonLabel,"saveAssignment('"+dataSpace+"',ebx_form_getValue(\""+writer.getPrefixedPath(_AssignedTo).format()+"\"),'account',"+mdmdAccountId+")"));writer.add("</td>");writer.add("</tr>");
+		}else{
+			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_AssignedTo);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_AssignedTo);writer.add("</td></tr>");
+		}
 
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_MDMAccountId);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_MDMAccountId);writer.add("</td>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_RegistryId);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_RegistryId);writer.add("</td>");writer.add("</tr>");
@@ -110,5 +126,22 @@ public class AccountPane implements UIFormPane {
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_MergedTargetRecord);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_MergedTargetRecord);writer.add("</td></tr>");
 
 		writer.add("</table>");
+
+		writer.addJS("function saveAssignment(dataSpace,newAssignment,table,primaryKey){");
+//		writer.addJS("console.log('newAssignment='+newAssignment);");
+//		writer.addJS("console.log('newAssignment stringified ='+JSON.stringify(newAssignment));");
+		writer.addJS("var xhr = new XMLHttpRequest();");
+		String protocol = "true".equals(((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("ssl").toString())?"https":"http";
+		String host = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("host").toString();
+		String port = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("port").toString();
+		writer.addJS("xhr.open('POST', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/'+table+'/updateAssignment/'+dataSpace+'/'+primaryKey+'/'+newAssignment.key);");
+		writer.addJS("xhr.setRequestHeader('Content-Type', 'application/json');");
+		writer.addJS("xhr.onload = function() {");
+		writer.addJS("if (xhr.status === 200) {");
+//		writer.addJS("console.log('update assingment successful');");
+		writer.addJS("}");
+		writer.addJS("};");
+		writer.addJS("xhr.send();");
+		writer.addJS("}");
 	}
 }
