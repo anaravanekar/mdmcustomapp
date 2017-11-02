@@ -521,20 +521,6 @@ public class AddressPane implements UIFormPane {
 		writer.addWidget(_BatchCode);
 		writer.add("</td></tr>");
 
-/*		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_InternalAccountId);
-		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_InternalAccountId);
-		writer.add("</td></tr>");*/
-
-
-/*		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_KeysightSFAAddressId);
-		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_KeysightSFAAddressId);
-		writer.add("</td></tr>");*/
-
-
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_MergedTargetRecord);
 		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
@@ -544,7 +530,6 @@ public class AddressPane implements UIFormPane {
 		writer.add("</table>");
 
 		writer.addJS("function calculatedFields(countryCode){");
-		//writer.addJS("alert('calculatedFields called');");
 		writer.addJS("var xhr = new XMLHttpRequest();");
 		RestProperties restProperties = (RestProperties) SpringContext.getApplicationContext().getBean("restProperties");
 		String protocol = "true".equals(restProperties.getOrchestra().getSsl())?"https":"http";
@@ -559,7 +544,6 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("var value = {\"key\":calculatedFieldsJson.OperatingUnit,\"label\":calculatedFieldsJson.OperatingUnit};");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._OperatingUnit).format()).addJS("\", ").addJS(
 				"value").addJS(");");
-//		writer.addJS_setNodeValue("value",Paths._Address._OperatingUnit);
 		writer.addJS("}");writer.addJS("else{");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._OperatingUnit).format()).addJS("\", ").addJS(
 				"null").addJS(");");
@@ -570,24 +554,6 @@ public class AddressPane implements UIFormPane {
 				"value").addJS(");");
 		writer.addJS("}");writer.addJS("else{");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._TaxRegimeCode).format()).addJS("\", ").addJS(
-				"null").addJS(");");
-		writer.addJS("}");
-		writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('AddressState')){");
-		writer.addJS("var value = calculatedFieldsJson.AddressState;");
-		writer.addJS_setNodeValue("value",Paths._Address._AddressState);
-//		writer.addJS("alert('setnodevalue called');");
-/*		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._AddressState).format()).addJS("\", ").addJS(
-				"value").addJS(");")*/;
-		writer.addJS("}");writer.addJS("else{");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._AddressState).format()).addJS("\", ").addJS(
-				"null").addJS(");");
-		writer.addJS("}");
-		writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('Province')){");
-		writer.addJS("var value = calculatedFieldsJson.Province;");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._Province).format()).addJS("\", ").addJS(
-				"value").addJS(");");
-		writer.addJS("}");writer.addJS("else{");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._Province).format()).addJS("\", ").addJS(
 				"null").addJS(");");
 		writer.addJS("}");
 		writer.addJS("}");

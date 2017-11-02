@@ -91,51 +91,32 @@ public class RestController {
 
     @RequestMapping(value = "calculatedFields/country/{dataSpace}/{dataSet}/{countryCode}", method = RequestMethod.GET)
     public String getCalculatedFields(@PathVariable("dataSpace") String dataSpace, @PathVariable("dataSet") String dataSet,@PathVariable("countryCode") String countryCode) throws IOException {
-        String operatingUnitTablePath = "root/OperatingUnit";
+        String countryReferenceTablePath = "root/CountryReferenceFields";
         OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
         Map<String, String> parameters = new HashMap<>();
         parameters.put("filter","CountryCode='" +countryCode+"'");
 
-        OrchestraObjectListResponse orchestraObjectListResponse = orchestraRestClient.get(dataSpace,dataSet,operatingUnitTablePath,parameters);
+        OrchestraObjectListResponse orchestraObjectListResponse = orchestraRestClient.get(dataSpace,dataSet,countryReferenceTablePath,parameters);
         Map<String,String> resultObject = new HashMap<>();
         if (orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
             OrchestraObjectResponse objectResponse = orchestraObjectListResponse.getRows().get(0);
             Map<String,OrchestraContent> content = objectResponse.getContent();
             String operatingUnit = content.get("OperatingUnit").getContent()!=null?content.get("OperatingUnit").getContent().toString():null;
-            LOGGER.debug("operatingUnit="+operatingUnit);
+            String region = content.get("Region").getContent()!=null?content.get("Region").getContent().toString():null;
+            String profileClass = content.get("ProfileClass").getContent()!=null?content.get("ProfileClass").getContent().toString():null;
+            String regimeCode = content.get("RegimeCode").getContent()!=null?content.get("RegimeCode").getContent().toString():null;
+            LOGGER.debug("operatingUnit="+operatingUnit+" region="+region+" profileClass="+profileClass+" regimeCode="+regimeCode);
             if(operatingUnit!=null){
                 resultObject.put("OperatingUnit",operatingUnit);
             }
-        }
-
-        orchestraObjectListResponse = orchestraRestClient.get(dataSpace,dataSet,"root/RegimeCode",parameters);
-        if (orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
-            OrchestraObjectResponse objectResponse = orchestraObjectListResponse.getRows().get(0);
-            Map<String,OrchestraContent> content = objectResponse.getContent();
-            String value = content.get("TaxRegimeCode").getContent()!=null?content.get("TaxRegimeCode").getContent().toString():null;
-            LOGGER.debug("TaxRegimeCode="+value);
-            if(value!=null){
-                resultObject.put("TaxRegimeCode",value);
+            if(region!=null){
+                resultObject.put("Region",region);
             }
-        }
-        orchestraObjectListResponse = orchestraRestClient.get(dataSpace,dataSet,"root/State",parameters);
-        if (orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
-            OrchestraObjectResponse objectResponse = orchestraObjectListResponse.getRows().get(0);
-            Map<String,OrchestraContent> content = objectResponse.getContent();
-            String value = content.get("State").getContent()!=null?content.get("State").getContent().toString():null;
-            LOGGER.debug("State="+value);
-            if(value!=null){
-                resultObject.put("AddressState",value);
+            if(profileClass!=null){
+                resultObject.put("ProfileClass",profileClass);
             }
-        }
-        orchestraObjectListResponse = orchestraRestClient.get(dataSpace,dataSet,"root/Province",parameters);
-        if (orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
-            OrchestraObjectResponse objectResponse = orchestraObjectListResponse.getRows().get(0);
-            Map<String,OrchestraContent> content = objectResponse.getContent();
-            String value = content.get("Province").getContent()!=null?content.get("Province").getContent().toString():null;
-            LOGGER.debug("Province="+value);
-            if(value!=null){
-                resultObject.put("Province",value);
+            if(regimeCode!=null){
+                resultObject.put("TaxRegimeCode",regimeCode);
             }
         }
         ObjectMapper mapper = new ObjectMapper();

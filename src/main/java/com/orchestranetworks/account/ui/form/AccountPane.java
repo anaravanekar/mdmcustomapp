@@ -37,13 +37,6 @@ public class AccountPane implements UIFormPane {
 			writer.add("<div");writer.addSafeAttribute("style", "margin-left: 5px;");writer.add(">");writer.add("<b><font color=\"red\">Note: This record is currently being edited by " +openedByUser+". Any changes made cannot be saved.</font></b>");writer.add("</div>");
 		}
 
-/*
-		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(FPATH);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(FPATH);writer.add("</td></tr>");
-
-		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(FPATH);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(FPATH);writer.add("</td>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(FPATH);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(FPATH);writer.add("</td>");writer.add("</tr>");
-*/
-
 		writer.add("<table width=\"50%\" >");
 
 		if(StringUtils.isNotBlank(openedByUser) && !currentUserId.equalsIgnoreCase(openedByUser)) {
@@ -90,19 +83,6 @@ public class AccountPane implements UIFormPane {
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_PaymentStartDate);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_PaymentStartDate);writer.add("</td>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_PaymentEndDate);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_PaymentEndDate);writer.add("</td></tr>");
 
-/*
-		writer.add("</table>");
-
-		writer.add("<table width=\"100%\" >");
-		writer.add("<tr><td colspan=\"1\" style=\"" + CELL_STYLE_RIGHT_HALF + "\"><font color=\"#606060\">");writer.addLabel(_PaymentReceiptMethod);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT_HALF + "\">");writer.addWidget(_PaymentReceiptMethod);writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_RIGHT_HALF + "\"><font color=\"#606060\">");writer.addLabel(_PrimaryPayment);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT_HALF + "\">");writer.addWidget(_PrimaryPayment);writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_RIGHT_HALF + "\"><font color=\"#606060\">");writer.addLabel(_PaymentStartDate);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT_HALF + "\">");writer.addWidget(_PaymentStartDate);writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_RIGHT_HALF + "\"><font color=\"#606060\">");writer.addLabel(_PaymentEndDate);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT_HALF + "\">");writer.addWidget(_PaymentEndDate);writer.add("</td>");writer.add("</tr>");
-		writer.add("</table>");
-
-		writer.add("<table width=\"50%\" >");
-*/
-
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_ParentParty);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_ParentParty);writer.add("</td>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_SalesChannel);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_SalesChannel);writer.add("</td>");writer.add("</tr>");
 
@@ -120,7 +100,6 @@ public class AccountPane implements UIFormPane {
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_RelatedAddress);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_RelatedAddress);writer.add("</td></tr>");
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_InternalAccountId);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_InternalAccountId);writer.add("</td></tr>");
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_SystemName);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_SystemName);writer.add("</td></tr>");
-//		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_SystemId);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_SystemId);writer.add("</td></tr>");
 
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_SystemId);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_SystemId);writer.add("</td>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_RMTId);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_RMTId);writer.add("</td>");writer.add("</tr>");
@@ -130,19 +109,52 @@ public class AccountPane implements UIFormPane {
 
 		writer.add("</table>");
 
-		writer.addJS("function saveAssignment(dataSpace,newAssignment,table,primaryKey){");
-//		writer.addJS("console.log('newAssignment='+newAssignment);");
-//		writer.addJS("console.log('newAssignment stringified ='+JSON.stringify(newAssignment));");
-		writer.addJS("var xhr = new XMLHttpRequest();");
 		RestProperties restProperties = (RestProperties) SpringContext.getApplicationContext().getBean("restProperties");
 		String protocol = "true".equals(restProperties.getOrchestra().getSsl())?"https":"http";
 		String host = restProperties.getOrchestra().getHost();
 		String port = restProperties.getOrchestra().getPort();
+
+/*		writer.addJS("function calculatedFields(countryCode){");
+		writer.addJS("console.log('calculatedFields called');");
+		writer.addJS("var countryFieldValue=ebx_form_getValue(\""+writer.getPrefixedPath(_Country).format()+"\");");
+		writer.addJS("console.log('countryFieldValue='+JSON.stringify(countryFieldValue));");
+		writer.addJS("console.log('countryCode passed ='+countryCode);");
+		writer.addJS("countryCode=countryFieldValue[0].key;");
+		writer.addJS("console.log('countryCode new ='+countryCode);");
+		writer.addJS("var xhr = new XMLHttpRequest();");
+		writer.addJS("xhr.open('GET', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/calculatedFields/country/BReference/Account/'+countryCode);");
+		writer.addJS("xhr.setRequestHeader('Content-Type', 'application/json');");
+		writer.addJS("xhr.onload = function() {");
+		writer.addJS("if (xhr.status === 200) {");
+		writer.addJS("var calculatedFieldsJson = JSON.parse(xhr.responseText);");
+		writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('Region')){");
+		writer.addJS("var value = calculatedFieldsJson.Region;");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_Region).format()).addJS("\", ").addJS(
+				"value").addJS(");");
+		writer.addJS("}");writer.addJS("else{");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_Region).format()).addJS("\", ").addJS(
+				"null").addJS(");");
+		writer.addJS("}");
+		writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('ProfileClass')){");
+//		writer.addJS("var value = calculatedFieldsJson.ProfileClass;");
+		writer.addJS("var value = {\"key\":calculatedFieldsJson.ProfileClass,\"label\":calculatedFieldsJson.ProfileClass};");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_ProfileClass).format()).addJS("\", ").addJS(
+				"value").addJS(");");
+		writer.addJS("}");writer.addJS("else{");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_ProfileClass).format()).addJS("\", ").addJS(
+				"null").addJS(");");
+		writer.addJS("}");
+		writer.addJS("}");
+		writer.addJS("};");
+		writer.addJS("xhr.send();");
+		writer.addJS("}");*/
+
+		writer.addJS("function saveAssignment(dataSpace,newAssignment,table,primaryKey){");
+		writer.addJS("var xhr = new XMLHttpRequest();");
 		writer.addJS("xhr.open('POST', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/'+table+'/updateAssignment/'+dataSpace+'/'+primaryKey+'/'+newAssignment.key);");
 		writer.addJS("xhr.setRequestHeader('Content-Type', 'application/json');");
 		writer.addJS("xhr.onload = function() {");
 		writer.addJS("if (xhr.status === 200) {");
-//		writer.addJS("console.log('update assingment successful');");
 		writer.addJS("}");
 		writer.addJS("};");
 		writer.addJS("xhr.send();");
