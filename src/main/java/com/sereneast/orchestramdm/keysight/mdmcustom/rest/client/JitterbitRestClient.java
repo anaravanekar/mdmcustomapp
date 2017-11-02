@@ -1,11 +1,7 @@
 package com.sereneast.orchestramdm.keysight.mdmcustom.rest.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.ApplicationProperties;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectListResponse;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraResponseDetails;
-import org.apache.commons.lang3.StringUtils;
+import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +20,7 @@ public class JitterbitRestClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JitterbitRestClient.class);
 
-    private ApplicationProperties applicationProperties;
+    private RestProperties restProperties;
 
     private String baseUrl;
 
@@ -42,20 +38,20 @@ public class JitterbitRestClient {
     }
 
     @Autowired
-    public JitterbitRestClient(ApplicationProperties applicationProperties) {
-        Map<String,String> restProperties = applicationProperties.getOrchestraRest();
+    public JitterbitRestClient(RestProperties restProperties) {
+        this.restProperties=restProperties;
         StringBuilder base = new StringBuilder();
-        if("true".equalsIgnoreCase(restProperties.get("ssl"))){
+        if("true".equalsIgnoreCase(restProperties.getJitterbit().getSsl())){
             base.append("https://");
         }else{
             base.append("http://");
         }
-        base.append(restProperties.get("host"));
-        base.append(":"+restProperties.get("port"));
-        base.append(restProperties.get("baseURI"));
-        base.append(restProperties.get("version"));
+        base.append(restProperties.getJitterbit().getHost());
+        base.append(":"+restProperties.getJitterbit().getPort());
+        base.append(restProperties.getJitterbit().getBaseURI());
+        base.append(restProperties.getJitterbit().getVersion());
         this.baseUrl = base.toString();
-        this.feature = HttpAuthenticationFeature.basic(restProperties.get("username"), restProperties.get("password"));
+        this.feature = HttpAuthenticationFeature.basic(restProperties.getJitterbit().getUsername(), restProperties.getJitterbit().getPassword());
     }
 
 

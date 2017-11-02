@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.ApplicationProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.pagination.DataTableRequest;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.pagination.DataTableResults;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.pagination.PaginationCriteria;
@@ -35,12 +34,9 @@ public class AccountController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AccountController.class);
 
 	@Autowired
-	private ApplicationProperties applicationProperties;
+	private NamedParameterJdbcTemplate ebxDbNamedParameterJdbcTemplate;
 
-	@Autowired
-	private NamedParameterJdbcTemplate oracleDbNamedParameterJdbcTemplate;
-
-//	private static final String COLUMN_LIST_ACCOUNT ="MDMACCOUNTID,ACCOUNTNUMBER,ACCOUNTNAME,DAQAMETADATA_STATE,DAQAMETADATA_CLUSTERID,DAQAMETADATA_SCORE,DAQAMETADATA_TARGETRECORD_,STATUS,SYSTEMID,SYSTEMNAME,CUSTOMERTYPE,REGISTRYID,ALIAS,NAMEPRONUNCIATION,TAXPAYERID,TAXREGISTRATIONNUMBER,CUSTOMERCATEGORY,ACCOUNTDESCRIPTION,REGION,CLASSIFICATION,ACCOUNTTYPE,SALESCHANNEL,REFERENCE,NLSLANGUAGECODE,NAMELOCALLANGUAGE,CUSTOMERSCREENING,LASTCREDITREVIEWDATE,NEXTCREDITREVIEWDATE,CREDITREVIEWCYCLE,PARENTPARTY,EMGLASTTRANS,GROUPINGDESCRIPTION,GROUPINGID,IXIACLASSIFICATION,PROFILECLASS";
+	//	private static final String COLUMN_LIST_ACCOUNT ="MDMACCOUNTID,ACCOUNTNUMBER,ACCOUNTNAME,DAQAMETADATA_STATE,DAQAMETADATA_CLUSTERID,DAQAMETADATA_SCORE,DAQAMETADATA_TARGETRECORD_,STATUS,SYSTEMID,SYSTEMNAME,CUSTOMERTYPE,REGISTRYID,ALIAS,NAMEPRONUNCIATION,TAXPAYERID,TAXREGISTRATIONNUMBER,CUSTOMERCATEGORY,ACCOUNTDESCRIPTION,REGION,CLASSIFICATION,ACCOUNTTYPE,SALESCHANNEL,REFERENCE,NLSLANGUAGECODE,NAMELOCALLANGUAGE,CUSTOMERSCREENING,LASTCREDITREVIEWDATE,NEXTCREDITREVIEWDATE,CREDITREVIEWCYCLE,PARENTPARTY,EMGLASTTRANS,GROUPINGDESCRIPTION,GROUPINGID,IXIACLASSIFICATION,PROFILECLASS";
 	private static final String COLUMN_LIST_ACCOUNT ="MDMACCOUNTID,INTERNALACCOUNTID,ACCOUNTNAME,DAQAMETADATA_STATE,DAQAMETADATA_CLUSTERID,DAQAMETADATA_SCORE,DAQAMETADATA_TARGETRECORD_,STATUS,SYSTEMID,SYSTEMNAME,CUSTOMERTYPE,REGISTRYID,NAMEPRONUNCIATION,TAXPAYERID,TAXREGISTRATIONNUMBER,CUSTOMERCATEGORY,REGION,CLASSIFICATION,ACCOUNTTYPE,SALESCHANNEL,REFERENCE,NLSLANGUAGECODE,NAMELOCALLANGUAGE,CUSTOMERSCREENING,PARENTPARTY,EMGLASTTRANS,GROUPINGDESCRIPTION,GROUPINGID,PROFILECLASS,ASSIGNEDTO,ISGCLASSIFICATION,NOTES,PAYMENTENDDATE,PAYMENTRECEIPTMETHOD,PAYMENTSTARTDATE,PRIMARYPAYMENT,PUBLISHED";
 	private static final String COLUMN_LIST_ADDRESS = "ADDRESSLINE1 as \"Address Line 1\",ADDRESSLINE2 as \"Address Line 2\",ADDRESSLINE3 as \"Address Line 3\",ADDRESSLINE4 as \"Address Line 4\",ADDRESS as \"Address\",CITY as \"City\",COUNTY as \"County\",ADDRESSSTATE as \"Address State\",PROVINCE as \"Province\",POSTALCODE as \"Postal Code\",COUNTRY as \"Country\",MDMADDRESSID as \"MDM Address Id\",MDMACCOUNTID_ as \"MDM Account Id\",DAQAMETADATA_STATE as \"DAQAMETADATA_STATE\",DAQAMETADATA_CLUSTERID as \"DAQAMETADATA_CLUSTERID\",DAQAMETADATA_SCORE as \"DAQAMETADATA_SCORE\",SYSTEMID as \"System Id\",SYSTEMNAME as \"System Name\",STATUS as \"Status\",IDENTIFYINGADDRESS as \"Identifying Address\",REFERENCE as \"Reference\",OPERATINGUNIT as \"Operating Unit\",RPLCHECK as \"RPL Check\",NLSLANGUAGE as \"NLS Language\",ADDRESSLINE1LOCALLANGUAGE as \"Address Line1: Local Language\",ADDRESSLINE2LOCALLANGUAGE as \"Address Line2: Local Language\",ADDRESSLINE3LOCALLANGUAGE as \"Address Line3: Local Language\",ADDRESSLINE4LOCALLANGUAGE as \"Address Line4: Local Language\",CITYLOCALLANGUAGE as \"City:Local Language\",STATELOCALLANGUAGE as \"State:Local Language\",POSTALLOCALLANGUAGE as \"Postal:Local Language\",PROVINCELOCALLANGUAGE as \"Province:Local Language\",COUNTYLOCALLANGUAGE as \"County: Local Language\",COUNTRYLOCALLANGUAGE as \"Country: Local Language\",SENDACKNOWLEDGEMENT as \"Send Acknowledgement\",INVOICECOPIES as \"Invoice Copies or Suppression\",CONTEXTVALUE as \"Context Value\",TAXABLEPERSON as \"Taxable Person\",INDUSTRYCLASSIFICATION as \"Industry Classification\",TAXCERTIFICATEDATE as \"Tax Certificate Issue Date\",BUSINESSNUMBER as \"Business Number\",INDUSTRYSUBCLASSIFICATION as \"Industry Subclassification\",ADDRESSSITECATEGORY as \"Address Site Category\",ATS as \"ATS\",BILLTOLOCATION as \"Bill To Location\",REVENUERECOGNITION as \"Revenue Recognition\",ORGSEGMENT as \"Org Segment\",DEMANDCLASS as \"Demand Class\",TAXREGISTRATIONACTIVE as \"Tax Registration Active\",TAX as \"Tax\",TAXREGISTRATIONNUMBER as \"Tax Registration Number\",SOURCE as \"Source\",DEFAULTTAXREGISTRATION as \"Default Tax Registration\",ASSIGNEDTO as \"Assigned To\",BATCHCODE as \"Batch Code\",INTERNALACCOUNTID as \"Internal Account Id\",INTERNALADDRESSID as \"Internal Address Id\",PARENTSYSTEMID as \"Parent System Id\",PUBLISHED as \"Published\",SPECIALHANDLING as \"Special Handling\",SUBSEGMET as \"Sub Segment\",TAXEFFECTIVEFROM as \"Tax Effective From\",TAXEFFECTIVETO as \"Tax Effective To\",TAXREGIMECODE as \"Tax Regime Code\"";
 	private static final String COLUMN_LIST_ADDRESS_NEW = "COUNTRY as \"Country\",'' as \"Business Purpose\",OPERATINGUNIT as \"Operating Unit \",SYSTEMNAME as \"Source System\",ADDRESS as \"Address\",CITY as \"City\",POSTALCODE as \"Postal Code\",PROVINCE as \"Province\",REFERENCE as \"Reference\",ADDRESSLINE1 as \"Address Line 1\",ADDRESSLINE2 as \"Address Line 2\",ADDRESSLINE3 as \"Address Line 3\",ADDRESSLINE4 as \"Address Line 4\", MDMADDRESSID as \"MDM Address Id\"";
@@ -66,7 +62,7 @@ public class AccountController {
 	public String getAccountAddresses(@PathVariable("accId") String accId, Map<String, Object> model) {
 		String query = "SELECT "+ COLUMN_LIST_ADDRESS +" FROM EBX_MDM_ACCOUNT_ADDRESS WHERE MDMACCOUNTID_ = "+accId;
 		LOGGER.debug("Address query: "+query);
-		List<Map<String, Object>> resultList = oracleDbNamedParameterJdbcTemplate.query(query,new ResultSetToHashMapRowMapper());
+		List<Map<String, Object>> resultList = ebxDbNamedParameterJdbcTemplate.query(query,new ResultSetToHashMapRowMapper());
 		model.put("columnlist", new ArrayList<String>(resultList.get(0).keySet()));
 		model.put("resultList",resultList);
 		return "accountAddress :: contents";
@@ -76,7 +72,7 @@ public class AccountController {
 	public String getAccountAddressesNew(@PathVariable("accId") String accId, Map<String, Object> model) {
 		String query = "SELECT "+ COLUMN_LIST_ADDRESS_NEW +" FROM EBX_MDM_ACCOUNT_ADDRESS WHERE MDMACCOUNTID_ = "+accId;
 		LOGGER.debug("Address query: "+query);
-		List<Map<String, Object>> resultList = oracleDbNamedParameterJdbcTemplate.query(query,new ResultSetToHashMapRowMapper());
+		List<Map<String, Object>> resultList = ebxDbNamedParameterJdbcTemplate.query(query,new ResultSetToHashMapRowMapper());
 		List<String> columnList = resultList!=null && !resultList.isEmpty()?new ArrayList<String>(resultList.get(0).keySet()):new ArrayList<>();
 		model.put("columnlist", columnList);
 		model.put("resultList",resultList);
@@ -88,7 +84,7 @@ public class AccountController {
 	public String getAddressesBusinessPurpose(@PathVariable("addressId") String addressId, Map<String, Object> model) {
 		String query = "select "+BP_COLUMN_LIST+" FROM EBX_MDM_ACCOUNT_ADDRESS_BP bp WHERE MDMADDRESSID_= "+addressId;
 		LOGGER.debug("Business Purpose query: "+query);
-		List<Map<String, Object>> resultList = oracleDbNamedParameterJdbcTemplate.query(query,new ResultSetToHashMapRowMapper());
+		List<Map<String, Object>> resultList = ebxDbNamedParameterJdbcTemplate.query(query,new ResultSetToHashMapRowMapper());
 		List<String> columnList = resultList!=null && !resultList.isEmpty()?new ArrayList<String>(resultList.get(0).keySet()):new ArrayList<>();
 		model.put("columnlist", columnList);
 		model.put("resultList",resultList);
@@ -110,7 +106,7 @@ public class AccountController {
 		List columnList = new ArrayList<String>();
 		if(clusterId!=null && !"".equals(clusterId)) {
 			String query = "SELECT " + COLUMN_LIST_ADDRESS_CL + " FROM EBX_MDM_ACCOUNT_ADDRESS ad INNER JOIN EBX_MDM_ACCOUNT ac ON ad.MDMACCOUNTID_ = ac.MDMACCOUNTID WHERE ac.DAQAMETADATA_CLUSTERID = " + clusterId;
-			resultList = oracleDbNamedParameterJdbcTemplate.query(query, new ResultSetToHashMapRowMapper());
+			resultList = ebxDbNamedParameterJdbcTemplate.query(query, new ResultSetToHashMapRowMapper());
 			if(resultList!=null && !resultList.isEmpty()) {
 				LOGGER.debug("Address query: " + query);
 				columnList = new ArrayList<String>(resultList.get(0).keySet());
@@ -126,7 +122,7 @@ public class AccountController {
 		String query = "select * from ("
 				+" SELECT "+ COLUMN_LIST_ACCOUNT
 				+" from EBX_MDM_ACCOUNT order by ACCOUNTNAME) where ROWNUM <= 1";
-		List<Map<String, Object>> resultList = oracleDbNamedParameterJdbcTemplate.query(query,new ResultSetToHashMapRowMapper());
+		List<Map<String, Object>> resultList = ebxDbNamedParameterJdbcTemplate.query(query,new ResultSetToHashMapRowMapper());
 		model.put("columnlist", new ArrayList<String>(resultList.get(0).keySet()));
 		return "columnsFragment :: contents";
 	}
@@ -152,9 +148,9 @@ public class AccountController {
 			String paginatedQuery = AppUtil.buildPaginatedQueryOracle(baseQuery, pagination);
 			LOGGER.debug(paginatedQuery);
 
-			resultList = oracleDbNamedParameterJdbcTemplate.query(paginatedQuery,new ResultSetToHashMapRowMapper());
+			resultList = ebxDbNamedParameterJdbcTemplate.query(paginatedQuery,new ResultSetToHashMapRowMapper());
 			SqlParameterSource namedParameters = new MapSqlParameterSource("dummy", 1);
-			Integer totalRecords = oracleDbNamedParameterJdbcTemplate.queryForObject("SELECT COUNT(*) FROM EBX_MDM_ACCOUNT WHERE 1=:dummy",namedParameters,Integer.class);
+			Integer totalRecords = ebxDbNamedParameterJdbcTemplate.queryForObject("SELECT COUNT(*) FROM EBX_MDM_ACCOUNT WHERE 1=:dummy",namedParameters,Integer.class);
 			Map<String,Object> data = new HashMap<String,Object>();
 			data.put("data",resultList);
 

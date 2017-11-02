@@ -1,9 +1,10 @@
 package com.sereneast.orchestramdm.keysight.mdmcustom.config;
 
-import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.ApplicationProperties;
+import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.DatabaseProperties;
+import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.EbxProperties;
+import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -11,7 +12,6 @@ import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.scheduling.TaskScheduler;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
-@EnableConfigurationProperties({ApplicationProperties.class})
+@EnableConfigurationProperties({DatabaseProperties.class, EbxProperties.class, RestProperties.class})
 @EnableCaching
 public class ApplicationConfiguration {
 
@@ -43,13 +43,13 @@ public class ApplicationConfiguration {
         return cacheManager;
     }
 
-    @Bean(name="oracleDbDataSource")
+    @Bean(name="ebxDbDataSource")
     public DataSource primaryDataSource()  {
         org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource();
-        ds.setDriverClassName(environment.getProperty("keysight.datasource.oracle.driver-class-name"));
-        ds.setUrl(environment.getProperty("keysight.datasource.oracle.url"));
-        ds.setUsername(environment.getProperty("keysight.datasource.oracle.username"));
-        ds.setPassword(environment.getProperty("keysight.datasource.oracle.password"));
+        ds.setDriverClassName(environment.getProperty("keysight.database.ebx.driverClassName"));
+        ds.setUrl(environment.getProperty("keysight.database.ebx.url"));
+        ds.setUsername(environment.getProperty("keysight.database.ebx.username"));
+        ds.setPassword(environment.getProperty("keysight.database.ebx.password"));
         ds.setInitialSize(2);
         ds.setMaxActive(10);
         ds.setMaxIdle(5);
@@ -58,18 +58,8 @@ public class ApplicationConfiguration {
         return ds;
     }
 
-    @Bean(name="hsqlDbDataSource")
-    @Primary
-    public DataSource batchDataSource(){
-        return DataSourceBuilder.create()
-                .url("jdbc:hsqldb:mem:jobrepo")
-                .username("ashish")
-                .password("ashish")
-                .build();
-    }
-
     @Bean
-    public NamedParameterJdbcTemplate oracleDbNamedParameterJdbcTemplate(@Qualifier("oracleDbDataSource")DataSource dataSource){
+    public NamedParameterJdbcTemplate ebxDbNamedParameterJdbcTemplate(@Qualifier("ebxDbDataSource")DataSource dataSource){
         return new NamedParameterJdbcTemplate(dataSource);
     }
 }

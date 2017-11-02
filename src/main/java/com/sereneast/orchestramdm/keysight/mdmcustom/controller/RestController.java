@@ -4,14 +4,12 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.ApplicationProperties;
+import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.*;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.OrchestraRestClient;
-import com.sereneast.orchestramdm.keysight.mdmcustom.util.AppUtil;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.ResultSetToHashMapRowMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +28,6 @@ import java.util.Map;
 public class RestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccountController.class);
-
-    @Autowired
-    private ApplicationProperties applicationProperties;
 
     @Autowired
     private NamedParameterJdbcTemplate oracleDbNamedParameterJdbcTemplate;
@@ -58,12 +53,7 @@ public class RestController {
 
     @RequestMapping(value = "/account/updateAssignment/{dataSpace}/{mdmAccountId}/{newAssignedTo}", method = RequestMethod.POST)
     public void updateAssignmentAccount(@PathVariable("mdmAccountId") String mdmAccountId,@PathVariable("dataSpace") String dataSpace,@PathVariable("newAssignedTo") String newAssignedTo){
-        String mdmRestBaseUrl = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("baseUrl").toString();//"http://localhost:8080/ebx-dataservices/rest/data/v1";
-        String mdmRestUsername = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("username").toString();//"admin"; // TODO: read from properties file
-        String mdmrp = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("password").toString();//"admin";
-        OrchestraRestClient orchestraRestClient = new OrchestraRestClient();
-        orchestraRestClient.setBaseUrl(mdmRestBaseUrl);
-        orchestraRestClient.setFeature(HttpAuthenticationFeature.basic(mdmRestUsername, mdmrp));
+        OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
         try {
             orchestraRestClient.updateField(dataSpace,"Account","root/Account/"+mdmAccountId+"/AssignedTo",new OrchestraContent(newAssignedTo),null);
         } catch (IOException e) {
@@ -73,12 +63,7 @@ public class RestController {
 
     @RequestMapping(value = "/address/updateAssignment/{dataSpace}/{mdmAddressId}/{newAssignedTo}", method = RequestMethod.POST)
     public void updateAssignmentAddress(@PathVariable("mdmAddressId") String mdmAddressId,@PathVariable("dataSpace") String dataSpace,@PathVariable("newAssignedTo") String newAssignedTo){
-        String mdmRestBaseUrl = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("baseUrl").toString();//"http://localhost:8080/ebx-dataservices/rest/data/v1";
-        String mdmRestUsername = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("username").toString();//"admin"; // TODO: read from properties file
-        String mdmrp = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("password").toString();//"admin";
-        OrchestraRestClient orchestraRestClient = new OrchestraRestClient();
-        orchestraRestClient.setBaseUrl(mdmRestBaseUrl);
-        orchestraRestClient.setFeature(HttpAuthenticationFeature.basic(mdmRestUsername, mdmrp));
+        OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
         try {
             orchestraRestClient.updateField(dataSpace,"Account","root/Address/"+mdmAddressId+"/AssignedTo",new OrchestraContent(newAssignedTo),null);
         } catch (IOException e) {
@@ -91,13 +76,8 @@ public class RestController {
         LOGGER.debug("In getCrossReferences.......");
         //try{
         String tablePath = "root/" + table;
-        String mdmRestBaseUrl = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("baseUrl").toString();//"http://localhost:8080/ebx-dataservices/rest/data/v1";
-        String mdmRestUsername = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("username").toString();//"admin"; // TODO: read from properties file
-        String mdmrp = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("password").toString();//"admin";
         String mdmIdFieldName = table != null && table.contains("Account") ? "MDMAccountId" : "MDMAddressId";
-        OrchestraRestClient orchestraRestClient = new OrchestraRestClient();
-        orchestraRestClient.setBaseUrl(mdmRestBaseUrl);
-        orchestraRestClient.setFeature(HttpAuthenticationFeature.basic(mdmRestUsername, mdmrp));
+        OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
         OrchestraObject orchestraObject = searchByMdmId(orchestraRestClient, dataSpace, dataSet, tablePath, mdmId, mdmIdFieldName);
         Map content = (Map) orchestraObject.getContent().get("DaqaMetaData").getContent();
         Object targetValue = content.get("TargetRecord") != null ? ((Map)content.get("TargetRecord")).get("content") : null;
@@ -112,12 +92,7 @@ public class RestController {
     @RequestMapping(value = "calculatedFields/country/{dataSpace}/{dataSet}/{countryCode}", method = RequestMethod.GET)
     public String getCalculatedFields(@PathVariable("dataSpace") String dataSpace, @PathVariable("dataSet") String dataSet,@PathVariable("countryCode") String countryCode) throws IOException {
         String operatingUnitTablePath = "root/OperatingUnit";
-        String mdmRestBaseUrl = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("baseUrl").toString();//"http://localhost:8080/ebx-dataservices/rest/data/v1";
-        String mdmRestUsername = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("username").toString();//"admin"; // TODO: read from properties file
-        String mdmrp = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("password").toString();//"admin";
-        OrchestraRestClient orchestraRestClient = new OrchestraRestClient();
-        orchestraRestClient.setBaseUrl(mdmRestBaseUrl);
-        orchestraRestClient.setFeature(HttpAuthenticationFeature.basic(mdmRestUsername, mdmrp));
+        OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
         Map<String, String> parameters = new HashMap<>();
         parameters.put("filter","CountryCode='" +countryCode+"'");
 

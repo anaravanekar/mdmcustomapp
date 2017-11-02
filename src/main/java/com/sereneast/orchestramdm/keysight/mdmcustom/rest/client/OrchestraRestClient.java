@@ -2,9 +2,8 @@ package com.sereneast.orchestramdm.keysight.mdmcustom.rest.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.ApplicationProperties;
+import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectListResponse;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
@@ -26,7 +25,7 @@ public class OrchestraRestClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrchestraRestClient.class);
 
-    private ApplicationProperties applicationProperties;
+    private RestProperties restProperties;
 
     private String baseUrl;
 
@@ -44,20 +43,20 @@ public class OrchestraRestClient {
     }
 
     @Autowired
-    public OrchestraRestClient(ApplicationProperties applicationProperties) {
-        Map<String,String> restProperties = applicationProperties.getOrchestraRest();
+    public OrchestraRestClient(RestProperties restProperties) {
+        this.restProperties = restProperties;
         StringBuilder base = new StringBuilder();
-        if("true".equalsIgnoreCase(restProperties.get("ssl"))){
+        if("true".equalsIgnoreCase(restProperties.getOrchestra().getSsl())){
             base.append("https://");
         }else{
             base.append("http://");
         }
-        base.append(restProperties.get("host"));
-        base.append(":"+restProperties.get("port"));
-        base.append(restProperties.get("baseURI"));
-        base.append(restProperties.get("version"));
+        base.append(restProperties.getOrchestra().getHost());
+        base.append(":"+restProperties.getOrchestra().getPort());
+        base.append(restProperties.getOrchestra().getBaseURI());
+        base.append(restProperties.getOrchestra().getVersion());
         this.baseUrl = base.toString();
-        this.feature = HttpAuthenticationFeature.basic(restProperties.get("username"), restProperties.get("password"));
+        this.feature = HttpAuthenticationFeature.basic(restProperties.getOrchestra().getUsername(), restProperties.getOrchestra().getPassword());
     }
 
 

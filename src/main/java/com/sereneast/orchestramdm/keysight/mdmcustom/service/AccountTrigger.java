@@ -7,13 +7,13 @@ import com.optimaize.langdetect.profiles.LanguageProfile;
 import com.optimaize.langdetect.profiles.LanguageProfileReader;
 import com.orchestranetworks.schema.Path;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
+import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
+import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.EbxProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
-import com.sereneast.orchestramdm.keysight.mdmcustom.util.AppUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class AccountTrigger extends GenericTrigger {
 
@@ -28,7 +28,8 @@ public class AccountTrigger extends GenericTrigger {
             setTimestampPath(Paths._Account._DaqaMetaData_Timestamp);
             setPublishedFieldPath(Paths._Account._Published);
             setObjectName("Account");
-            List<String> lovsToMerge = (List<String>) ((Map)((Map)((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("matching"))).get("lovsToMerge")).get("account");
+            EbxProperties ebxProperties = (EbxProperties) SpringContext.getApplicationContext().getBean("ebxProperties");
+            List<String> lovsToMerge = ebxProperties.getMatching().getLovsToMerge().get("account");
             setLovsToMerge(lovsToMerge);
             setInitialized(true);
             try {

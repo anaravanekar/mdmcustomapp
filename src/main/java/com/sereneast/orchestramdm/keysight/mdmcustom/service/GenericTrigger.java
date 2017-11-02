@@ -14,20 +14,16 @@ import com.orchestranetworks.service.OperationException;
 import com.orchestranetworks.service.ProcedureContext;
 import com.orchestranetworks.service.ValueContextForUpdate;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
-import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
-import com.sereneast.orchestramdm.keysight.mdmcustom.email.EmailHtmlSender;
-import com.sereneast.orchestramdm.keysight.mdmcustom.email.EmailStatus;
-import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
-import com.sereneast.orchestramdm.keysight.mdmcustom.util.AppUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.thymeleaf.context.Context;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class GenericTrigger extends TableTrigger {
     private static final Logger LOGGER = LoggerFactory.getLogger(GenericTrigger.class);
@@ -88,7 +84,7 @@ public class GenericTrigger extends TableTrigger {
             }
         }*/
         String username = aContext.getSession().getUserReference().getUserId();
-        if("reduser".equalsIgnoreCase(username)) {
+/*        if("reduser".equalsIgnoreCase(username)) {
             ApplicationContext context = SpringContext.getApplicationContext();
             EmailHtmlSender emailHtmlSender = (EmailHtmlSender) context.getBean("emailHtmlSender");
             String primaryKey = aContext.getAdaptationOccurrence().get(objectPrimaryKeyPath).toString();
@@ -103,7 +99,7 @@ public class GenericTrigger extends TableTrigger {
             if (emailStatus.isError()) {
                 LOGGER.error("Error while sending email - " + emailStatus.getErrorMessage());
             }
-        }
+        }*/
         List<String> sourceValues = new ArrayList<>();
         String detectionSource = "";
         LOGGER.debug("hbc languageDetectionSourceFields="+languageDetectionSourceFields);
@@ -218,7 +214,7 @@ public class GenericTrigger extends TableTrigger {
             LOGGER.debug("Nothing to update");
         }
         String username = aContext.getSession().getUserReference().getUserId();
-        if("reduser".equalsIgnoreCase(username)) {
+/*        if("reduser".equalsIgnoreCase(username)) {
             ApplicationContext context = SpringContext.getApplicationContext();
             EmailHtmlSender emailHtmlSender = (EmailHtmlSender) context.getBean("emailHtmlSender");
             String primaryKey = aContext.getAdaptationOccurrence().get(objectPrimaryKeyPath).toString();
@@ -233,7 +229,7 @@ public class GenericTrigger extends TableTrigger {
             if (emailStatus.isError()) {
                 LOGGER.error("Error while sending email - " + emailStatus.getErrorMessage());
             }
-        }
+        }*/
         List<String> sourceValues = new ArrayList<>();
         String detectionSource = "";
         boolean fieldChanged = false;

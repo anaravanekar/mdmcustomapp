@@ -135,30 +135,4 @@ public class AppUtil {
 		}
 		return (null == finalQuery) ?  baseQuery : finalQuery;
 	}
-
-	public static Map<String,Object> getAllPropertiesMap(){
-		ObjectMapper yamlmapper = new ObjectMapper(new YAMLFactory());
-		ClassLoader classLoader = AppUtil.class.getClassLoader();
-		File file = new File(classLoader.getResource("application.yml").getFile());
-		try {
-			Map<String,Object> properties = yamlmapper.readValue(file,Map.class);
-			return properties;
-		} catch (IOException e) {
-			throw new ApplicationRuntimeException("Error reading properties from application.yml",e);
-		}
-	}
-
-	public static Object getMailProperty(String key){
-		ClassLoader classLoader = AppUtil.class.getClassLoader();
-		File file = new File(classLoader.getResource("mail.properties").getFile());
-		String rootPath = file.getPath();
-		String mailConfigPath = rootPath;
-		Properties mailProperties = new Properties();
-		try {
-			mailProperties.load(new FileInputStream(mailConfigPath));
-		} catch (IOException e) {
-			throw new ApplicationRuntimeException("Error configuring email",e);
-		}
-		return mailProperties.get(key);
-	}
 }

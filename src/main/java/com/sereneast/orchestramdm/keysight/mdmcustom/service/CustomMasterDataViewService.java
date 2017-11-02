@@ -2,13 +2,12 @@ package com.sereneast.orchestramdm.keysight.mdmcustom.service;
 
 import com.orchestranetworks.ui.selection.TableViewEntitySelection;
 import com.orchestranetworks.userservice.*;
-import com.sereneast.orchestramdm.keysight.mdmcustom.util.AppUtil;
+import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
+import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-
-import java.util.Map;
 
 public class CustomMasterDataViewService implements UserService<TableViewEntitySelection>
 {
@@ -73,9 +72,10 @@ public class CustomMasterDataViewService implements UserService<TableViewEntityS
         LOGGER.debug("In writeform");
         String urlForClose = aWriter.getURLForEndingService();
         LOGGER.debug("urlForClose="+urlForClose);
-        String protocol = "true".equals(((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("ssl").toString())?"https":"http";
-        String host = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("host").toString();
-        String port = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("port").toString();
+        RestProperties restProperties = (RestProperties) SpringContext.getApplicationContext().getBean("restProperties");
+        String protocol = "true".equals(restProperties.getOrchestra().getSsl())?"https":"http";
+        String host = restProperties.getOrchestra().getHost();
+        String port = restProperties.getOrchestra().getPort();
         String customUiUrl = protocol+"://"+host+":"+port+"/mdmcustomapp/homePageNew";
         aWriter.addJS("function openCustomView(){var win = window.open('"+customUiUrl+"', \"Custom Master Data View\", \"height=screen.width,width=screen.height\"); win.moveTo(0,0); win.resizeTo(screen.width,screen.height);} openCustomView(); window.location.href='"+urlForClose+"';");
         /*aWriter.addJS("" +

@@ -6,7 +6,8 @@ import com.orchestranetworks.ui.form.UIFormContext;
 import com.orchestranetworks.ui.form.UIFormPane;
 import com.orchestranetworks.ui.form.UIFormPaneWriter;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
-import com.sereneast.orchestramdm.keysight.mdmcustom.util.AppUtil;
+import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
+import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Map;
 
 import static com.sereneast.orchestramdm.keysight.mdmcustom.Paths._Account.*;
 import static com.sereneast.orchestramdm.keysight.mdmcustom.Paths._Address._LastPublished;
@@ -29,7 +29,6 @@ public class AccountPane implements UIFormPane {
 
 	@Override
 	public void writePane(UIFormPaneWriter writer, UIFormContext context) {
-		String masterUserId = ((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("masterUserId").toString();
 		String currentUserId = context.getSession().getUserReference().getUserId();
 		String openedByUser = context.getValueContext().getValue(Paths._Account._AssignedTo)!=null?context.getValueContext().getValue(Paths._Account._AssignedTo).toString():null;
 		LOGGER.debug("currentUsereId:"+currentUserId);
@@ -47,12 +46,11 @@ public class AccountPane implements UIFormPane {
 
 		writer.add("<table width=\"50%\" >");
 
-		if(StringUtils.isNotBlank(openedByUser) && !currentUserId.equalsIgnoreCase(openedByUser)
-				&& currentUserId.equalsIgnoreCase(masterUserId)) {
+		if(StringUtils.isNotBlank(openedByUser) && !currentUserId.equalsIgnoreCase(openedByUser)) {
 			UserMessageString buttonLabel = new UserMessageString();
 			buttonLabel.setString(Locale.ENGLISH,"Save Assigned To");
 			String mdmdAccountId = String.valueOf(context.getCurrentRecord().get(_MDMAccountId));
-			String dataSpace = "B"+context.getCurrentRecord().getHome().getLabelOrName(Locale.ENGLISH);
+			String dataSpace = context.getCurrentRecord().getHome().getKey().format();
 			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_AssignedTo);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_AssignedTo);writer.add("</td>");
 			writer.add("<td colspan=\"2\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_LEFT + "\"><font color=\"#606060\">");writer.addButtonJavaScript(new UIButtonSpecJSAction(buttonLabel,"saveAssignment('"+dataSpace+"',ebx_form_getValue(\""+writer.getPrefixedPath(_AssignedTo).format()+"\"),'account',"+mdmdAccountId+")"));writer.add("</td>");writer.add("</tr>");
 		}else{
@@ -136,9 +134,10 @@ public class AccountPane implements UIFormPane {
 //		writer.addJS("console.log('newAssignment='+newAssignment);");
 //		writer.addJS("console.log('newAssignment stringified ='+JSON.stringify(newAssignment));");
 		writer.addJS("var xhr = new XMLHttpRequest();");
-		String protocol = "true".equals(((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("ssl").toString())?"https":"http";
-		String host = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("host").toString();
-		String port = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("port").toString();
+		RestProperties restProperties = (RestProperties) SpringContext.getApplicationContext().getBean("restProperties");
+		String protocol = "true".equals(restProperties.getOrchestra().getSsl())?"https":"http";
+		String host = restProperties.getOrchestra().getHost();
+		String port = restProperties.getOrchestra().getPort();
 		writer.addJS("xhr.open('POST', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/'+table+'/updateAssignment/'+dataSpace+'/'+primaryKey+'/'+newAssignment.key);");
 		writer.addJS("xhr.setRequestHeader('Content-Type', 'application/json');");
 		writer.addJS("xhr.onload = function() {");

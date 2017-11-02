@@ -1,8 +1,8 @@
-package com.sereneast.orchestramdm.keysight.mdmcustom.config.properties;
+package com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.job;
 
 import java.util.Map;
 
-public class JobProperties {
+public class JobPropertiesCommon {
     private Boolean enabled=false;
     private String name;
     private Integer chunksize;

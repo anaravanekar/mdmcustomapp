@@ -14,13 +14,13 @@ import com.orchestranetworks.ui.UICSSClasses;
 import com.orchestranetworks.ui.selection.TableViewEntitySelection;
 import com.orchestranetworks.userservice.*;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
+import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.OrchestraRestClient;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -84,18 +84,6 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
     private static final int RETRY_WAIT_MILLIS = 1000;
 
     private static final String CROSS_REFERENCES_LABEL = "CrossReference";
-
-    private String mdmRestBaseUrl;
-
-    private String mdmRestUsername;
-
-    private String mdmrp;
-
-    private String jitterbitBaseUrl;
-
-    private String jitterbitUsername;
-
-    private String jitterbitrp;
 
     private boolean checkParentIsPublished;
 
@@ -205,7 +193,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             PublishService.this.ajaxCallback(userServiceAjaxContext, userServiceAjaxResponse,aContext);
         });
         aWriter.addJS("ebx_confirm({question: \"Do you want to publish selected records?\", jsCommandYes: \"callAjax('"+url+"','"+divId+"');\", labelYes: \"Yes\", labelNo: \"No\", jsCommandNo: \"window.location.href='"+urlForClose+"';\" });");
-     }
+    }
 
     private void ajaxCallback(UserServiceAjaxContext ajaxContext,UserServiceAjaxResponse anAjaxResponse,UserServicePaneContext aContext) {
         LOGGER.debug("In ajaxCallback");
@@ -468,10 +456,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             ObjectMapper mapper = new ObjectMapper();
             OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
             orchestraObjectList.setRows(recordsToUpdateInReference);
-            OrchestraRestClient orchestraRestClient = new OrchestraRestClient();
-            orchestraRestClient.setBaseUrl(mdmRestBaseUrl);
-            orchestraRestClient.setFeature(HttpAuthenticationFeature.basic(mdmRestUsername, mdmrp));
-            Map<String, String> parameters = new HashMap<String, String>();
+            OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");            Map<String, String> parameters = new HashMap<String, String>();
             parameters.put("updateOrInsert", "true");
             Response response = null;
             int retryCount = 0;
@@ -551,10 +536,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         mapper.setDateFormat(df);
-        OrchestraRestClient orchestraRestClient = new OrchestraRestClient();
-        orchestraRestClient.setBaseUrl(mdmRestBaseUrl);
-        orchestraRestClient.setFeature(HttpAuthenticationFeature.basic(mdmRestUsername, mdmrp));
-        Map<String, String> parameters = new HashMap<String, String>();
+        OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");        Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("updateOrInsert", "true");
         OrchestraObjectList objList = new OrchestraObjectList();
         objList.setRows(recordsToUpdateInReference);
@@ -729,54 +711,6 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
 
     public void setObjectKeys(List<ObjectKey> objectKeys) {
         this.objectKeys = objectKeys;
-    }
-
-    public String getMdmRestBaseUrl() {
-        return mdmRestBaseUrl;
-    }
-
-    public void setMdmRestBaseUrl(String mdmRestBaseUrl) {
-        this.mdmRestBaseUrl = mdmRestBaseUrl;
-    }
-
-    public String getMdmRestUsername() {
-        return mdmRestUsername;
-    }
-
-    public void setMdmRestUsername(String mdmRestUsername) {
-        this.mdmRestUsername = mdmRestUsername;
-    }
-
-    public String getMdmrp() {
-        return mdmrp;
-    }
-
-    public void setMdmrp(String mdmrp) {
-        this.mdmrp = mdmrp;
-    }
-
-    public String getJitterbitBaseUrl() {
-        return jitterbitBaseUrl;
-    }
-
-    public void setJitterbitBaseUrl(String jitterbitBaseUrl) {
-        this.jitterbitBaseUrl = jitterbitBaseUrl;
-    }
-
-    public String getJitterbitUsername() {
-        return jitterbitUsername;
-    }
-
-    public void setJitterbitUsername(String jitterbitUsername) {
-        this.jitterbitUsername = jitterbitUsername;
-    }
-
-    public String getJitterbitrp() {
-        return jitterbitrp;
-    }
-
-    public void setJitterbitrp(String jitterbitrp) {
-        this.jitterbitrp = jitterbitrp;
     }
 
     public Path getDaqaStateFieldPath() {

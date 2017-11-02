@@ -6,7 +6,8 @@ import com.orchestranetworks.ui.form.UIFormContext;
 import com.orchestranetworks.ui.form.UIFormPane;
 import com.orchestranetworks.ui.form.UIFormPaneWriter;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
-import com.sereneast.orchestramdm.keysight.mdmcustom.util.AppUtil;
+import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
+import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,13 +15,11 @@ import org.slf4j.LoggerFactory;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Map;
 
 import static com.sereneast.orchestramdm.keysight.mdmcustom.Paths._Account._AssignedTo;
 import static com.sereneast.orchestramdm.keysight.mdmcustom.Paths._Address.*;
 
 public class AddressPane implements UIFormPane {
-	String masterUserId = ((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("masterUserId").toString();
 	private static final Logger LOGGER = LoggerFactory.getLogger(AddressPane.class);
 	public static final String CELL_STYLE_LEFT = "width:25%;  vertical-align:top;";
 	public static final String CELL_STYLE_RIGHT = "width:25%; vertical-align:top;text-align:right;";
@@ -38,11 +37,10 @@ public class AddressPane implements UIFormPane {
 
 		writer.add("<table width=\"50%\" >");
 
-		if(StringUtils.isNotBlank(openedByUser) && !currentUserId.equalsIgnoreCase(openedByUser)
-				&& currentUserId.equalsIgnoreCase(masterUserId)) {
+		if(StringUtils.isNotBlank(openedByUser) && !currentUserId.equalsIgnoreCase(openedByUser)) {
 			UserMessageString buttonLabel = new UserMessageString();
 			buttonLabel.setString(Locale.ENGLISH,"Save Assigned To");
-			String dataSpace = "B"+context.getCurrentRecord().getHome().getLabelOrName(Locale.ENGLISH);
+			String dataSpace = context.getCurrentRecord().getHome().getKey().format();
 			String mdmdAddressId = String.valueOf(context.getCurrentRecord().get(_MDMAddressId));
 			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_AssignedTo);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_AssignedTo);writer.add("</td>");
 			writer.add("<td colspan=\"2\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addButtonJavaScript(new UIButtonSpecJSAction(buttonLabel,"saveAssignment('"+dataSpace+"',ebx_form_getValue(\""+writer.getPrefixedPath(_AssignedTo).format()+"\"),'address',"+mdmdAddressId+")"));writer.add("</td>");
@@ -548,9 +546,10 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("function calculatedFields(countryCode){");
 		//writer.addJS("alert('calculatedFields called');");
 		writer.addJS("var xhr = new XMLHttpRequest();");
-		String protocol = "true".equals(((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("ssl").toString())?"https":"http";
-		String host = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("host").toString();
-		String port = ((Map)((Map) AppUtil.getAllPropertiesMap().get("keysight")).get("orchestraRest")).get("port").toString();
+		RestProperties restProperties = (RestProperties) SpringContext.getApplicationContext().getBean("restProperties");
+		String protocol = "true".equals(restProperties.getOrchestra().getSsl())?"https":"http";
+		String host = restProperties.getOrchestra().getHost();
+		String port = restProperties.getOrchestra().getPort();
 		writer.addJS("xhr.open('GET', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/calculatedFields/country/BReference/Account/'+countryCode);");
 		writer.addJS("xhr.setRequestHeader('Content-Type', 'application/json');");
 		writer.addJS("xhr.onload = function() {");
