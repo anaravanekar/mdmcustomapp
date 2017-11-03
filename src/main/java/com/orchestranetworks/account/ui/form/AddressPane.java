@@ -530,6 +530,9 @@ public class AddressPane implements UIFormPane {
 		writer.add("</table>");
 
 		writer.addJS("function calculatedFields(countryCode){");
+		writer.addJS("var stateValue=ebx_form_getValue(\""+writer.getPrefixedPath(_AddressState).format()+"\");");
+		writer.addJS("console.log('stateValue='+stateValue);");
+		writer.addJS("console.log('stateValue json ='+JSON.stringify(stateValue));");
 		writer.addJS("var xhr = new XMLHttpRequest();");
 		RestProperties restProperties = (RestProperties) SpringContext.getApplicationContext().getBean("restProperties");
 		String protocol = "true".equals(restProperties.getOrchestra().getSsl())?"https":"http";
@@ -556,10 +559,20 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._TaxRegimeCode).format()).addJS("\", ").addJS(
 				"null").addJS(");");
 		writer.addJS("}");
+		writer.addJS("var value = {\"key\":null,\"label\":null};");
+		writer.addJS("var valueNd = {\"key\":\"[not defined]\",\"label\":\"[not defined]\"};");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_AddressState).format()).addJS("\", ").addJS(
+				"null").addJS(");");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_Province).format()).addJS("\", ").addJS(
+				"null").addJS(");");
 		writer.addJS("}");
 		writer.addJS("};");
 		writer.addJS("xhr.send();");
 		writer.addJS("}");
+
+		writer.add("<div ");
+		writer.addSafeAttribute("id", "divLoading");
+		writer.add("></div>");
 
 		writer.addJS("function saveAssignment(dataSpace,newAssignment,table,primaryKey){");
 		writer.addJS("var xhr = new XMLHttpRequest();");
@@ -568,9 +581,13 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("xhr.onload = function() {");
 		writer.addJS("if (xhr.status === 200) {");
 //		writer.addJS("console.log('update assingment successful');");
+		writer.addJS_cr("    document.getElementById(\"divLoading\").classList.remove(\"show\");");
+		writer.addJS("}else{");
+		writer.addJS_cr("    document.getElementById(\"divLoading\").classList.remove(\"show\");");
 		writer.addJS("}");
 		writer.addJS("};");
 		writer.addJS("xhr.send();");
+		writer.addJS_cr("document.getElementById(\"divLoading\").classList.add(\"show\");");
 		writer.addJS("}");
 	}
 }

@@ -166,8 +166,12 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
         LOGGER.debug("urlForClose="+urlForClose);
 
         String divId = "publishMessageDiv";
+        String loadingDivId = "divLoading";
         aWriter.add("<div ");
         aWriter.addSafeAttribute("id", divId);
+        aWriter.add("></div>");
+        aWriter.add("<div ");
+        aWriter.addSafeAttribute("id", loadingDivId);
         aWriter.add("></div>");
 
         aWriter.addJS_cr();
@@ -177,15 +181,18 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
         aWriter.addJS_cr("  ajaxHandler.handleAjaxResponseSuccess = function(responseContent) {");
         aWriter.addJS_cr("    var element = document.getElementById(targetDivId);");
         aWriter.addJS_cr("    element.innerHTML = responseContent;");
+        aWriter.addJS_cr("    document.getElementById(\"divLoading\").classList.remove(\"show\");");
         aWriter.addJS_cr("  };");
 
         aWriter.addJS_cr("  ajaxHandler.handleAjaxResponseFailed = function(responseContent) {");
         aWriter.addJS_cr("    var element = document.getElementById(targetDivId);");
         aWriter.addJS_cr("    element.innerHTML = \"<span class='" + UICSSClasses.TEXT.ERROR
                 + "'>An error occurred in processing the request.</span>\";");
+        aWriter.addJS_cr("    document.getElementById(\"divLoading\").classList.remove(\"show\");");
         aWriter.addJS_cr("  }");
 
         aWriter.addJS_cr("  ajaxHandler.sendRequest(url);");
+        aWriter.addJS_cr("document.getElementById(\"divLoading\").classList.add(\"show\");");
         aWriter.addJS_cr("}");
 
         // Generate the URL of the Ajax callback.

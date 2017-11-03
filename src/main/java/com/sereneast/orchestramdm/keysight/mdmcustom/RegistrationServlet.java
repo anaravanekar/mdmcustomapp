@@ -3,9 +3,11 @@
  */
 package com.sereneast.orchestramdm.keysight.mdmcustom;
 
+import com.orchestranetworks.module.ModuleContextOnRepositoryStartup;
 import com.orchestranetworks.module.ModuleRegistrationServlet;
 import com.orchestranetworks.module.ModuleServiceRegistrationContext;
 import com.orchestranetworks.schema.Path;
+import com.orchestranetworks.service.OperationException;
 import com.orchestranetworks.service.ServiceKey;
 import com.sereneast.orchestramdm.keysight.mdmcustom.service.*;
 import org.slf4j.Logger;
@@ -16,6 +18,11 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("serial")
 public class RegistrationServlet extends ModuleRegistrationServlet {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationServlet.class);
+
+	@Override
+	public void handleRepositoryStartup(ModuleContextOnRepositoryStartup aContext) throws OperationException {
+		aContext.addPackagedStyleSheetResource("loading.css");
+	}
 
 	@Override
 	public void handleServiceRegistration(ModuleServiceRegistrationContext aContext)

@@ -149,15 +149,24 @@ public class AccountPane implements UIFormPane {
 		writer.addJS("xhr.send();");
 		writer.addJS("}");*/
 
+		writer.add("<div ");
+		writer.addSafeAttribute("id", "divLoading");
+		writer.add("></div>");
+
 		writer.addJS("function saveAssignment(dataSpace,newAssignment,table,primaryKey){");
 		writer.addJS("var xhr = new XMLHttpRequest();");
 		writer.addJS("xhr.open('POST', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/'+table+'/updateAssignment/'+dataSpace+'/'+primaryKey+'/'+newAssignment.key);");
 		writer.addJS("xhr.setRequestHeader('Content-Type', 'application/json');");
 		writer.addJS("xhr.onload = function() {");
 		writer.addJS("if (xhr.status === 200) {");
+//		writer.addJS("console.log('update assingment successful');");
+		writer.addJS_cr("    document.getElementById(\"divLoading\").classList.remove(\"show\");");
+		writer.addJS("}else{");
+		writer.addJS_cr("    document.getElementById(\"divLoading\").classList.remove(\"show\");");
 		writer.addJS("}");
 		writer.addJS("};");
 		writer.addJS("xhr.send();");
+		writer.addJS_cr("document.getElementById(\"divLoading\").classList.add(\"show\");");
 		writer.addJS("}");
 	}
 }
