@@ -7,7 +7,7 @@
     display : block;
     position : fixed;
     z-index: 100;
-    background-image : url('http://loadinggif.com/images/image-selection/3.gif');
+    background-image : url('ajax_loader_red_128.gif');
     background-color:#666;
     opacity : 0.4;
     background-repeat : no-repeat;
