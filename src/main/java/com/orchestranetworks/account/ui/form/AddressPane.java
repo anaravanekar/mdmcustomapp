@@ -529,15 +529,16 @@ public class AddressPane implements UIFormPane {
 
 		writer.add("</table>");
 
+		RestProperties restProperties = (RestProperties) SpringContext.getApplicationContext().getBean("restProperties");
+		String protocol = "true".equals(restProperties.getOrchestra().getSsl())?"https":"http";
+		String host = restProperties.getOrchestra().getHost();
+		String port = restProperties.getOrchestra().getPort();
+
 		writer.addJS("function calculatedFields(countryCode){");
 		writer.addJS("var stateValue=ebx_form_getValue(\""+writer.getPrefixedPath(_AddressState).format()+"\");");
 		writer.addJS("console.log('stateValue='+stateValue);");
 		writer.addJS("console.log('stateValue json ='+JSON.stringify(stateValue));");
 		writer.addJS("var xhr = new XMLHttpRequest();");
-		RestProperties restProperties = (RestProperties) SpringContext.getApplicationContext().getBean("restProperties");
-		String protocol = "true".equals(restProperties.getOrchestra().getSsl())?"https":"http";
-		String host = restProperties.getOrchestra().getHost();
-		String port = restProperties.getOrchestra().getPort();
 		writer.addJS("xhr.open('GET', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/calculatedFields/country/BReference/Account/'+countryCode);");
 		writer.addJS("xhr.setRequestHeader('Content-Type', 'application/json');");
 		writer.addJS("xhr.onload = function() {");
@@ -559,12 +560,12 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._TaxRegimeCode).format()).addJS("\", ").addJS(
 				"null").addJS(");");
 		writer.addJS("}");
-		writer.addJS("var value = {\"key\":null,\"label\":null};");
+		/*writer.addJS("var value = {\"key\":null,\"label\":null};");
 		writer.addJS("var valueNd = {\"key\":\"[not defined]\",\"label\":\"[not defined]\"};");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_AddressState).format()).addJS("\", ").addJS(
 				"null").addJS(");");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_Province).format()).addJS("\", ").addJS(
-				"null").addJS(");");
+				"null").addJS(");");*/
 		writer.addJS("}");
 		writer.addJS("};");
 		writer.addJS("xhr.send();");
