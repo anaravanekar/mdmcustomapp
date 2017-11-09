@@ -1,5 +1,7 @@
 package com.sereneast.orchestramdm.keysight.mdmcustom.model.pagination;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -8,22 +10,22 @@ import java.util.Map.Entry;
  * The Class PaginationCriteria.
  */
 public class PaginationCriteria {
-	
+
 	/** The page number. */
 	private Integer pageNumber;
-	
+
 	/** The page size. */
 	private Integer pageSize;
-	
+
 	/** The total records. */
 	private Integer totalRecords;
-	
+
 	/** The sort by. */
 	private SortBy sortBy;
-	
+
 	/** The filter by. */
 	private FilterBy filterBy;
-	
+
 
 	/**
 	 * Gets the page number.
@@ -114,7 +116,7 @@ public class PaginationCriteria {
 	public void setFilterBy(FilterBy filterBy) {
 		this.filterBy = filterBy;
 	}
-	
+
 	/**
 	 * Checks if is filter by empty.
 	 *
@@ -126,7 +128,7 @@ public class PaginationCriteria {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Checks if is sort by empty.
 	 *
@@ -138,61 +140,34 @@ public class PaginationCriteria {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Gets the filter by clause.
 	 *
 	 * @return the filter by clause
 	 */
 	public String getFilterByClause() {
-		
+
 		StringBuilder fbsb = null;
-		
+
 		if (!isFilterByEmpty()) {
 			Iterator<Entry<String, String>> fbit = filterBy.getMapOfFilters().entrySet().iterator();
-			
+
 			while (fbit.hasNext()) {
-				
+
 				Entry<String, String> pair =  fbit.next();
-                
+
 				if(null == fbsb) {
-					
 					fbsb = new StringBuilder();
 					fbsb.append(BRKT_OPN);
 
 					fbsb.append(SPACE)
-							.append(BRKT_OPN)
-							
-							.append(UPPER)
-							.append(BRKT_OPN)
-								.append(pair.getKey())
-								.append(BRKT_CLS)
-									.append(LIKE_PREFIX)
-										.append(pair.getValue())
-											.append(LIKE_SUFFIX)
-												.append(BRKT_CLS);
+							.append(getSearchCriteriaIgnoreCase(pair));
 
-				} else if(ACCOUNT_NAME.equalsIgnoreCase(pair.getKey()) || DQ_State.equalsIgnoreCase(pair.getKey())  ){
-					fbsb.append(filterBy.isGlobalSearch() ? OR : AND)
-					.append(BRKT_OPN)
-					.append(UPPER)
-					.append(BRKT_OPN)
-						  .append(pair.getKey())
-						  .append(BRKT_CLS)
-							.append(LIKE_PREFIX)
-								.append(pair.getValue())
-									.append(LIKE_SUFFIX)
-										.append(BRKT_CLS);
-				}
-				else {
+				} else {
 
 					fbsb.append(filterBy.isGlobalSearch() ? OR : AND)
-							.append(BRKT_OPN)
-								  .append(pair.getKey())
-									.append(LIKE_PREFIX)
-										.append(pair.getValue())
-											.append(LIKE_SUFFIX)
-												.append(BRKT_CLS);
+							.append(getSearchCriteriaIgnoreCase(pair));
 
 				}
 			}
@@ -200,6 +175,37 @@ public class PaginationCriteria {
 		}
 
 		return (null == fbsb) ? BLANK : fbsb.toString();
+	}
+
+	private String getSearchCriteriaIgnoreCase(Entry<String, String> pair){
+		StringBuilder sb = new StringBuilder();
+		if(pair!=null){
+			sb.append(BRKT_OPN)
+					.append(UPPER)
+					.append(BRKT_OPN)
+					.append(pair.getKey())
+					.append(BRKT_CLS)
+					.append(LIKE_PREFIX)
+					.append(StringUtils.upperCase(pair.getValue()))
+					.append(LIKE_SUFFIX)
+					.append(BRKT_CLS);
+			return sb.toString();
+		}
+		return "";
+	}
+
+	private String getSearchCriteria(Entry<String, String> pair){
+		StringBuilder sb = new StringBuilder();
+		if(pair!=null){
+			sb.append(BRKT_OPN)
+					.append(pair.getKey())
+					.append(LIKE_PREFIX)
+					.append(pair.getValue())
+					.append(LIKE_SUFFIX)
+					.append(BRKT_CLS);
+			return sb.toString();
+		}
+		return "";
 	}
 
 	/**
@@ -224,60 +230,60 @@ public class PaginationCriteria {
 				}
 			}
 		}
-		
+
 		return (null == sbsb) ? BLANK : sbsb.toString();
 	}
 
 	/** The Constant BLANK. */
 	private static final String BLANK = "";
-	
+
 	/** The Constant SPACE. */
 	private static final String SPACE = " ";
-	
+
 	/** The Constant LIKE_PREFIX. */
 	private static final String LIKE_PREFIX = " LIKE '%";
-	
+
 	/** The Constant LIKE_SUFFIX. */
 	private static final String LIKE_SUFFIX = "%' ";
-	
+
 	/** The Constant AND. */
 	private static final String AND = " AND ";
-	
+
 	/** The Constant OR. */
 	private static final String OR = " OR ";
-	
+
 	/** The Constant ORDER_BY. */
 	private static final String ORDER_BY = " ORDER BY ";
-	
+
 	private static final String BRKT_OPN = " ( ";
-	
+
 	private static final String BRKT_CLS = " ) ";
-	
+
 	/** The Constant COMMA. */
 	private static final String COMMA = " , ";
-	
+
 	/** The Constant PAGE_NO. */
 	public static final String PAGE_NO = "start";
-	
+
 	/** The Constant PAGE_SIZE. */
 	public static final String PAGE_SIZE = "length";
-	
+
 	/** The Constant DRAW. */
 	public static final String DRAW = "draw";
-	
+
 	/** The Constant DRAW. */
 	public static final String UPPER = "upper";
-	
+
 	/** The Constant DRAW. */
 	public static final String ACCOUNT_NAME = "ACCOUNTNAME";
-	
+
 	/** The Constant DRAW. */
 	public static final String DQ_State = "DAQAMETADATA_STATE";
-	
-	
-	
-	
-	
+
+
+
+
+
 
 	@Override
 	public String toString() {
