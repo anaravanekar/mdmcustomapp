@@ -566,8 +566,20 @@ public class AddressPane implements UIFormPane {
 				"null").addJS(");");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_Province).format()).addJS("\", ").addJS(
 				"null").addJS(");");*/
+
+		writer.addJS("}");//if 200
+
+		writer.addJS("var valueOne = {\"key\":\"1\",\"label\":\"One copy\"};");
+		writer.addJS("var valueTwo = {\"key\":\"2\",\"label\":\"Two copies\"};");
+		writer.addJS("if(\"US\" == countryCode){");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
+				"valueTwo").addJS(");");
+		writer.addJS("}else{");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
+				"valueOne").addJS(");");
 		writer.addJS("}");
-		writer.addJS("};");
+
+		writer.addJS("};");//onload function
 		writer.addJS("xhr.send();");
 		writer.addJS("}");
 

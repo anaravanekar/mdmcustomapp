@@ -2,6 +2,7 @@ package com.sereneast.orchestramdm.keysight.mdmcustom.rest.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,9 @@ public class JitterbitRestClient {
             base.append("http://");
         }
         base.append(restProperties.getJitterbit().getHost());
-        base.append(":"+restProperties.getJitterbit().getPort());
+        if(restProperties.getJitterbit().getPort()!=null){
+            base.append(":" + restProperties.getJitterbit().getPort());
+        }
         base.append(restProperties.getJitterbit().getBaseURI());
         base.append(restProperties.getJitterbit().getVersion());
         this.baseUrl = base.toString();
@@ -55,11 +58,12 @@ public class JitterbitRestClient {
     }
 
 
-    public Response insert(String jsonRequest, final Map<String,String> parameters) throws IOException {
+    public Response insert(String jsonRequest, final Map<String,String> parameters, String objectName) throws IOException {
         Client client = ClientBuilder.newClient();
         ObjectMapper mapper = new ObjectMapper();
         try {
             client.register(feature);
+            String targetUrl = baseUrl+"/"+restProperties.getJitterbit().getPaths().get(StringUtils.lowerCase(objectName));
             WebTarget target = client.target(baseUrl);
             if (parameters != null)
                 for (Map.Entry<String, String> entry : parameters.entrySet())

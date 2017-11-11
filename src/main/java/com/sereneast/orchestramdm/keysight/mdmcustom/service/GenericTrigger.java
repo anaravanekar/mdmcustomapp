@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 public class GenericTrigger extends TableTrigger {
@@ -84,12 +86,20 @@ public class GenericTrigger extends TableTrigger {
                         throw new ApplicationOperationException("Error getting Profile Class and Region for country");
                     }
                     Map<String, String> resultObject = new HashMap<>();
+                    ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
+                    if("BR".equals(countryCode)){
+                        valueContextForUpdate.setValue("Brazil Bank Collection", Paths._Account._PaymentReceiptMethod);
+                    }else if("US".equals(countryCode) || "CA".equals(countryCode) || "GU".equals(countryCode) || "SG".equals(countryCode) ||
+                            "JP".equals(countryCode) || "TH".equals(countryCode)){
+                        valueContextForUpdate.setValue("Lockbox", Paths._Account._PaymentReceiptMethod);
+                    }else{
+                        valueContextForUpdate.setValue("Manual Payment", Paths._Account._PaymentReceiptMethod);
+                    }
                     if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
                         OrchestraObjectResponse objectResponse = orchestraObjectListResponse.getRows().get(0);
                         Map<String, OrchestraContent> content = objectResponse.getContent();
                         String profileClass = content.get("ProfileClass").getContent() != null ? content.get("ProfileClass").getContent().toString() : null;
                         String region = content.get("Region").getContent() != null ? content.get("Region").getContent().toString() : null;
-                        ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                         valueContextForUpdate.setValue(profileClass, Paths._Account._ProfileClass);
                         valueContextForUpdate.setValue(region, Paths._Account._Region);
                         aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
@@ -97,24 +107,35 @@ public class GenericTrigger extends TableTrigger {
                 }
             }
             //get application context
-        /*if("ADDRESS".equalsIgnoreCase(objectName) && aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null){
-            Object internalAccountId = null;
-            Integer addressMdmAccountId = Integer.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId).toString());
-            String condition = Paths._Account._MDMAccountId.format()+" = "+addressMdmAccountId;
-            Adaptation container = aContext.getTable().getContainerAdaptation();
-            AdaptationTable parentTable = container.getTable(Paths._Account.getPathInSchema());
-            final RequestResult parentTableRequestResult = parentTable.createRequestResult(condition);
-            if (parentTableRequestResult != null && !parentTableRequestResult.isEmpty()) {
-                LOGGER.debug("Parent found");
-                Adaptation adaptation = parentTableRequestResult.nextAdaptation();
-                internalAccountId = adaptation.get(Paths._Account._InternalAccountId);
+            if("ADDRESS".equalsIgnoreCase(objectName)) {
+                boolean update = false;
                 ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
-                valueContextForUpdate.setValue(internalAccountId,Paths._Address._InternalAccountId);
-                aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
-            } else {
-                LOGGER.error("Parent account not found");
+                ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
+                if(aContext.getOccurrenceContext().getValue(Paths._Address._TaxEffectiveFrom)==null){
+                    update = true;
+                    valueContextForUpdate.setValue(Date.from(utc.toInstant()), Paths._Address._TaxEffectiveFrom);
+                }
+                if(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null) {
+                    update = true;
+                    Object internalAccountId = null;
+                    Integer addressMdmAccountId = Integer.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId).toString());
+                    String condition = Paths._Account._MDMAccountId.format() + " = " + addressMdmAccountId;
+                    Adaptation container = aContext.getTable().getContainerAdaptation();
+                    AdaptationTable parentTable = container.getTable(Paths._Account.getPathInSchema());
+                    final RequestResult parentTableRequestResult = parentTable.createRequestResult(condition);
+                    if (parentTableRequestResult != null && !parentTableRequestResult.isEmpty()) {
+                        LOGGER.debug("Parent found");
+                        Adaptation adaptation = parentTableRequestResult.nextAdaptation();
+                        internalAccountId = adaptation.get(Paths._Account._InternalAccountId);
+                        valueContextForUpdate.setValue(internalAccountId, Paths._Address._InternalAccountId);
+                    } else {
+                        LOGGER.error("Parent account not found");
+                    }
+                }
+                if(update){
+                    aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
+                }
             }
-        }*/
             String username = aContext.getSession().getUserReference().getUserId();
 /*        if("reduser".equalsIgnoreCase(username)) {
             ApplicationContext context = SpringContext.getApplicationContext();
@@ -158,25 +179,25 @@ public class GenericTrigger extends TableTrigger {
     public void handleAfterModify(AfterModifyOccurrenceContext aContext) throws OperationException {
         LOGGER.debug("GenericTrigger handleAfterModify called...");
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())) {
-     /*   if( "ADDRESS".equalsIgnoreCase(objectName) && aContext.getChanges().getChange(Paths._Address._MDMAccountId)!=null &&
-               aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null){
-            Object internalAccountId = null;
-            Integer addressMdmAccountId = Integer.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId).toString());
-            String condition = Paths._Account._MDMAccountId.format()+" = "+addressMdmAccountId;
-            Adaptation container = aContext.getTable().getContainerAdaptation();
-            AdaptationTable parentTable = container.getTable(Paths._Account.getPathInSchema());
-            final RequestResult parentTableRequestResult = parentTable.createRequestResult(condition);
-            if (parentTableRequestResult != null && !parentTableRequestResult.isEmpty()) {
-                LOGGER.debug("Parent found");
-                Adaptation adaptation = parentTableRequestResult.nextAdaptation();
-                internalAccountId = adaptation.get(Paths._Account._InternalAccountId);
-                ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
-                valueContextForUpdate.setValue(internalAccountId,Paths._Address._InternalAccountId);
-                aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
-            } else {
-                LOGGER.error("Parent account not found");
+            if( "ADDRESS".equalsIgnoreCase(objectName) && aContext.getChanges().getChange(Paths._Address._MDMAccountId)!=null &&
+                    aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null){
+                Object internalAccountId = null;
+                Integer addressMdmAccountId = Integer.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId).toString());
+                String condition = Paths._Account._MDMAccountId.format()+" = "+addressMdmAccountId;
+                Adaptation container = aContext.getTable().getContainerAdaptation();
+                AdaptationTable parentTable = container.getTable(Paths._Account.getPathInSchema());
+                final RequestResult parentTableRequestResult = parentTable.createRequestResult(condition);
+                if (parentTableRequestResult != null && !parentTableRequestResult.isEmpty()) {
+                    LOGGER.debug("Parent found");
+                    Adaptation adaptation = parentTableRequestResult.nextAdaptation();
+                    internalAccountId = adaptation.get(Paths._Account._InternalAccountId);
+                    ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
+                    valueContextForUpdate.setValue(internalAccountId,Paths._Address._InternalAccountId);
+                    aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
+                } else {
+                    LOGGER.error("Parent account not found");
+                }
             }
-        }*/
             initialize();
             ProcedureContext procedureContext = aContext.getProcedureContext();
             Adaptation adaptation = aContext.getAdaptationOccurrence();
