@@ -51,36 +51,36 @@
 	</appender>
 
 	<logger name="com.sereneast" additivity="false">
-		<level value="TRACE" />
+		<level value="INFO" />
 		<appender-ref ref="FILE" />
 		<appender-ref ref="ERROR" />
 		<appender-ref ref="STDOUT" />
 	</logger>
 	<logger name="org.springframework.scheduling" additivity="false">
-		<level value="DEBUG" />
+		<level value="ERROR" />
 		<appender-ref ref="FILE" />
 		<appender-ref ref="ERROR" />
 		<appender-ref ref="STDOUT" />
 	</logger>
 	<logger name="org.springframework.batch" additivity="false">
-		<level value="DEBUG" />
+		<level value="ERROR" />
 		<appender-ref ref="FILE" />
 		<appender-ref ref="ERROR" />
 		<appender-ref ref="STDOUT" />
 	</logger>
 	<logger name="org.springframework.boot.devtools" additivity="false">
-		<level value="DEBUG" />
+		<level value="ERROR" />
 		<appender-ref ref="FILE" />
 		<appender-ref ref="ERROR" />
 		<appender-ref ref="STDOUT" />
 	</logger>
 	<logger name="org.hibernate.SQL" additivity="false">
-		<level value="WARN" />
+		<level value="ERROR" />
 		<appender-ref ref="FILE" />
 		<appender-ref ref="ERROR" />
 		<appender-ref ref="STDOUT" />
 	</logger>
-	<root level="WARN">
+	<root level="INFO">
 		<appender-ref ref="FILE" />
 		<appender-ref ref="ERROR" />
  		<appender-ref ref="STDOUT" />
