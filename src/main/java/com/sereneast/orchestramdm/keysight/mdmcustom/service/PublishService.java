@@ -19,6 +19,7 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntim
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
+import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.JitterbitRestClient;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.OrchestraRestClient;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
 import org.slf4j.Logger;
@@ -476,8 +477,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                 retryCount++;
             }while(retryCount<MAX_RETRY_COUNT && (response==null || response.getStatus()>=300));
             if(response.getStatus()!=200 && response.getStatus()!=201){
-                response.bufferEntity();
-                throw new ApplicationRuntimeException(response.readEntity(String.class));
+                throw new ApplicationRuntimeException(response.toString());
             }
         }catch(InterruptedException | IOException e){
             throw new ApplicationRuntimeException(ERROR_MESSAGE_REFERENCE_FAIL,e);
@@ -490,27 +490,29 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
             mapper.setDateFormat(df);
+            for(OrchestraObject orchestraObject:recordsToUpdateInJitterbit){
+                if(!"U".equals(orchestraObject.getContent().get("Published").getContent())){
+                    orchestraObject.getContent().put("Published",new OrchestraContent("I"));
+                }
+            }
             OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
             orchestraObjectList.setRows(recordsToUpdateInJitterbit);
-           /* JitterbitRestClient jitterbitRestClient = new JitterbitRestClient();
-            jitterbitRestClient.setBaseUrl(jitterbitBaseUrl);
-            jitterbitRestClient.setFeature(HttpAuthenticationFeature.basic(jitterbitUsername, jitterbitrp));
+
             Response response = null;
+            JitterbitRestClient jitterbitRestClient = (JitterbitRestClient)SpringContext.getApplicationContext().getBean("jitterbitRestClient");
+
             int retryCount = 0;
             do {
                 if (retryCount > 0) {
                     Thread.sleep(RETRY_WAIT_MILLIS);
                 }
-                response = jitterbitRestClient.insert(mapper.writeValueAsString(recordsToUpdateInJitterbit), null);
+                response = jitterbitRestClient.insert(mapper.writeValueAsString(orchestraObjectList), null,objectName.toLowerCase());
                 retryCount++;
             } while (retryCount < MAX_RETRY_COUNT && (response == null || response.getStatus() >= 300));
             if(response.getStatus()!=200 && response.getStatus()!=201){
-                response.bufferEntity();
-                throw new ApplicationRuntimeException(response.readEntity(String.class));
-            }*/
-            LOGGER.debug("Published to Jitterbit: \n"+mapper.writeValueAsString(orchestraObjectList));
-        }catch(IOException e){
-//        }catch(InterruptedException | IOException e){
+                throw new ApplicationRuntimeException(response.toString());
+            }
+        }catch(InterruptedException | IOException e){
             throw new ApplicationRuntimeException(ERROR_MESSAGE_JITTERBIT_FAIL,e);
         }
     }
@@ -551,8 +553,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             LOGGER.debug("Request to update flag:"+mapper.writeValueAsString(objList));
             Response response = orchestraRestClient.insert(referenceDataSpaceUrl, referenceDataSetUrl, tablePathUrl, objList, parameters);
             if(response.getStatus()!=200 && response.getStatus()!=201){
-                response.bufferEntity();
-                throw new ApplicationRuntimeException(response.readEntity(String.class));
+                throw new ApplicationRuntimeException(response.toString());
             }
         } catch (IOException e) {
             throw new ApplicationRuntimeException("Error updating success flag in reference dataspace",e);

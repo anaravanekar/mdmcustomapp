@@ -48,7 +48,7 @@ public class JitterbitRestClient {
             base.append("http://");
         }
         base.append(restProperties.getJitterbit().getHost());
-        if(restProperties.getJitterbit().getPort()!=null){
+        if(StringUtils.isNotBlank(restProperties.getJitterbit().getPort())){
             base.append(":" + restProperties.getJitterbit().getPort());
         }
         base.append(restProperties.getJitterbit().getBaseURI());
@@ -64,18 +64,20 @@ public class JitterbitRestClient {
         try {
             client.register(feature);
             String targetUrl = baseUrl+"/"+restProperties.getJitterbit().getPaths().get(StringUtils.lowerCase(objectName));
-            WebTarget target = client.target(baseUrl);
+            WebTarget target = client.target(targetUrl);
             if (parameters != null)
                 for (Map.Entry<String, String> entry : parameters.entrySet())
                     target = target.queryParam(entry.getKey(), entry.getValue());
             Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON);
 
-            LOGGER.info("TIME: {} Updating {} {} records", LocalTime.now());
+            LOGGER.info("TIME: {} Updating records", LocalTime.now());
             Response response = invocationBuilder.post(Entity.json(jsonRequest));
-            LOGGER.info("TIME: {} Updated {} {} records",LocalTime.now());
+            LOGGER.info("TIME: {} Updated records",LocalTime.now());
 
             LOGGER.info(String.valueOf(response.getStatus()));
-            LOGGER.info(response.getStatusInfo().toString());
+
+            LOGGER.debug("jb request: "+jsonRequest);
+            LOGGER.info("jb response:"+response.toString());
 
             return response;
 
