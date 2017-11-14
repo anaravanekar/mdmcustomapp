@@ -19,6 +19,7 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntim
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
+import com.sereneast.orchestramdm.keysight.mdmcustom.model.RestResponse;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.JitterbitRestClient;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.OrchestraRestClient;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
@@ -466,18 +467,18 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             orchestraObjectList.setRows(recordsToUpdateInReference);
             OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");            Map<String, String> parameters = new HashMap<String, String>();
             parameters.put("updateOrInsert", "true");
-            Response response = null;
+            RestResponse response = null;
             int retryCount = 0;
             do {
                 if(retryCount>0){
                     Thread.sleep(RETRY_WAIT_MILLIS);
                 }
                 LOGGER.debug("Promoting to Reference: \n"+mapper.writeValueAsString(orchestraObjectList));
-                response = orchestraRestClient.insert(referenceDataSpaceUrl, referenceDataSetUrl, tablePathUrl, orchestraObjectList, parameters);
+                response = orchestraRestClient.promote(referenceDataSpaceUrl, referenceDataSetUrl, tablePathUrl, orchestraObjectList, parameters);
                 retryCount++;
             }while(retryCount<MAX_RETRY_COUNT && (response==null || response.getStatus()>=300));
             if(response.getStatus()!=200 && response.getStatus()!=201){
-                throw new ApplicationRuntimeException(response.toString());
+                throw new ApplicationRuntimeException("Error promoting to reference: "+String.valueOf(mapper.writeValueAsString(response.getResponseBody())));
             }
         }catch(InterruptedException | IOException e){
             throw new ApplicationRuntimeException(ERROR_MESSAGE_REFERENCE_FAIL,e);
@@ -498,7 +499,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
             orchestraObjectList.setRows(recordsToUpdateInJitterbit);
 
-            Response response = null;
+            RestResponse response = null;
             JitterbitRestClient jitterbitRestClient = (JitterbitRestClient)SpringContext.getApplicationContext().getBean("jitterbitRestClient");
 
             int retryCount = 0;
@@ -510,7 +511,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                 retryCount++;
             } while (retryCount < MAX_RETRY_COUNT && (response == null || response.getStatus() >= 300));
             if(response.getStatus()!=200 && response.getStatus()!=201){
-                throw new ApplicationRuntimeException(response.toString());
+                throw new ApplicationRuntimeException("Error publishing to Jitterbit: "+String.valueOf(response.getResponseBody().get("errorMsg")));
             }
         }catch(InterruptedException | IOException e){
             throw new ApplicationRuntimeException(ERROR_MESSAGE_JITTERBIT_FAIL,e);
@@ -550,10 +551,10 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
         OrchestraObjectList objList = new OrchestraObjectList();
         objList.setRows(recordsToUpdateInReference);
         try {
-            LOGGER.debug("Request to update flag:"+mapper.writeValueAsString(objList));
-            Response response = orchestraRestClient.insert(referenceDataSpaceUrl, referenceDataSetUrl, tablePathUrl, objList, parameters);
+//            LOGGER.debug("Request to update flag:"+mapper.writeValueAsString(objList));
+            RestResponse response = orchestraRestClient.promote(referenceDataSpaceUrl, referenceDataSetUrl, tablePathUrl, objList, parameters);
             if(response.getStatus()!=200 && response.getStatus()!=201){
-                throw new ApplicationRuntimeException(response.toString());
+                throw new ApplicationRuntimeException("Error updating success flag in reference dataspace: "+String.valueOf(mapper.writeValueAsString(response.getResponseBody())));
             }
         } catch (IOException e) {
             throw new ApplicationRuntimeException("Error updating success flag in reference dataspace",e);

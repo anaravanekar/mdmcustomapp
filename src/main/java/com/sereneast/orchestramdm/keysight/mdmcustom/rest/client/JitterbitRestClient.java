@@ -1,7 +1,9 @@
 package com.sereneast.orchestramdm.keysight.mdmcustom.rest.client;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
+import com.sereneast.orchestramdm.keysight.mdmcustom.model.RestResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
@@ -10,10 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.client.*;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -58,7 +62,7 @@ public class JitterbitRestClient {
     }
 
 
-    public Response insert(String jsonRequest, final Map<String,String> parameters, String objectName) throws IOException {
+    public RestResponse insert(String jsonRequest, final Map<String,String> parameters, String objectName) throws IOException {
         Client client = ClientBuilder.newClient();
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -70,23 +74,22 @@ public class JitterbitRestClient {
                     target = target.queryParam(entry.getKey(), entry.getValue());
             Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON);
 
-            LOGGER.info("TIME: {} Updating records", LocalTime.now());
-            Response response = invocationBuilder.post(Entity.json(jsonRequest));
-            LOGGER.info("TIME: {} Updated records",LocalTime.now());
-
-            LOGGER.info(String.valueOf(response.getStatus()));
-
+            LOGGER.debug("TIME: {} Jitterbit REST begin", LocalTime.now());
             LOGGER.debug("jb request: "+jsonRequest);
-            LOGGER.info("jb response:"+response.toString());
+            Response response = invocationBuilder.post(Entity.json(jsonRequest));
+            response.bufferEntity();
+            RestResponse restResponse = new RestResponse();
+            restResponse.setStatus(response.getStatus());
+            try {
+                restResponse.setResponseBody(response.readEntity(new GenericType<HashMap<String, Object>>(){}));
+            }catch(Exception e){
+                restResponse.setResponseBody(mapper.readValue(response.readEntity(String.class), new TypeReference<Map<String, String>>(){}));
+            }
+            LOGGER.debug("jb response: "+response.readEntity(String.class));
+            LOGGER.debug("TIME: {} Jitterbit REST end",LocalTime.now());
 
-            return response;
+            return restResponse;
 
-      /*      if (response.getStatus() == 200 || response.getStatus() == 201) {
-                return response;
-            }else{
-                LOGGER.info("response: "+mapper.writeValueAsString(response.getEntity()));
-                throw new RuntimeException("Error publishing record to Jitterbit.");
-            }*/
         }finally{
             client.close();
         }

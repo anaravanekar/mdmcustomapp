@@ -1,11 +1,13 @@
 package com.sereneast.orchestramdm.keysight.mdmcustom.rest.client;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectListResponse;
+import com.sereneast.orchestramdm.keysight.mdmcustom.model.RestResponse;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,11 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.client.*;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -112,20 +116,6 @@ public class OrchestraRestClient {
             LOGGER.info(response.getStatusInfo().toString());
 
             return response;
-
-/*            if (response.getStatus() == 200) {
-                response.bufferEntity();
-                if(StringUtils.isNotBlank(response.readEntity(String.class))) {
-                    OrchestraResponseDetails responseJson = mapper.readValue(response.readEntity(String.class), OrchestraResponseDetails.class);
-                    LOGGER.info(mapper.writeValueAsString(responseJson));
-                    return responseJson;
-                }else{
-                    return new OrchestraResponseDetails();
-                }
-            }else{
-                LOGGER.info("response: "+mapper.writeValueAsString(response.getEntity()));
-                throw new RuntimeException("Error inserting records");
-            }*/
         }finally{
             client.close();
         }
@@ -153,6 +143,72 @@ public class OrchestraRestClient {
             LOGGER.info(response.getStatusInfo().toString());
 
             return response;
+        }finally{
+            client.close();
+        }
+    }
+
+    public RestResponse promote(final String dataSpace, final String dataSet, final String path, OrchestraObjectList requestObject, final Map<String,String> parameters) throws IOException {
+        Client client = ClientBuilder.newClient();
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.setDateFormat(df);
+        try {
+            client.register(feature);
+            WebTarget target = client.target(baseUrl).path(dataSpace).path(dataSet).path(path);
+            if (parameters != null)
+                for (Map.Entry<String, String> entry : parameters.entrySet())
+                    target = target.queryParam(entry.getKey(), entry.getValue());
+            Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON);
+            LOGGER.debug("TIME: {} Orchestra promote begin", LocalTime.now());
+            LOGGER.debug("Orchestra promote request: "+mapper.writeValueAsString(requestObject));
+            Response response = invocationBuilder.post(Entity.json(mapper.writeValueAsString(requestObject)));
+            response.bufferEntity();
+            RestResponse restResponse = new RestResponse();
+            restResponse.setStatus(response.getStatus());
+            try {
+                restResponse.setResponseBody(response.readEntity(new GenericType<HashMap<String, Object>>(){}));
+            }catch(Exception e){
+                restResponse.setResponseBody(mapper.readValue(response.readEntity(String.class), new TypeReference<Map<String, String>>(){}));
+            }
+            LOGGER.debug("Orchestra promote response: "+response.readEntity(String.class));
+            LOGGER.debug("TIME: {} Orchestra promote end",LocalTime.now());
+
+            return restResponse;
+        }finally{
+            client.close();
+        }
+    }
+    public RestResponse updateFlag(final String dataSpace, final String dataSet, final String path, OrchestraContent content, final Map<String,String> parameters) throws IOException {
+        Client client = ClientBuilder.newClient();
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.setDateFormat(df);
+        try {
+            client.register(feature);
+            WebTarget target = client.target(baseUrl).path(dataSpace).path(dataSet).path(path);
+            if (parameters != null)
+                for (Map.Entry<String, String> entry : parameters.entrySet())
+                    target = target.queryParam(entry.getKey(), entry.getValue());
+            Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON);
+            LOGGER.debug("rest url for reference:"+target.toString());
+            LOGGER.debug("Orchestra update flag field begin", LocalTime.now());
+            Response response = invocationBuilder.put(Entity.json(mapper.writeValueAsString(content)));
+            response.bufferEntity();
+            RestResponse restResponse = new RestResponse();
+            restResponse.setStatus(response.getStatus());
+            try {
+                restResponse.setResponseBody(response.readEntity(new GenericType<HashMap<String, Object>>(){}));
+            }catch(Exception e){
+                restResponse.setResponseBody(mapper.readValue(response.readEntity(String.class), new TypeReference<Map<String, String>>(){}));
+            }
+            LOGGER.debug("Orchestra promote response: "+response.readEntity(String.class));
+            LOGGER.debug("TIME: {} Orchestra update flag field end",LocalTime.now());
+
+            return restResponse;
+
         }finally{
             client.close();
         }
