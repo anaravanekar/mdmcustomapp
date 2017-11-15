@@ -33,13 +33,15 @@ public class AddressUIForm extends UIForm{
 
 	@Override
 	public void defineBottomBar(UIFormBottomBar aBottomBar, UIFormContext context){
-		LOGGER.debug("session userid:"+context.getSession().getUserReference().getUserId());
-		LOGGER.debug("assignedto:"+context.getCurrentRecord().getString(Paths._Address._AssignedTo));
-		if(StringUtils.isNotBlank(context.getCurrentRecord().getString(Paths._Address._AssignedTo))
-				&& !context.getSession().getUserReference().getUserId().equals(context.getCurrentRecord().getString(Paths._Address._AssignedTo))){
-			aBottomBar.setAllButtonsNotDisplayable();
-			aBottomBar.setCloseButtonDisplayable(true);
-			return;
+		if(context!=null && context.getCurrentRecord()!=null) {
+			LOGGER.debug("session userid:" + context.getSession().getUserReference().getUserId());
+			LOGGER.debug("assignedto:" + context.getCurrentRecord().getString(Paths._Address._AssignedTo));
+			if (StringUtils.isNotBlank(context.getCurrentRecord().getString(Paths._Address._AssignedTo))
+					&& !context.getSession().getUserReference().getUserId().equals(context.getCurrentRecord().getString(Paths._Address._AssignedTo))) {
+				aBottomBar.setAllButtonsNotDisplayable();
+				aBottomBar.setCloseButtonDisplayable(true);
+				return;
+			}
 		}
 	}
 }

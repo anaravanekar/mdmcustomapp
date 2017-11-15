@@ -30,7 +30,7 @@ public class AccountPane implements UIFormPane {
 	@Override
 	public void writePane(UIFormPaneWriter writer, UIFormContext context) {
 		String currentUserId = context.getSession().getUserReference().getUserId();
-		String openedByUser = context.getValueContext().getValue(Paths._Account._AssignedTo)!=null?context.getValueContext().getValue(Paths._Account._AssignedTo).toString():null;
+		String openedByUser = context.getValueContext()!=null && context.getValueContext().getValue(Paths._Account._AssignedTo)!=null?context.getValueContext().getValue(Paths._Account._AssignedTo).toString():null;
 		LOGGER.debug("currentUsereId:"+currentUserId);
 		LOGGER.debug("openedByUser:"+openedByUser);
 		if(StringUtils.isNotBlank(openedByUser) && !currentUserId.equalsIgnoreCase(openedByUser)) {
