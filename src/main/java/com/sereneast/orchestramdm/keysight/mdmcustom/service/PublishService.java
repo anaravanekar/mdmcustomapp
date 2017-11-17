@@ -15,6 +15,7 @@ import com.orchestranetworks.ui.selection.TableViewEntitySelection;
 import com.orchestranetworks.userservice.*;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
+import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.EbxProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
@@ -83,7 +84,11 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
 
     private static final int MAX_RETRY_COUNT = 5;
 
-    private static final int RETRY_WAIT_MILLIS = 1000;
+    private static final int RETRY_WAIT_MILLIS = 500;
+
+    private int retryWaitJb = 500;
+
+    private int retryWaitMdm = 500;
 
     private static final String CROSS_REFERENCES_LABEL = "CrossReference";
 
@@ -209,6 +214,13 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
         String finalMessage = null;
         List<Adaptation> selectedRecords = new ArrayList<>();
         try {
+            EbxProperties ebxProperties = (EbxProperties) SpringContext.getApplicationContext().getBean("ebxProperties");
+            if(ebxProperties.getRetryWaitJb()!=null){
+                setRetryWaitJb(ebxProperties.getRetryWaitJb());
+            }
+            if(ebxProperties.getRetryWaitMdm()!=null){
+                setRetryWaitMdm(ebxProperties.getRetryWaitMdm());
+            }
             for (ObjectKey objectKey : objectKeys) {
                 LOGGER.debug("Getting adaptation for objectKey=" + objectKey.getName());
                 Adaptation adaptation = (Adaptation) aContext.getValueContext(objectKey).getValue();
@@ -471,7 +483,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             int retryCount = 0;
             do {
                 if(retryCount>0){
-                    Thread.sleep(RETRY_WAIT_MILLIS);
+                    Thread.sleep(retryWaitMdm);
                 }
                 LOGGER.debug("Promoting to Reference: \n"+mapper.writeValueAsString(orchestraObjectList));
                 response = orchestraRestClient.promote(referenceDataSpaceUrl, referenceDataSetUrl, tablePathUrl, orchestraObjectList, parameters);
@@ -505,7 +517,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             int retryCount = 0;
             do {
                 if (retryCount > 0) {
-                    Thread.sleep(RETRY_WAIT_MILLIS);
+                    Thread.sleep(retryWaitJb);
                 }
                 response = jitterbitRestClient.insert(mapper.writeValueAsString(orchestraObjectList), null,objectName.toLowerCase());
                 retryCount++;
@@ -776,5 +788,21 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
 
     public void setChildPathInSchema(Path childPathInSchema) {
         this.childPathInSchema = childPathInSchema;
+    }
+
+    public int getRetryWaitJb() {
+        return retryWaitJb;
+    }
+
+    public void setRetryWaitJb(int retryWaitJb) {
+        this.retryWaitJb = retryWaitJb;
+    }
+
+    public int getRetryWaitMdm() {
+        return retryWaitMdm;
+    }
+
+    public void setRetryWaitMdm(int retryWaitMdm) {
+        this.retryWaitMdm = retryWaitMdm;
     }
 }
