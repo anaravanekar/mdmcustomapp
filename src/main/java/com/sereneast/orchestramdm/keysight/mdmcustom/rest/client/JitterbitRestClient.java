@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.RestResponse;
 import org.apache.commons.lang3.StringUtils;
+import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,11 +73,15 @@ public class JitterbitRestClient {
             if (parameters != null)
                 for (Map.Entry<String, String> entry : parameters.entrySet())
                     target = target.queryParam(entry.getKey(), entry.getValue());
-            Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON);
+            Invocation.Builder request = target.request(MediaType.APPLICATION_JSON);
+            request.property(ClientProperties.CONNECT_TIMEOUT, restProperties.getJitterbit().getConnectTimeout()!=null?
+                    restProperties.getJitterbit().getConnectTimeout():5000);
+            request.property(ClientProperties.READ_TIMEOUT, restProperties.getJitterbit().getReadTimeout()!=null?
+                    restProperties.getJitterbit().getReadTimeout():70000);
 
             LOGGER.debug("TIME: {} Jitterbit REST begin", LocalTime.now());
             LOGGER.debug("jb request: "+jsonRequest);
-            Response response = invocationBuilder.post(Entity.json(jsonRequest));
+            Response response = request.post(Entity.json(jsonRequest));
             response.bufferEntity();
             RestResponse restResponse = new RestResponse();
             restResponse.setStatus(response.getStatus());

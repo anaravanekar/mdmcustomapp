@@ -11,6 +11,8 @@ public class RestPropertiesCommon {
     private String baseURI;
     private String version;
     private Map<String,String> paths;
+    private Integer connectTimeout;
+    private Integer readTimeout;
 
     public String getUsername() {
         return username;
@@ -74,5 +76,21 @@ public class RestPropertiesCommon {
 
     public void setPaths(Map<String, String> paths) {
         this.paths = paths;
+    }
+
+    public Integer getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    public void setConnectTimeout(Integer connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
+
+    public Integer getReadTimeout() {
+        return readTimeout;
+    }
+
+    public void setReadTimeout(Integer readTimeout) {
+        this.readTimeout = readTimeout;
     }
 }

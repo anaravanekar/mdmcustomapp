@@ -8,6 +8,7 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectListResponse;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.RestResponse;
+import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,8 +73,12 @@ public class OrchestraRestClient {
             if (parameters != null)
                 for (Map.Entry<String, String> entry : parameters.entrySet())
                     target = target.queryParam(entry.getKey(), entry.getValue());
-            Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON);
-            Response response = invocationBuilder.get();
+            Invocation.Builder request = target.request(MediaType.APPLICATION_JSON);
+            request.property(ClientProperties.CONNECT_TIMEOUT, restProperties.getOrchestra().getConnectTimeout()!=null?
+                    restProperties.getOrchestra().getConnectTimeout():5000);
+            request.property(ClientProperties.READ_TIMEOUT, restProperties.getOrchestra().getReadTimeout()!=null?
+                    restProperties.getOrchestra().getReadTimeout():70000);
+            Response response = request.get();
 
             LOGGER.trace(String.valueOf(response.getStatus()));
             LOGGER.trace(response.getStatusInfo().toString());
@@ -106,10 +111,14 @@ public class OrchestraRestClient {
             if (parameters != null)
                 for (Map.Entry<String, String> entry : parameters.entrySet())
                     target = target.queryParam(entry.getKey(), entry.getValue());
-            Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON);
+            Invocation.Builder request = target.request(MediaType.APPLICATION_JSON);
+            request.property(ClientProperties.CONNECT_TIMEOUT, restProperties.getOrchestra().getConnectTimeout()!=null?
+                    restProperties.getOrchestra().getConnectTimeout():5000);
+            request.property(ClientProperties.READ_TIMEOUT, restProperties.getOrchestra().getReadTimeout()!=null?
+                    restProperties.getOrchestra().getReadTimeout():70000);
             LOGGER.debug("rest url for reference:"+target.toString());
             LOGGER.info("TIME: {} Updating {} {} records", LocalTime.now(),path,requestObject.getRows().size());
-            Response response = invocationBuilder.post(Entity.json(mapper.writeValueAsString(requestObject)));
+            Response response = request.post(Entity.json(mapper.writeValueAsString(requestObject)));
             LOGGER.info("TIME: {} Updated {} {} records",LocalTime.now(),path,requestObject.getRows().size());
 
             LOGGER.info(String.valueOf(response.getStatus()));
@@ -133,10 +142,14 @@ public class OrchestraRestClient {
             if (parameters != null)
                 for (Map.Entry<String, String> entry : parameters.entrySet())
                     target = target.queryParam(entry.getKey(), entry.getValue());
-            Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON);
+            Invocation.Builder request = target.request(MediaType.APPLICATION_JSON);
+            request.property(ClientProperties.CONNECT_TIMEOUT, restProperties.getOrchestra().getConnectTimeout()!=null?
+                    restProperties.getOrchestra().getConnectTimeout():5000);
+            request.property(ClientProperties.READ_TIMEOUT, restProperties.getOrchestra().getReadTimeout()!=null?
+                    restProperties.getOrchestra().getReadTimeout():70000);
             LOGGER.debug("rest url for reference:"+target.toString());
             LOGGER.info("TIME: {} Updating {} field", LocalTime.now(),path);
-            Response response = invocationBuilder.put(Entity.json(mapper.writeValueAsString(content)));
+            Response response = request.put(Entity.json(mapper.writeValueAsString(content)));
             LOGGER.info("TIME: {} Updated {} field",LocalTime.now(),path);
 
             LOGGER.info(String.valueOf(response.getStatus()));
@@ -160,10 +173,14 @@ public class OrchestraRestClient {
             if (parameters != null)
                 for (Map.Entry<String, String> entry : parameters.entrySet())
                     target = target.queryParam(entry.getKey(), entry.getValue());
-            Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON);
+            Invocation.Builder request = target.request(MediaType.APPLICATION_JSON);
+            request.property(ClientProperties.CONNECT_TIMEOUT, restProperties.getOrchestra().getConnectTimeout()!=null?
+                    restProperties.getOrchestra().getConnectTimeout():5000);
+            request.property(ClientProperties.READ_TIMEOUT, restProperties.getOrchestra().getReadTimeout()!=null?
+                    restProperties.getOrchestra().getReadTimeout():70000);
             LOGGER.debug("TIME: {} Orchestra promote begin", LocalTime.now());
             LOGGER.debug("Orchestra promote request: "+mapper.writeValueAsString(requestObject));
-            Response response = invocationBuilder.post(Entity.json(mapper.writeValueAsString(requestObject)));
+            Response response = request.post(Entity.json(mapper.writeValueAsString(requestObject)));
             response.bufferEntity();
             RestResponse restResponse = new RestResponse();
             restResponse.setStatus(response.getStatus());
@@ -192,10 +209,14 @@ public class OrchestraRestClient {
             if (parameters != null)
                 for (Map.Entry<String, String> entry : parameters.entrySet())
                     target = target.queryParam(entry.getKey(), entry.getValue());
-            Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON);
+            Invocation.Builder request = target.request(MediaType.APPLICATION_JSON);
+            request.property(ClientProperties.CONNECT_TIMEOUT, restProperties.getOrchestra().getConnectTimeout()!=null?
+                    restProperties.getOrchestra().getConnectTimeout():5000);
+            request.property(ClientProperties.READ_TIMEOUT, restProperties.getOrchestra().getReadTimeout()!=null?
+                    restProperties.getOrchestra().getReadTimeout():70000);
             LOGGER.debug("rest url for reference:"+target.toString());
             LOGGER.debug("Orchestra update flag field begin", LocalTime.now());
-            Response response = invocationBuilder.put(Entity.json(mapper.writeValueAsString(content)));
+            Response response = request.put(Entity.json(mapper.writeValueAsString(content)));
             response.bufferEntity();
             RestResponse restResponse = new RestResponse();
             restResponse.setStatus(response.getStatus());

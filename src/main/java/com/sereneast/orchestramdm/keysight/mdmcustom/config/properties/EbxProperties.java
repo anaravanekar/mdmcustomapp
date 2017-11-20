@@ -13,6 +13,10 @@ public class EbxProperties {
 
     private Integer retryWaitMdm;
 
+    private Integer maxRetryJb;
+
+    private Integer maxRetryMdm;
+
     public Matching getMatching() {
         return matching;
     }
@@ -35,5 +39,21 @@ public class EbxProperties {
 
     public void setRetryWaitMdm(Integer retryWaitMdm) {
         this.retryWaitMdm = retryWaitMdm;
+    }
+
+    public Integer getMaxRetryJb() {
+        return maxRetryJb;
+    }
+
+    public void setMaxRetryJb(Integer maxRetryJb) {
+        this.maxRetryJb = maxRetryJb;
+    }
+
+    public Integer getMaxRetryMdm() {
+        return maxRetryMdm;
+    }
+
+    public void setMaxRetryMdm(Integer maxRetryMdm) {
+        this.maxRetryMdm = maxRetryMdm;
     }
 }

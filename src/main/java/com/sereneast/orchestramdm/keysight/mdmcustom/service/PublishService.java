@@ -30,7 +30,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -89,6 +88,10 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
     private int retryWaitJb = 500;
 
     private int retryWaitMdm = 500;
+
+    private int maxRetryMdm  = 3;
+
+    private int maxRetryJb  = 3;
 
     private static final String CROSS_REFERENCES_LABEL = "CrossReference";
 
@@ -220,6 +223,12 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             }
             if(ebxProperties.getRetryWaitMdm()!=null){
                 setRetryWaitMdm(ebxProperties.getRetryWaitMdm());
+            }
+            if(ebxProperties.getMaxRetryMdm()!=null){
+                setMaxRetryMdm(ebxProperties.getMaxRetryMdm());
+            }
+            if(ebxProperties.getMaxRetryJb()!=null){
+                setMaxRetryJb(ebxProperties.getMaxRetryJb());
             }
             for (ObjectKey objectKey : objectKeys) {
                 LOGGER.debug("Getting adaptation for objectKey=" + objectKey.getName());
@@ -481,6 +490,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             parameters.put("updateOrInsert", "true");
             RestResponse response = null;
             int retryCount = 0;
+
             do {
                 if(retryCount>0){
                     Thread.sleep(retryWaitMdm);
@@ -488,7 +498,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                 LOGGER.debug("Promoting to Reference: \n"+mapper.writeValueAsString(orchestraObjectList));
                 response = orchestraRestClient.promote(referenceDataSpaceUrl, referenceDataSetUrl, tablePathUrl, orchestraObjectList, parameters);
                 retryCount++;
-            }while(retryCount<MAX_RETRY_COUNT && (response==null || response.getStatus()>=300));
+            }while(retryCount<maxRetryMdm && (response==null || response.getStatus()>=300));
             if(response.getStatus()!=200 && response.getStatus()!=201){
                 throw new ApplicationRuntimeException("Error promoting to reference: "+String.valueOf(mapper.writeValueAsString(response.getResponseBody())));
             }
@@ -521,7 +531,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                 }
                 response = jitterbitRestClient.insert(mapper.writeValueAsString(orchestraObjectList), null,objectName.toLowerCase());
                 retryCount++;
-            } while (retryCount < MAX_RETRY_COUNT && (response == null || response.getStatus() >= 300));
+            } while (retryCount < maxRetryJb && (response == null || response.getStatus() >= 300));
             if(response.getStatus()!=200 && response.getStatus()!=201){
                 throw new ApplicationRuntimeException("Error publishing to Jitterbit: "+String.valueOf(response.getResponseBody().get("errorMsg")));
             }
@@ -804,5 +814,21 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
 
     public void setRetryWaitMdm(int retryWaitMdm) {
         this.retryWaitMdm = retryWaitMdm;
+    }
+
+    public int getMaxRetryMdm() {
+        return maxRetryMdm;
+    }
+
+    public void setMaxRetryMdm(int maxRetryMdm) {
+        this.maxRetryMdm = maxRetryMdm;
+    }
+
+    public int getMaxRetryJb() {
+        return maxRetryJb;
+    }
+
+    public void setMaxRetryJb(int maxRetryJb) {
+        this.maxRetryJb = maxRetryJb;
     }
 }
