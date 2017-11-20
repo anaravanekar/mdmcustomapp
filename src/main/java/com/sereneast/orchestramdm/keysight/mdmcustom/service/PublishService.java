@@ -449,11 +449,14 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
 
             //Execute updates
             promoteToReference(recordsToUpdateInReference);
+            LOGGER.info("Promoted {} to reference",objectName);
             if(recordsToUpdateInJitterbit!=null && !recordsToUpdateInJitterbit.isEmpty()) {
                 publishToJitterbit(recordsToUpdateInJitterbit);
+                LOGGER.info("Published {} to Jitterbit",objectName);
             }
             if(!"BUSINESSPURPOSE".equalsIgnoreCase(objectName)) {
                 updateFlagToSuccess(aContext, selectedRecords, recordsToUpdateInReference);
+                LOGGER.info("Updated {} flag",objectName);
             }
             if(!children.isEmpty()){
                 try {
@@ -497,6 +500,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                 }
                 LOGGER.debug("Promoting to Reference: \n"+mapper.writeValueAsString(orchestraObjectList));
                 response = orchestraRestClient.promote(referenceDataSpaceUrl, referenceDataSetUrl, tablePathUrl, orchestraObjectList, parameters);
+                LOGGER.info("MDM {} Retry attempt:{} Status:{}",objectName,retryCount,response.getStatus());
                 retryCount++;
             }while(retryCount<maxRetryMdm && (response==null || response.getStatus()>=300));
             if(response.getStatus()!=200 && response.getStatus()!=201){
@@ -530,6 +534,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                     Thread.sleep(retryWaitJb);
                 }
                 response = jitterbitRestClient.insert(mapper.writeValueAsString(orchestraObjectList), null,objectName.toLowerCase());
+                LOGGER.info("JB {} Retry attempt:{} Status:{}",objectName,retryCount,response.getStatus());
                 retryCount++;
             } while (retryCount < maxRetryJb && (response == null || response.getStatus() >= 300));
             if(response.getStatus()!=200 && response.getStatus()!=201){
