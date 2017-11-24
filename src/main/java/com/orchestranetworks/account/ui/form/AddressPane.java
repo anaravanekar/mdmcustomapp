@@ -1,5 +1,8 @@
 package com.orchestranetworks.account.ui.form;
 
+import com.onwbp.adaptation.Adaptation;
+import com.onwbp.adaptation.AdaptationTable;
+import com.onwbp.adaptation.RequestResult;
 import com.onwbp.base.text.UserMessageString;
 import com.orchestranetworks.ui.UIButtonSpecJSAction;
 import com.orchestranetworks.ui.form.UIFormContext;
@@ -16,7 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.sereneast.orchestramdm.keysight.mdmcustom.Paths._Account._AssignedTo;
 import static com.sereneast.orchestramdm.keysight.mdmcustom.Paths._Address.*;
 
 public class AddressPane implements UIFormPane {
@@ -27,6 +29,34 @@ public class AddressPane implements UIFormPane {
 
 	@Override
 	public void writePane(UIFormPaneWriter writer, UIFormContext context) {
+
+		if(!context.isCreatingRecord() && context.getCurrentRecord()!=null){
+			StringBuilder textToAppend = new StringBuilder();
+
+			String accountName = null;
+			if(StringUtils.isNotBlank(context.getCurrentRecord().getString(_MDMAccountId))) {
+				AdaptationTable accountTable = context.getCurrentDataSet().getTable(Paths._Account.getPathInSchema());
+				final RequestResult requestResult = accountTable.createRequestResult(Paths._Account._MDMAccountId.format() + " = " + context.getCurrentRecord().getString(_MDMAccountId));
+				if (requestResult != null && !requestResult.isEmpty()) {
+					Adaptation record = requestResult.nextAdaptation();
+					accountName = record.getString(Paths._Account._AccountName);
+					textToAppend.append("    ").append(accountName);
+				}
+			}
+			/*if(StringUtils.isNotBlank(context.getCurrentRecord().getString(_AccountName))){
+				textToAppend.append("    ").append(context.getCurrentRecord().getString(_AccountName));
+			}*/
+			//textToAppend.append(context.getCurrentRecord()!=null?context.getCurrentRecord().getString(_):"");
+			String internalAccountId = StringUtils.isNotBlank(context.getCurrentRecord().getString(Paths._Account._InternalAccountId))?context.getCurrentRecord().getString(Paths._Account._InternalAccountId):null;
+			if(internalAccountId!=null){
+				textToAppend.append("    Internal Account Id: ").append(internalAccountId);
+			}
+
+			if(StringUtils.isNotBlank(textToAppend.toString())) {
+				writer.addJS("appendToFormHeader(\"" + textToAppend + "\");");
+			}
+		}
+
 		String currentUserId = context.getSession().getUserReference().getUserId();
 		String openedByUser = context.getValueContext()!=null && context.getValueContext().getValue(Paths._Address._AssignedTo)!=null?context.getValueContext().getValue(Paths._Address._AssignedTo).toString():null;
 		LOGGER.debug("currentUsereId:"+currentUserId);
@@ -58,22 +88,25 @@ public class AddressPane implements UIFormPane {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 		Date lastPublishedDate = !context.isCreatingRecord() && context.getCurrentRecord()!=null?context.getCurrentRecord().getDate(_LastPublished):null;
-		writer.add("<tr>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_Published);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_Published);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_LastPublished);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		if(lastPublishedDate!=null){
-			writer.add(sdf.format(lastPublishedDate));
+		String published = !context.isCreatingRecord() && context.getCurrentRecord()!=null?context.getCurrentRecord().getString(_Published):null;
+		if(!context.isCreatingRecord()) {
+			writer.add("<tr>");
+			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_Published);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_Published);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_LastPublished);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+			if (lastPublishedDate != null) {
+				writer.add(sdf.format(lastPublishedDate));
+			}
+			writer.add("</td>");
+			writer.add("</tr>");
 		}
-		writer.add("</td>");
-		writer.add("</tr>");
 
 		writer.add("<tr>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
@@ -105,21 +138,32 @@ public class AddressPane implements UIFormPane {
 		writer.add("</td>");
 		writer.add("</tr>");
 
-		writer.add("<tr>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_SystemName);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_SystemName);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_SystemId);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_SystemId);
-		writer.add("</td>");
-		writer.add("</tr>");
-
+		String systemId = !context.isCreatingRecord() && context.getCurrentRecord()!=null?context.getCurrentRecord().getString(_SystemId):null;
+		if(!context.isCreatingRecord()) {
+			writer.add("<tr>");
+			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_SystemName);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_SystemName);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_SystemId);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_SystemId);
+			writer.add("</td>");
+			writer.add("</tr>");
+		}else{
+			writer.add("<tr>");
+			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_SystemName);
+			writer.add("</td>");
+			writer.add("<td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_SystemName);
+			writer.add("</td>");
+			writer.add("</tr>");
+		}
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_RMTId);
 		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
@@ -129,29 +173,17 @@ public class AddressPane implements UIFormPane {
 
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_MDMAccountId);
-		writer.add("</td><td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
 		writer.addWidget(_MDMAccountId);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_InternalAccountId);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_InternalAccountId);
-		writer.add("</td>");
-		writer.add("</tr>");
+		writer.add("</td></tr>");
+
 
 		writer.add("<tr>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_MDMAddressId);
 		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.add("<td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
 		writer.addWidget(_MDMAddressId);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_InternalAddressId);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_InternalAddressId);
 		writer.add("</td>");
 		writer.add("</tr>");
 
@@ -380,57 +412,59 @@ public class AddressPane implements UIFormPane {
 		writer.addWidget(_ContextValue);
 		writer.add("</td></tr>");
 
-		writer.add("<tr>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_TaxablePerson);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_TaxablePerson);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_TaxCertificateDate);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_TaxCertificateDate);
-		writer.add("</td>");
-		writer.add("</tr>");
+		String contextValue = !context.isCreatingRecord() && context.getCurrentRecord()!=null?context.getCurrentRecord().getString(_ContextValue):null;
+		if("Korean Additional Information".equalsIgnoreCase(contextValue)) {
+			writer.add("<tr>");
+			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_TaxablePerson);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_TaxablePerson);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_TaxCertificateDate);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_TaxCertificateDate);
+			writer.add("</td>");
+			writer.add("</tr>");
 
-		writer.add("<tr>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_IndustryClassification);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_IndustryClassification);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_IndustrySubclassification);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_IndustrySubclassification);
-		writer.add("</td>");
-		writer.add("</tr>");
+			writer.add("<tr>");
+			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_IndustryClassification);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_IndustryClassification);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_IndustrySubclassification);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_IndustrySubclassification);
+			writer.add("</td>");
+			writer.add("</tr>");
 
-		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_BusinessNumber);
-		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_BusinessNumber);
-		writer.add("</td></tr>");
-
-		writer.add("<tr>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_AddressSiteCategory);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_AddressSiteCategory);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_ATS);
-		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_ATS);
-		writer.add("</td>");
-		writer.add("</tr>");
-
+			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_BusinessNumber);
+			writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_BusinessNumber);
+			writer.add("</td></tr>");
+		}else if("Malaysia Customer Information".equalsIgnoreCase(contextValue)) {
+			writer.add("<tr>");
+			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_AddressSiteCategory);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_AddressSiteCategory);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_ATS);
+			writer.add("</td>");
+			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_ATS);
+			writer.add("</td>");
+			writer.add("</tr>");
+		}
 		writer.add("<tr>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_TaxRegistrationNumber);
@@ -491,41 +525,25 @@ public class AddressPane implements UIFormPane {
 		writer.add("</td>");
 		writer.add("</tr>");
 
-		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_SpecialHandling);
-		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_SpecialHandling);
-		writer.add("</td></tr>");
+		if(!context.isCreatingRecord()) {
+			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_DaqaMetaData_State);
+			writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_DaqaMetaData_State);
+			writer.add("</td></tr>");
 
-		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_DaqaMetaData_State);
-		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_DaqaMetaData_State);
-		writer.add("</td></tr>");
+			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_DaqaMetaData_ClusterId);
+			writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_DaqaMetaData_ClusterId);
+			writer.add("</td></tr>");
 
-		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_DaqaMetaData_ClusterId);
-		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_DaqaMetaData_ClusterId);
-		writer.add("</td></tr>");
-
-		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_ParentSystemId);
-		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_ParentSystemId);
-		writer.add("</td></tr>");
-
-		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_BatchCode);
-		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_BatchCode);
-		writer.add("</td></tr>");
-
-		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_MergedTargetRecord);
-		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_MergedTargetRecord);
-		writer.add("</td></tr>");
+			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_MergedTargetRecord);
+			writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_MergedTargetRecord);
+			writer.add("</td></tr>");
+		}
 
 		writer.add("</table>");
 
@@ -602,5 +620,7 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("xhr.send();");
 		writer.addJS_cr("document.getElementById(\"divLoading\").classList.add(\"show\");");
 		writer.addJS("}");
+
+		writer.addJS("function appendToFormHeader(textToAppend) { var span = document.createElement(\"span\"); var t = document.createTextNode(textToAppend); span.appendChild(t); document.getElementById(\"ebx_WorkspaceHeader\").getElementsByTagName(\"h2\")[0].appendChild(span); }");
 	}
 }

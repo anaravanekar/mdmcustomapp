@@ -1,6 +1,7 @@
 package com.sereneast.orchestramdm.keysight.mdmcustom.util;
 
 import com.orchestranetworks.schema.Path;
+import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
@@ -29,7 +30,8 @@ public class ApplicationCacheUtil {
 				String key = path.format().replaceAll("\\.\\/", "");
 				if(!key.contains("DaqaMetaData") && !key.contains("MergedTargetRecord") && !key.contains("RelatedAddress") && !key.contains("RelatedBusinessPurpose")
 						&& !key.contains("Notes") && !key.contains("AssignedTo") && !key.contains("BatchCode")
-						&& !key.contains("Source") && !key.contains("Locale") && !key.contains("LastPublished")) {
+						&& !key.contains("Source") && !key.contains("Locale") && !key.contains("LastPublished") && !key.contains("RegistryId")
+						&& !(Paths._Address.class.getName().equals(className) && key.contains("AccountName"))) {
 //					LOGGER.debug(String.valueOf(path));
 //					LOGGER.debug(key);
 					fields.put(key,path);

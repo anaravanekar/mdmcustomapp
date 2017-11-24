@@ -489,7 +489,8 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             ObjectMapper mapper = new ObjectMapper();
             OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
             orchestraObjectList.setRows(recordsToUpdateInReference);
-            OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");            Map<String, String> parameters = new HashMap<String, String>();
+            OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+            Map<String, String> parameters = new HashMap<String, String>();
             parameters.put("updateOrInsert", "true");
             RestResponse response = null;
             int retryCount = 0;

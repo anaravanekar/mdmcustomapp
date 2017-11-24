@@ -90,7 +90,7 @@ public class JitterbitRestClient {
             }catch(Exception e){
                 restResponse.setResponseBody(mapper.readValue(response.readEntity(String.class), new TypeReference<Map<String, String>>(){}));
             }
-            LOGGER.debug("jb response: "+response.readEntity(String.class));
+            LOGGER.info("jb response: "+response.readEntity(String.class));
             LOGGER.debug("TIME: {} Jitterbit REST end",LocalTime.now());
 
             return restResponse;

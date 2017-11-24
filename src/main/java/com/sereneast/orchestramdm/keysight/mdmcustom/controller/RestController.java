@@ -98,7 +98,7 @@ public class RestController {
 
         OrchestraObjectListResponse orchestraObjectListResponse = orchestraRestClient.get(dataSpace,dataSet,countryReferenceTablePath,parameters);
         Map<String,String> resultObject = new HashMap<>();
-        if (orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
+        if (orchestraObjectListResponse!=null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
             OrchestraObjectResponse objectResponse = orchestraObjectListResponse.getRows().get(0);
             Map<String,OrchestraContent> content = objectResponse.getContent();
             String operatingUnit = content.get("OperatingUnit").getContent()!=null?content.get("OperatingUnit").getContent().toString():null;
