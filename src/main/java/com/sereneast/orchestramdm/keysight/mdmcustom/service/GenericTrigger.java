@@ -88,7 +88,7 @@ public class GenericTrigger extends TableTrigger {
                 List countryList = (List) aContext.getOccurrenceContext().getValue(Paths._Account._Country);
                 if (countryList != null && !countryList.isEmpty()) {
                     String countryCode = (String) countryList.get(0);
-                    String countryReferenceTablePath = "root/CountryReferenceFields";
+                    /*String countryReferenceTablePath = "root/CountryReferenceFields";
                     Map<String, String> parameters = new HashMap<>();
                     parameters.put("filter", "CountryCode='" + countryCode + "'");
                     OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
@@ -98,7 +98,7 @@ public class GenericTrigger extends TableTrigger {
                     } catch (IOException e) {
                         throw new ApplicationOperationException("Error getting Profile Class and Region for country");
                     }
-                    Map<String, String> resultObject = new HashMap<>();
+                    Map<String, String> resultObject = new HashMap<>();*/
                     ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                     if("BR".equals(countryCode)){
                         valueContextForUpdate.setValue("Brazil Bank Collection", Paths._Account._PaymentReceiptMethod);
@@ -108,15 +108,19 @@ public class GenericTrigger extends TableTrigger {
                     }else{
                         valueContextForUpdate.setValue("Manual Payment", Paths._Account._PaymentReceiptMethod);
                     }
-                    if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
-                        OrchestraObjectResponse objectResponse = orchestraObjectListResponse.getRows().get(0);
-                        Map<String, OrchestraContent> content = objectResponse.getContent();
-                        String profileClass = content.get("ProfileClass").getContent() != null ? content.get("ProfileClass").getContent().toString() : null;
-                        String region = content.get("Region").getContent() != null ? content.get("Region").getContent().toString() : null;
+                    AdaptationTable countryReferenceFieldsTable = aContext.getTable().getContainerAdaptation().getTable(Paths._CountryReferenceFields.getPathInSchema());
+                    RequestResult tableRequestResult = countryReferenceFieldsTable.createRequestResult(Paths._CountryReferenceFields._CountryCode.format()+" = '"+countryCode+"'");
+                    if (tableRequestResult != null && !tableRequestResult.isEmpty()) {
+                        Adaptation resultRecord = tableRequestResult.nextAdaptation();
+                       // if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
+                        //OrchestraObjectResponse objectResponse = orchestraObjectListResponse.getRows().get(0);
+                        //Map<String, OrchestraContent> content = objectResponse.getContent();
+                        String profileClass = resultRecord.getString(Paths._CountryReferenceFields._ProfileClass);//content.get("ProfileClass").getContent() != null ? content.get("ProfileClass").getContent().toString() : null;
+                        String region = resultRecord.getString(Paths._CountryReferenceFields._Region);;//content.get("Region").getContent() != null ? content.get("Region").getContent().toString() : null;
                         valueContextForUpdate.setValue(profileClass, Paths._Account._ProfileClass);
                         valueContextForUpdate.setValue(region, Paths._Account._Region);
-                        aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
                     }
+                    aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
                 }
             }
             //get application context
