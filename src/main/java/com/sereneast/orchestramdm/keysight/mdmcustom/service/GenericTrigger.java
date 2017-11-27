@@ -71,6 +71,7 @@ public class GenericTrigger extends TableTrigger {
 
     public void handleAfterCreate(AfterCreateOccurrenceContext aContext) throws OperationException{
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())) {
+            initialize();
             if ("ACCOUNT".equalsIgnoreCase(objectName)) {
                 List countryList = (List) aContext.getOccurrenceContext().getValue(Paths._Account._Country);
                 if (countryList != null && !countryList.isEmpty()) {
@@ -179,6 +180,7 @@ public class GenericTrigger extends TableTrigger {
     public void handleAfterModify(AfterModifyOccurrenceContext aContext) throws OperationException {
         LOGGER.debug("GenericTrigger handleAfterModify called...");
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())) {
+            initialize();
             if( "ADDRESS".equalsIgnoreCase(objectName) && aContext.getChanges().getChange(Paths._Address._MDMAccountId)!=null &&
                     aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null){
                 Object internalAccountId = null;
@@ -198,7 +200,12 @@ public class GenericTrigger extends TableTrigger {
                     LOGGER.error("Parent account not found");
                 }
             }
-            initialize();
+            if(aContext.getChanges().getChange(Paths._Address._AssignedTo)==null){
+                String userId = aContext.getSession().getUserReference().getUserId();
+                ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
+                valueContextForUpdate.setValue(userId,Paths._Address._AssignedTo);
+                aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
+            }
             ProcedureContext procedureContext = aContext.getProcedureContext();
             Adaptation adaptation = aContext.getAdaptationOccurrence();
             LOGGER.debug("Record Id:" + adaptation.get(objectPrimaryKeyPath) + " timestamp" + LocalDateTime.now());

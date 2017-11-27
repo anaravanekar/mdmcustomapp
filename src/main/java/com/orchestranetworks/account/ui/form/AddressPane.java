@@ -413,58 +413,57 @@ public class AddressPane implements UIFormPane {
 		writer.add("</td></tr>");
 
 		String contextValue = !context.isCreatingRecord() && context.getCurrentRecord()!=null?context.getCurrentRecord().getString(_ContextValue):null;
-		if("Korean Additional Information".equalsIgnoreCase(contextValue)) {
-			writer.add("<tr>");
-			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-			writer.addLabel(_TaxablePerson);
-			writer.add("</td>");
-			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-			writer.addWidget(_TaxablePerson);
-			writer.add("</td>");
-			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-			writer.addLabel(_TaxCertificateDate);
-			writer.add("</td>");
-			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-			writer.addWidget(_TaxCertificateDate);
-			writer.add("</td>");
-			writer.add("</tr>");
+		writer.add("<tr class=\"korea_info\" style=\"display:"+("Korean Additional Information".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
+		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.addLabel(_TaxablePerson);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.addWidget(_TaxablePerson);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.addLabel(_TaxCertificateDate);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.addWidget(_TaxCertificateDate);
+		writer.add("</td>");
+		writer.add("</tr>");
 
-			writer.add("<tr>");
-			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-			writer.addLabel(_IndustryClassification);
-			writer.add("</td>");
-			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-			writer.addWidget(_IndustryClassification);
-			writer.add("</td>");
-			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-			writer.addLabel(_IndustrySubclassification);
-			writer.add("</td>");
-			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-			writer.addWidget(_IndustrySubclassification);
-			writer.add("</td>");
-			writer.add("</tr>");
+		writer.add("<tr class=\"korea_info\" style=\"display:"+("Korean Additional Information".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
+		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.addLabel(_IndustryClassification);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.addWidget(_IndustryClassification);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.addLabel(_IndustrySubclassification);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.addWidget(_IndustrySubclassification);
+		writer.add("</td>");
+		writer.add("</tr>");
 
-			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-			writer.addLabel(_BusinessNumber);
-			writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
-			writer.addWidget(_BusinessNumber);
-			writer.add("</td></tr>");
-		}else if("Malaysia Customer Information".equalsIgnoreCase(contextValue)) {
-			writer.add("<tr>");
-			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-			writer.addLabel(_AddressSiteCategory);
-			writer.add("</td>");
-			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-			writer.addWidget(_AddressSiteCategory);
-			writer.add("</td>");
-			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-			writer.addLabel(_ATS);
-			writer.add("</td>");
-			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-			writer.addWidget(_ATS);
-			writer.add("</td>");
-			writer.add("</tr>");
-		}
+		writer.add("<tr class=\"korea_info\" style=\"display:"+("Korean Additional Information".equalsIgnoreCase(contextValue)?"table-row":"none")+";\"><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.addLabel(_BusinessNumber);
+		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.addWidget(_BusinessNumber);
+		writer.add("</td></tr>");
+
+		writer.add("<tr class=\"malaysia_info\" style=\"display:"+("Malaysia Customer Information".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
+		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.addLabel(_AddressSiteCategory);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.addWidget(_AddressSiteCategory);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.addLabel(_ATS);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.addWidget(_ATS);
+		writer.add("</td>");
+		writer.add("</tr>");
+
 		writer.add("<tr>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_TaxRegistrationNumber);
@@ -622,5 +621,6 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("}");
 
 		writer.addJS("function appendToFormHeader(textToAppend) { var span = document.createElement(\"span\"); var t = document.createTextNode(textToAppend); span.appendChild(t); document.getElementById(\"ebx_WorkspaceHeader\").getElementsByTagName(\"h2\")[0].appendChild(span); }");
+		writer.addJS("function toggleAdditionalInfo(contextValue) {     var koreaRows = document.getElementsByClassName(\"korea_info\");     var malaysiaRows = document.getElementsByClassName(\"malaysia_info\");     var i;     if (contextValue === \"Korean Additional Information\") {         for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"table-row\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"none\";         }     } else if (contextValue === \"Malaysia Customer Information\") {         for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"none\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"table-row\";         }     } else {         for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"none\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"none\";         }     } }");
 	}
 }
