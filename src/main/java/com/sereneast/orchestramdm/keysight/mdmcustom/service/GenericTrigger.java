@@ -15,6 +15,7 @@ import com.orchestranetworks.service.ProcedureContext;
 import com.orchestranetworks.service.ValueContextForUpdate;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
+import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.EbxProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationOperationException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
@@ -25,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -74,9 +76,13 @@ public class GenericTrigger extends TableTrigger {
             initialize();
             if(aContext.getOccurrenceContext().getValue(Paths._Address._AssignedTo)==null){
                 String userId = aContext.getSession().getUserReference().getUserId();
-                ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
-                valueContextForUpdate.setValue(userId,Paths._Address._AssignedTo);
-                aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
+                EbxProperties ebxProperties = (EbxProperties)SpringContext.getApplicationContext().getBean("ebxProperties");
+                List<String> doNotAssignToUser = ebxProperties.getDoNotAssignToUsers();
+                if(doNotAssignToUser==null || doNotAssignToUser.isEmpty() || !doNotAssignToUser.contains(userId)) {
+                    ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
+                    valueContextForUpdate.setValue(userId, Paths._Address._AssignedTo);
+                    aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
+                }
             }
             if ("ACCOUNT".equalsIgnoreCase(objectName)) {
                 List countryList = (List) aContext.getOccurrenceContext().getValue(Paths._Account._Country);
@@ -189,9 +195,13 @@ public class GenericTrigger extends TableTrigger {
             initialize();
             if(aContext.getOccurrenceContext().getValue(Paths._Address._AssignedTo)==null){
                 String userId = aContext.getSession().getUserReference().getUserId();
-                ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
-                valueContextForUpdate.setValue(userId,Paths._Address._AssignedTo);
-                aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
+                EbxProperties ebxProperties = (EbxProperties)SpringContext.getApplicationContext().getBean("ebxProperties");
+                List<String> doNotAssignToUser = ebxProperties.getDoNotAssignToUsers();
+                if(doNotAssignToUser==null || doNotAssignToUser.isEmpty() || !doNotAssignToUser.contains(userId)) {
+                    ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
+                    valueContextForUpdate.setValue(userId, Paths._Address._AssignedTo);
+                    aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
+                }
             }
             if( "ADDRESS".equalsIgnoreCase(objectName) && aContext.getChanges().getChange(Paths._Address._MDMAccountId)!=null &&
                     aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null){

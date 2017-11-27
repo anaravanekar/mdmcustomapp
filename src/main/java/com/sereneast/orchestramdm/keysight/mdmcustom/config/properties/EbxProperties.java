@@ -4,6 +4,8 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.ebx.Match
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @ConfigurationProperties(prefix="keysight.ebx")
 @Component
 public class EbxProperties {
@@ -16,6 +18,8 @@ public class EbxProperties {
     private Integer maxRetryJb;
 
     private Integer maxRetryMdm;
+
+    private List<String> doNotAssignToUsers;
 
     public Matching getMatching() {
         return matching;
@@ -55,5 +59,13 @@ public class EbxProperties {
 
     public void setMaxRetryMdm(Integer maxRetryMdm) {
         this.maxRetryMdm = maxRetryMdm;
+    }
+
+    public List<String> getDoNotAssignToUsers() {
+        return doNotAssignToUsers;
+    }
+
+    public void setDoNotAssignToUsers(List<String> doNotAssignToUsers) {
+        this.doNotAssignToUsers = doNotAssignToUsers;
     }
 }
