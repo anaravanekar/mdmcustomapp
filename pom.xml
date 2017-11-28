@@ -136,8 +136,18 @@
 		<finalName>mdmcustomapp</finalName>
 		<plugins>
 			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<packagingExcludes>WEB-INF\lib\aopalliance-repackaged-2.5.0-b32.jar,WEB-INF\lib\hk2-api-2.5.0-b32.jar,WEB-INF\lib\hk2-locator-2.5.0-b32.jar,WEB-INF\lib\hk2-utils-2.5.0-b32.jar,WEB-INF\lib\jackson-annotations-2.8.4.jar,WEB-INF\lib\jackson-core-2.8.4.jar,WEB-INF\lib\jackson-databind-2.8.4.jar,WEB-INF\lib\jackson-jaxrs-base-2.8.4.jar,WEB-INF\lib\jackson-jaxrs-json-provider-2.8.4.jar,WEB-INF\lib\jackson-module-jaxb-annotations-2.8.4.jar,WEB-INF\lib\javassist-3.20.0-GA.jar,WEB-INF\lib\javax.annotation-api-1.2.jar,WEB-INF\lib\javax.inject-2.5.0-b32.jar,WEB-INF\lib\javax.ws.rs-api-2.0.1.jar,WEB-INF\lib\jersey-client-2.25.1.jar,WEB-INF\lib\jersey-common-2.25.1.jar,WEB-INF\lib\jersey-entity-filtering-2.25.1.jar,WEB-INF\lib\jersey-guava-2.25.1.jar,WEB-INF\lib\jersey-media-json-jackson-2.25.1.jar,WEB-INF\lib\osgi-resource-locator-1.0.1.jar</packagingExcludes>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludeArtifactIds>aopalliance-repackaged,hk2-api,hk2-locator,hk2-utils,jackson-annotations,jackson-core,jackson-databind,jackson-jaxrs-base,jackson-jaxrs-json-provider,jackson-module-jaxb-annotations,javassist,javax.annotation-api,javax.inject,javax.ws.rs-api,jersey-client,jersey-common,jersey-entity-filtering,jersey-guava,jersey-media-json-jackson,osgi-resource-locator</excludeArtifactIds>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
