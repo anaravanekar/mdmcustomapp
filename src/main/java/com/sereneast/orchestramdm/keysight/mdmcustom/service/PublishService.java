@@ -522,6 +522,10 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                 if(!"U".equals(orchestraObject.getContent().get("Published").getContent())){
                     orchestraObject.getContent().put("Published",new OrchestraContent("I"));
                 }
+                if(orchestraObject.getContent().get("AddressState")!=null && orchestraObject.getContent().get("AddressState").getContent()!=null
+                        && orchestraObject.getContent().get("AddressState").getContent().toString().contains("|")){
+                    orchestraObject.getContent().put("AddressState",new OrchestraContent(orchestraObject.getContent().get("AddressState").getContent().toString().split("\\|")[1]));
+                }
             }
             OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
             orchestraObjectList.setRows(recordsToUpdateInJitterbit);
