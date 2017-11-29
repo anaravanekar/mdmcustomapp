@@ -24,6 +24,7 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.model.RestResponse;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.JitterbitRestClient;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.OrchestraRestClient;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -519,8 +520,10 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
             mapper.setDateFormat(df);
             for(OrchestraObject orchestraObject:recordsToUpdateInJitterbit){
-                if(!"U".equals(orchestraObject.getContent().get("Published").getContent())){
+                if(orchestraObject.getContent().get("Published").getContent()==null || StringUtils.isBlank(orchestraObject.getContent().get("Published").getContent().toString())){
                     orchestraObject.getContent().put("Published",new OrchestraContent("I"));
+                }else{
+                    orchestraObject.getContent().put("Published",new OrchestraContent("U"));
                 }
                 if(orchestraObject.getContent().get("AddressState")!=null && orchestraObject.getContent().get("AddressState").getContent()!=null
                         && orchestraObject.getContent().get("AddressState").getContent().toString().contains("|")){
