@@ -67,7 +67,7 @@ public class AddressPane implements UIFormPane {
 
 		writer.add("<table width=\"50%\" >");
 
-		if(StringUtils.isNotBlank(openedByUser) && !currentUserId.equalsIgnoreCase(openedByUser)) {
+		if(!context.isCreatingRecord() && StringUtils.isNotBlank(openedByUser) && !currentUserId.equalsIgnoreCase(openedByUser)) {
 			UserMessageString buttonLabel = new UserMessageString();
 			buttonLabel.setString(Locale.ENGLISH,"Save Assigned To");
 			String dataSpace = context.getCurrentRecord().getHome().getKey().format();
