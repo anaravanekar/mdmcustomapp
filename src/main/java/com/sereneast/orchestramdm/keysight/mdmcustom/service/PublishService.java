@@ -555,20 +555,22 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         for (int i=0;i<selectedRecords.size();i++) {
             Adaptation record = selectedRecords.get(i);
-            Procedure procedure = procedureContext -> {
-                ValueContextForUpdate valueContextForUpdate = procedureContext.getContext(record.getAdaptationName());
-                valueContextForUpdate.setValue("Y", flagFieldPath);//TODO change
-                valueContextForUpdate.setValue(currentTime,Paths._Address._LastPublished);
-                procedureContext.doModifyContent(record, valueContextForUpdate);
-            };
-            ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), record.getHome());
-            ProcedureResult result = null;
-            result = svc.execute(procedure);
-            if (result == null || result.hasFailed()) {
-                LOGGER.info("proc failed " + result.getExceptionFullMessage(Locale.ENGLISH));
-                throw new ApplicationRuntimeException(ERROR_UPDATING_FLAG);
-            } else {
-                LOGGER.info("proc success ");
+            if(!"Y".equals(record.get(Paths._Account._Published))) {
+                Procedure procedure = procedureContext -> {
+                    ValueContextForUpdate valueContextForUpdate = procedureContext.getContext(record.getAdaptationName());
+                    valueContextForUpdate.setValue("Y", flagFieldPath);//TODO change
+                    valueContextForUpdate.setValue(currentTime, Paths._Address._LastPublished);
+                    procedureContext.doModifyContent(record, valueContextForUpdate);
+                };
+                ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), record.getHome());
+                ProcedureResult result = null;
+                result = svc.execute(procedure);
+                if (result == null || result.hasFailed()) {
+                    LOGGER.info("proc failed " + result.getExceptionFullMessage(Locale.ENGLISH));
+                    throw new ApplicationRuntimeException(ERROR_UPDATING_FLAG);
+                } else {
+                    LOGGER.info("proc success ");
+                }
             }
             OrchestraObject obj = recordsToUpdateInReference.get(i);
             obj.getContent().put(flagFieldPath.format().replaceAll("\\.\\/", ""),new OrchestraContent("Y"));
