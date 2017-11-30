@@ -326,7 +326,7 @@ public class GenericTrigger extends TableTrigger {
                     procedureContext.doModifyContent(resultRecord, valueContextForUpdate);
                 }
 
-                if (!(numberOfChanges==1 && assignedToValueChange!=null) && publishedFieldValueChange == null && publishedValue != null && "Y".equalsIgnoreCase(publishedValue)) {
+                if (!(numberOfChanges<=2 && assignedToValueChange!=null) && publishedFieldValueChange == null && publishedValue != null && "Y".equalsIgnoreCase(publishedValue)) {
                     LOGGER.debug("Updating published flag");
                     ValueContextForUpdate valueContextForUpdate = procedureContext.getContext(adaptation.getAdaptationName());
                     valueContextForUpdate.setValue("U", publishedFieldPath);
