@@ -239,9 +239,6 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                 }else{
                     throw new ApplicationRuntimeException("Only Golden records can be published. Please select Golden records and try again.");
                 }
-                if("Y".equals(adaptation.getString(Paths._Account._Published))){
-                    throw new ApplicationRuntimeException("Please unselect records with Published value 'Y'");
-                }
                 if(!validateRecord(objectName,adaptation.getContainer(),adaptation)){
                     throw new ApplicationRuntimeException("At least one golden state address and at least one golden state business purpose is mandatory for publish.");
                 }
@@ -266,11 +263,6 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
         }
         final RequestResult childTableRequestResult = childTable.createRequestResult(condition);
         if (childTableRequestResult != null && !childTableRequestResult.isEmpty()) {
-            for (Adaptation child; (child = childTableRequestResult.nextAdaptation()) != null; ) {
-                if("Y".equalsIgnoreCase(String.valueOf(child.get(Paths._Account._Published)))){
-                    throw new ApplicationRuntimeException("Please unselect records with Published value 'Y'");
-                }
-            }
             for (Adaptation child; (child = childTableRequestResult.nextAdaptation()) != null; ) {
                 if("GOLDEN".equalsIgnoreCase(String.valueOf(child.get(daqaStateFieldPath)))){
                     if("ACCOUNT".equalsIgnoreCase(objectName)){
