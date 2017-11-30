@@ -128,7 +128,7 @@ public class GenericTrigger extends TableTrigger {
                 boolean update = false;
                 ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                 ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
-                if("JA".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
+                if("JP".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
                     update=true;
                     valueContextForUpdate.setValue("N", Paths._Address._SendAcknowledgement);
                     valueContextForUpdate.setValue("Suppress because of special format requirements", Paths._Address._InvoiceCopies);
@@ -212,7 +212,7 @@ public class GenericTrigger extends TableTrigger {
                     aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
                 }
             }
-            if("ADDRESS".equalsIgnoreCase(objectName) && aContext.getChanges().getChange(Paths._Address._Country)!=null && "JA".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
+            if("ADDRESS".equalsIgnoreCase(objectName) && aContext.getChanges().getChange(Paths._Address._Country)!=null && "JP".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
                 ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                 valueContextForUpdate.setValue("N", Paths._Address._SendAcknowledgement);
                 valueContextForUpdate.setValue("Suppress because of special format requirements", Paths._Address._InvoiceCopies);
