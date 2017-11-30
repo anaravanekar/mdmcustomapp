@@ -74,7 +74,7 @@ public class AddressPane implements UIFormPane {
 			String dataSpace = context.getCurrentRecord().getHome().getKey().format();
 			String mdmdAddressId = String.valueOf(context.getCurrentRecord().get(_MDMAddressId));
 			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_AssignedTo);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_AssignedTo);//writer.add("</td>");
-			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\">");writer.addButtonJavaScript(new UIButtonSpecJSAction(buttonLabel,"saveAssignment('"+dataSpace+"',ebx_form_getValue(\""+writer.getPrefixedPath(_AssignedTo).format()+"\"),'address',"+mdmdAddressId+")"));writer.add("<font color=\"#606060\"><span style=\"padding-left:50px;\">Account Local Name</span></font>");writer.add("</td>");
+			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\">");writer.addButtonJavaScript(new UIButtonSpecJSAction(buttonLabel,"saveAssignment('"+dataSpace+"',ebx_form_getValue(\""+writer.getPrefixedPath(_AssignedTo).format()+"\"),'address',"+mdmdAddressId+")"));writer.add("<font color=\"#606060\"><span style=\"padding-left:50px;\">Account Local Language Name</span></font>");writer.add("</td>");
 			writer.add("<td colspan=\"1\" style=\"padding-top:2px;" + CELL_STYLE_LEFT + "\">");writer.add("<span>"+accountLocalName+"</span>");writer.add("</td>");
 			writer.add("</tr>");
 		}else if(!context.isCreatingRecord()){
@@ -86,7 +86,7 @@ public class AddressPane implements UIFormPane {
 			writer.addWidget(_AssignedTo);
 			writer.add("</td>");
 			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-			writer.add("<span>Account Local Name</span>");
+			writer.add("<span>Account Local Language Name</span>");
 			writer.add("</td>");
 			writer.add("<td colspan=\"1\" style=\"padding-top:2px;" + CELL_STYLE_LEFT + "\">");
 			writer.add("<span>"+accountLocalName+"</span>");
@@ -620,6 +620,15 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("}else{");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
 				"valueOne").addJS(");");
+		writer.addJS("}");
+
+		writer.addJS("var sk = {\"key\":\"N\",\"label\":\"N\"};");
+		writer.addJS("var ic = {\"key\":\"0.2\",\"label\":\"Suppress because of special format requirements\"};");
+		writer.addJS("if(\"JP\" == countryCode){");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_SendAcknowledgement).format()).addJS("\", ").addJS(
+				"sk").addJS(");");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
+				"ic").addJS(");");
 		writer.addJS("}");
 
 		writer.addJS("};");//onload function

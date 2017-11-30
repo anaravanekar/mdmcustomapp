@@ -128,11 +128,11 @@ public class GenericTrigger extends TableTrigger {
                 boolean update = false;
                 ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                 ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
-                if("JP".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
+                /*if("JP".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
                     update=true;
                     valueContextForUpdate.setValue("N", Paths._Address._SendAcknowledgement);
                     valueContextForUpdate.setValue("Suppress because of special format requirements", Paths._Address._InvoiceCopies);
-                }
+                }*/
                 if(aContext.getOccurrenceContext().getValue(Paths._Address._TaxEffectiveFrom)==null){
                     update = true;
                     valueContextForUpdate.setValue(Date.from(utc.toInstant()), Paths._Address._TaxEffectiveFrom);
@@ -212,12 +212,12 @@ public class GenericTrigger extends TableTrigger {
                     aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
                 }
             }
-            if("ADDRESS".equalsIgnoreCase(objectName) && aContext.getChanges().getChange(Paths._Address._Country)!=null && "JP".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
+/*            if("ADDRESS".equalsIgnoreCase(objectName) && aContext.getChanges().getChange(Paths._Address._Country)!=null && "JP".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
                 ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                 valueContextForUpdate.setValue("N", Paths._Address._SendAcknowledgement);
                 valueContextForUpdate.setValue("Suppress because of special format requirements", Paths._Address._InvoiceCopies);
                 aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
-            }
+            }*/
             if( "ADDRESS".equalsIgnoreCase(objectName) && aContext.getChanges().getChange(Paths._Address._MDMAccountId)!=null &&
                     aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null){
                 Object internalAccountId = null;
