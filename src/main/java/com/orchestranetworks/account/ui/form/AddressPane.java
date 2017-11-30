@@ -40,7 +40,7 @@ public class AddressPane implements UIFormPane {
 				if (requestResult != null && !requestResult.isEmpty()) {
 					Adaptation record = requestResult.nextAdaptation();
 					accountName = record.getString(Paths._Account._AccountName);
-					accountLocalName = record.getString(Paths._Account._NameLocalLanguage);
+					accountLocalName = record.getString(Paths._Account._NameLocalLanguage)!=null?record.getString(Paths._Account._NameLocalLanguage):"";
 					textToAppend.append(" of ").append(accountName);
 				}
 			}
