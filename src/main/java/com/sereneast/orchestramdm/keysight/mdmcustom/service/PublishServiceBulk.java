@@ -36,6 +36,8 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class PublishServiceBulk implements UserService<TableViewEntitySelection>,ApplicationContextAware
@@ -506,8 +508,9 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                 //response = orchestraRestClient.promote(referenceDataSpaceUrl, referenceDataSetUrl, tablePathUrl, orchestraObjectList, parameters);
                 response = new RestResponse();
                 response.setStatus(200);
-                java.nio.file.Path file = null;
-                try { file = Files.createFile(java.nio.file.Paths.get(System.getProperty("ebx.home"),"mdm.json")); } catch(FileAlreadyExistsException ignored){}
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HHmm");
+                java.nio.file.Path file = java.nio.file.Paths.get(System.getProperty("ebx.home"),"mdm_"+objectName+"_"+LocalTime.now().format(dtf)+".json");
+                try { file = Files.createFile(file); } catch(FileAlreadyExistsException ignored){}
                 Files.write(file,mapper.writeValueAsString(orchestraObjectList).getBytes());
                 LOGGER.info("MDM {} Retry attempt:{} Status:{}",objectName,retryCount,response.getStatus());
                 retryCount++;
@@ -551,8 +554,9 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                 //response = jitterbitRestClient.insert(mapper.writeValueAsString(orchestraObjectList), null,objectName.toLowerCase());
                 response = new RestResponse();
                 response.setStatus(200);
-                java.nio.file.Path file = null;
-                try { file = Files.createFile(java.nio.file.Paths.get(System.getProperty("ebx.home"),"jitterbit.json")); } catch(FileAlreadyExistsException ignored){}
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HHmm");
+                java.nio.file.Path file = java.nio.file.Paths.get(System.getProperty("ebx.home"),"jitterbit_"+objectName+"_"+LocalTime.now().format(dtf)+".json");
+                try { file = Files.createFile(file); } catch(FileAlreadyExistsException ignored){}
                 Files.write(file,mapper.writeValueAsString(orchestraObjectList).getBytes());
                 LOGGER.info("JB {} Retry attempt:{} Status:{}",objectName,retryCount,response.getStatus());
                 retryCount++;
