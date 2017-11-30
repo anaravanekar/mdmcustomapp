@@ -14,8 +14,7 @@ public class CountyConstraint implements Constraint, ConstraintOnNull {
         Object countryValue = valueContextForValidation.getValue(Path.PARENT.add(Paths._Address._Country));
         if(countryValue!=null && "US".equals(String.valueOf(countryValue)) ){
             UserMessage message = UserMessage.createError("County is required when country is United States");//UserMessage(Severity.ERROR,"ThePriceMustNotDifferFromTheDefaultPriceMoreThan{0}");
-            //valueContextForValidation.addMessage(message);
-            valueContextForValidation.addError("County is required when country is United States");
+            valueContextForValidation.addMessage(message);
         }
     }
 

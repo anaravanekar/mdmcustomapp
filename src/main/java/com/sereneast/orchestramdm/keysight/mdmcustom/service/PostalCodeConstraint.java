@@ -15,7 +15,6 @@ public class PostalCodeConstraint implements Constraint, ConstraintOnNull {
         if(countryValue!=null && ("US".equals(String.valueOf(countryValue)) || "CA".equals(String.valueOf(countryValue)))){
             UserMessage message = UserMessage.createError("Postal Code is required when country is United States or Canada");//UserMessage(Severity.ERROR,"ThePriceMustNotDifferFromTheDefaultPriceMoreThan{0}");
             valueContextForValidation.addMessage(message);
-            valueContextForValidation.addError("\"Postal Code is required when country is United States or Canada\"");
         }
     }
 
