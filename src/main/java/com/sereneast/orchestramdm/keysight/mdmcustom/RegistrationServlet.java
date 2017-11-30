@@ -44,7 +44,7 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Promote and Publish",
 				"",-1,
 				toPath("/root/Address")));
-		aContext.registerUserService(new TableViewSampleServiceDeclaration(
+		/*aContext.registerUserService(new TableViewSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",AccountPublishServiceBulk.class.getSimpleName()),
 				AccountPublishServiceBulk.class,
 				"Batch Promote and Publish",
@@ -57,7 +57,7 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Batch Promote and Publish",
 				"Batch Promote and Publish",
 				"",-1,
-				toPath("/root/Address")));
+				toPath("/root/Address")));*/
 		aContext.registerUserService(new TableViewSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",AlignForeignKeysAccountService.class.getSimpleName()),
 				AlignForeignKeysAccountService.class,
