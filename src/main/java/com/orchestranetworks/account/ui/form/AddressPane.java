@@ -29,7 +29,7 @@ public class AddressPane implements UIFormPane {
 
 	@Override
 	public void writePane(UIFormPaneWriter writer, UIFormContext context) {
-
+		String accountLocalName = "";
 		if(!context.isCreatingRecord() && context.getCurrentRecord()!=null){
 			StringBuilder textToAppend = new StringBuilder();
 
@@ -40,6 +40,7 @@ public class AddressPane implements UIFormPane {
 				if (requestResult != null && !requestResult.isEmpty()) {
 					Adaptation record = requestResult.nextAdaptation();
 					accountName = record.getString(Paths._Account._AccountName);
+					accountLocalName = record.getString(Paths._Account._NameLocalLanguage);
 					textToAppend.append(" of ").append(accountName);
 				}
 			}
@@ -72,8 +73,9 @@ public class AddressPane implements UIFormPane {
 			buttonLabel.setString(Locale.ENGLISH,"Save Assigned To");
 			String dataSpace = context.getCurrentRecord().getHome().getKey().format();
 			String mdmdAddressId = String.valueOf(context.getCurrentRecord().get(_MDMAddressId));
-			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_AssignedTo);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_AssignedTo);writer.add("</td>");
-			writer.add("<td colspan=\"2\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addButtonJavaScript(new UIButtonSpecJSAction(buttonLabel,"saveAssignment('"+dataSpace+"',ebx_form_getValue(\""+writer.getPrefixedPath(_AssignedTo).format()+"\"),'address',"+mdmdAddressId+")"));writer.add("</td>");
+			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_AssignedTo);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_AssignedTo);//writer.add("</td>");
+			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\">");writer.addButtonJavaScript(new UIButtonSpecJSAction(buttonLabel,"saveAssignment('"+dataSpace+"',ebx_form_getValue(\""+writer.getPrefixedPath(_AssignedTo).format()+"\"),'address',"+mdmdAddressId+")"));writer.add("<span style=\"padding-left:5px;\">Account Local Name</span>");writer.add("</td>");
+			writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\"><font color=\"#606060\">");writer.add("<span>"+accountLocalName+"</span>");writer.add("</td>");
 			writer.add("</tr>");
 		}else {
 			writer.add("<tr>");
@@ -171,11 +173,20 @@ public class AddressPane implements UIFormPane {
 		writer.add("</td>");
 		writer.add("</tr>");
 
-		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
-		writer.addLabel(_MDMAccountId);
-		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_MDMAccountId);
-		writer.add("</td></tr>");
+		if(!context.isCreatingRecord()) {
+			String mdmAccountId = context.getCurrentRecord()!=null?context.getCurrentRecord().getString(_MDMAccountId):null;
+			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_MDMAccountId);
+			writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\"><font color=\"#606060\">");
+			writer.add("<span>"+mdmAccountId+"</span>");
+			writer.add("</td></tr>");
+		}else {
+			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_MDMAccountId);
+			writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_MDMAccountId);
+			writer.add("</td></tr>");
+		}
 
 
 		writer.add("<tr>");

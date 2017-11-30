@@ -241,12 +241,14 @@ public class GenericTrigger extends TableTrigger {
             Adaptation adaptation = aContext.getAdaptationOccurrence();
             LOGGER.debug("Record Id:" + adaptation.get(objectPrimaryKeyPath) + " timestamp" + LocalDateTime.now());
             ValueChanges changes = aContext.getChanges();
+            int numberOfChanges = changes.getNumberOfChanges();
             ValueChange daqaStateChanges = changes.getChange(stateFieldPath);
             ValueChange daqaTargetChanges = changes.getChange(daqaTargetFieldPath);
             ValueChange daqaMergeOriginChanges = changes.getChange(mergeOriginPath);
             ValueChange daqaTimestampChanges = changes.getChange(timestampPath);
             ValueChange countryChanges = changes.getChange(countryPath);
             ValueChange publishedFieldValueChange = changes.getChange(publishedFieldPath);
+            ValueChange assignedToValueChange = changes.getChange(Paths._Account._AssignedTo);
             if ("ACCOUNT".equalsIgnoreCase(objectName) && countryChanges != null) {
                 List countryList = (List) aContext.getOccurrenceContext().getValue(Paths._Account._Country);
                 if (countryList != null && !countryList.isEmpty()) {
@@ -323,7 +325,8 @@ public class GenericTrigger extends TableTrigger {
                     }
                     procedureContext.doModifyContent(resultRecord, valueContextForUpdate);
                 }
-                if (publishedFieldValueChange == null && publishedValue != null && "Y".equalsIgnoreCase(publishedValue)) {
+
+                if (!(numberOfChanges==1 && assignedToValueChange!=null) && publishedFieldValueChange == null && publishedValue != null && "Y".equalsIgnoreCase(publishedValue)) {
                     LOGGER.debug("Updating published flag");
                     ValueContextForUpdate valueContextForUpdate = procedureContext.getContext(adaptation.getAdaptationName());
                     valueContextForUpdate.setValue("U", publishedFieldPath);
