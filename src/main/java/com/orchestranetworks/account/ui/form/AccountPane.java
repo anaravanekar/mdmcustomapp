@@ -14,10 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import static com.sereneast.orchestramdm.keysight.mdmcustom.Paths._Account.*;
 import static com.sereneast.orchestramdm.keysight.mdmcustom.Paths._Address._IndustryClassification;
@@ -35,20 +32,31 @@ public class AccountPane implements UIFormPane {
 	public void writePane(UIFormPaneWriter writer, UIFormContext context) {
 
 		//ProfileClass custom html
-		ApplicationCacheUtil applicationCacheUtil = new ApplicationCacheUtil();
-		List<Map<String,String>> profileClassValues = applicationCacheUtil.getProfileClassToDisplay();
 		StringBuilder profileClassSelectBox = new StringBuilder();
 		StringBuilder profileClassSelectBoxOptions = new StringBuilder();
 		profileClassSelectBoxOptions.append("<option value=\"\"></option>");
-		for(Map<String,String> entry:profileClassValues){
-			if(!context.isCreatingRecord() && entry.get("ProfileClass").equals(context.getCurrentRecord().getString(_ProfileClass))){
-				profileClassSelectBoxOptions.append("<option value=\""+entry.get("ProfileClass")+"\" selected>"+entry.get("label")+"</option>");
-			}else{
-				profileClassSelectBoxOptions.append("<option value=\""+entry.get("ProfileClass")+"\">"+entry.get("label")+"</option>");
+		ApplicationCacheUtil applicationCacheUtil = new ApplicationCacheUtil();
+		List<Map<String,String>> profileClassValues = applicationCacheUtil.getOptionsToDisplay("ProfileClass","ProfileClass");
+		if(profileClassValues!=null) {
+			profileClassValues.sort(Comparator.comparing(
+					m -> m.get("ProfileClass"),
+					Comparator.nullsLast(Comparator.naturalOrder()))
+			);
+			boolean isCurrentValueValidForDisplay = false;
+			for (Map<String, String> entry : profileClassValues) {
+				if (!context.isCreatingRecord() && entry.get("ProfileClass").equals(context.getCurrentRecord().getString(_ProfileClass))) {
+					isCurrentValueValidForDisplay = true;
+					profileClassSelectBoxOptions.append("<option value=\"" + entry.get("ProfileClass") + "\" selected>" + entry.get("label") + "</option>");
+				} else {
+					profileClassSelectBoxOptions.append("<option value=\"" + entry.get("ProfileClass") + "\">" + entry.get("label") + "</option>");
+				}
 			}
+			if (!isCurrentValueValidForDisplay) {
+				profileClassSelectBoxOptions.append("<option value=\"" + context.getCurrentRecord().getString(_ProfileClass) + "\" selected>" + context.getCurrentRecord().getString(_ProfileClass) + "</option>");
+			}
+			String profileClassPrefixedPath = writer.getPrefixedPath(_ProfileClass).format();
 		}
-		String profileClassPrefixedPath = writer.getPrefixedPath(_ProfileClass).format();
-		profileClassSelectBox.append("<select onchange=\"changeProfileClass(this.value)\">").append(profileClassSelectBoxOptions).append("</select>");
+		profileClassSelectBox.append("<select onchange=\"changeDropDownValue(\""+writer.getPrefixedPath(_ProfileClass).format()+"\",this.value,this.item(this.selectedIndex).text)\">").append(profileClassSelectBoxOptions).append("</select>");
 
 		String currentUserId = context.getSession().getUserReference().getUserId();
 		String openedByUser = context.getValueContext()!=null && context.getValueContext().getValue(Paths._Account._AssignedTo)!=null?context.getValueContext().getValue(Paths._Account._AssignedTo).toString():null;
@@ -96,10 +104,10 @@ public class AccountPane implements UIFormPane {
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 		Date lastPublishedDate = !context.isCreatingRecord() && context.getCurrentRecord()!=null?context.getCurrentRecord().getDate(_LastPublished):null;
 		if(!context.isCreatingRecord()){
-			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_ProfileClass);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.add(profileClassSelectBox.toString());writer.add("<div style=\"display:none;\">");writer.addWidget(_ProfileClass);writer.add("</div>");writer.add("</td>");
+			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_ProfileClass);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"padding-left:5px;" + CELL_STYLE_LEFT + "\">");writer.add(profileClassSelectBox.toString());writer.add("<div style=\"display:none;\">");writer.addWidget(_ProfileClass);writer.add("</div>");writer.add("</td>");
 			writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_LastPublished);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");if(lastPublishedDate!=null){writer.add(sdf.format(lastPublishedDate));}writer.add("</td>");writer.add("</tr>");
 		}else{
-			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_ProfileClass);writer.add("</td>");writer.add("<td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.add(profileClassSelectBox.toString());writer.add("<div style=\"display:none;\">");writer.addWidget(_ProfileClass);writer.add("</div>");writer.add("</td></tr>");
+			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_ProfileClass);writer.add("</td>");writer.add("<td colspan=\"3\" style=\"padding-left:5px;" + CELL_STYLE_LEFT + "\">");writer.add(profileClassSelectBox.toString());writer.add("<div style=\"display:none;\">");writer.addWidget(_ProfileClass);writer.add("</div>");writer.add("</td></tr>");
 		}
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_Classification);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_Classification);writer.add("</td>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_ISGClassification);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_ISGClassification);writer.add("</td>");writer.add("</tr>");
@@ -207,6 +215,6 @@ public class AccountPane implements UIFormPane {
 		writer.addJS_cr("document.getElementById(\"divLoading\").classList.add(\"show\");");
 		writer.addJS("}");
 
-		writer.addJS("function changeProfileClass(selectedValue){ ebx_form_setValue(\""+writer.getPrefixedPath(_ProfileClass).format()+"\",{'key':selectedValue,'label':selectedValue});}");
+		writer.addJS("function changeDropDownValue(prefixedPath,selectedValue,selectedText){ ebx_form_setValue(prefixedPath,{'key':selectedValue,'label':selectedText});}");
 	}
 }

@@ -4,6 +4,7 @@ import com.onwbp.adaptation.Adaptation;
 import com.onwbp.adaptation.AdaptationTable;
 import com.onwbp.adaptation.RequestResult;
 import com.onwbp.base.text.UserMessageString;
+import com.orchestranetworks.schema.Path;
 import com.orchestranetworks.ui.UIButtonSpecJSAction;
 import com.orchestranetworks.ui.form.UIFormContext;
 import com.orchestranetworks.ui.form.UIFormPane;
@@ -11,13 +12,13 @@ import com.orchestranetworks.ui.form.UIFormPaneWriter;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
+import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import java.util.*;
 
 import static com.sereneast.orchestramdm.keysight.mdmcustom.Paths._Address.*;
 
@@ -35,14 +36,14 @@ public class AddressPane implements UIFormPane {
 
 			String accountName = null;
 			if(StringUtils.isNotBlank(context.getCurrentRecord().getString(_MDMAccountId))) {
-				AdaptationTable accountTable = context.getCurrentDataSet().getTable(Paths._Account.getPathInSchema());
+				/*AdaptationTable accountTable = context.getCurrentDataSet().getTable(Paths._Account.getPathInSchema());
 				final RequestResult requestResult = accountTable.createRequestResult(Paths._Account._MDMAccountId.format() + " = " + context.getCurrentRecord().getString(_MDMAccountId));
 				if (requestResult != null && !requestResult.isEmpty()) {
-					Adaptation record = requestResult.nextAdaptation();
-					accountName = record.getString(Paths._Account._AccountName);
-					accountLocalName = record.getString(Paths._Account._NameLocalLanguage)!=null?record.getString(Paths._Account._NameLocalLanguage):"";
+					Adaptation record = requestResult.nextAdaptation();*/
+					accountName = context.getCurrentRecord().getString(Path.parse("./AccountName"));//record.getString(Paths._Account._AccountName);
+					accountLocalName = context.getCurrentRecord().getString(Path.parse("./AccountNameLocalLanguage"));//record.getString(Paths._Account._NameLocalLanguage)!=null?record.getString(Paths._Account._NameLocalLanguage):"";
 					textToAppend.append(" of ").append(accountName);
-				}
+//				}
 			}
 			/*if(StringUtils.isNotBlank(context.getCurrentRecord().getString(_AccountName))){
 				textToAppend.append("    ").append(context.getCurrentRecord().getString(_AccountName));
@@ -57,6 +58,33 @@ public class AddressPane implements UIFormPane {
 				writer.addJS("appendToFormHeader(\"" + textToAppend + "\");");
 			}
 		}
+
+		//operatingUnit custom html
+		StringBuilder operatingUnitSelectBox = new StringBuilder();
+		StringBuilder operatingUnitSelectBoxOptions = new StringBuilder();
+		operatingUnitSelectBoxOptions.append("<option value=\"\"></option>");
+		ApplicationCacheUtil applicationCacheUtil = new ApplicationCacheUtil();
+		List<Map<String,String>> operatingUnitValues = applicationCacheUtil.getOptionsToDisplay("OperatingUnit","OperatingUnit");
+		if(operatingUnitValues!=null) {
+			operatingUnitValues.sort(Comparator.comparing(
+					m -> m.get("OperatingUnit"),
+					Comparator.nullsLast(Comparator.naturalOrder()))
+			);
+			boolean isCurrentValueValidForDisplay = false;
+			for (Map<String, String> entry : operatingUnitValues) {
+				if (!context.isCreatingRecord() && entry.get("OperatingUnit").equals(context.getCurrentRecord().getString(_OperatingUnit))) {
+					isCurrentValueValidForDisplay = true;
+					operatingUnitSelectBoxOptions.append("<option value=\"" + entry.get("OperatingUnit") + "\" selected>" + entry.get("label") + "</option>");
+				} else {
+					operatingUnitSelectBoxOptions.append("<option value=\"" + entry.get("OperatingUnit") + "\">" + entry.get("label") + "</option>");
+				}
+			}
+			if (!isCurrentValueValidForDisplay) {
+				operatingUnitSelectBoxOptions.append("<option value=\"" + context.getCurrentRecord().getString(_OperatingUnit) + "\" selected>" + context.getCurrentRecord().getString(_OperatingUnit) + "</option>");
+			}
+			String operatingUnitPrefixedPath = writer.getPrefixedPath(_OperatingUnit).format();
+		}
+		operatingUnitSelectBox.append("<select onchange=\"changeDropDownValue(\""+writer.getPrefixedPath(_OperatingUnit).format()+"\",this.value,this.item(this.selectedIndex).text)\">").append(operatingUnitSelectBoxOptions).append("</select>");
 
 		String currentUserId = context.getSession().getUserReference().getUserId();
 		String openedByUser = context.getValueContext()!=null && context.getValueContext().getValue(Paths._Address._AssignedTo)!=null?context.getValueContext().getValue(Paths._Address._AssignedTo).toString():null;
@@ -129,8 +157,8 @@ public class AddressPane implements UIFormPane {
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_OperatingUnit);
 		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_OperatingUnit);
+		writer.add("<td colspan=\"1\" style=\"padding-left:5px;" + CELL_STYLE_LEFT + "\">");
+		writer.add(operatingUnitSelectBox.toString());writer.add("<div style=\"display:none;\">");writer.addWidget(_OperatingUnit);writer.add("</div>");
 		writer.add("</td>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_Status);
@@ -659,5 +687,6 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("function toggleAdditionalInfo(contextValue) {     var koreaRows = document.getElementsByClassName(\"korea_info\");     var malaysiaRows = document.getElementsByClassName(\"malaysia_info\");     var i;     if (contextValue === \"Korean Additional Information\") {  clearMalaysiaInfo();       for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"table-row\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"none\";         }     } else if (contextValue === \"Malaysia Customer Information\") {    clearKoreaInfo();     for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"none\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"table-row\";         }     } else {    clearMalaysiaInfo();clearKoreaInfo();     for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"none\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"none\";         }     } }");
 		writer.addJS("function clearMalaysiaInfo(){ ebx_form_setValue(\""+writer.getPrefixedPath(_AddressSiteCategory).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_ATS).format()+"\",null); }");
 		writer.addJS("function clearKoreaInfo(){ ebx_form_setValue(\""+writer.getPrefixedPath(_TaxablePerson).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_TaxCertificateDate).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_IndustryClassification).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_IndustrySubclassification).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_BusinessNumber).format()+"\",null); }");
+		writer.addJS("function changeDropDownValue(prefixedPath,selectedValue,selectedText){ ebx_form_setValue(prefixedPath,{'key':selectedValue,'label':selectedText});}");
 	}
 }

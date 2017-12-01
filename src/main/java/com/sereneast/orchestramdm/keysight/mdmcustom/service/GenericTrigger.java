@@ -150,6 +150,8 @@ public class GenericTrigger extends TableTrigger {
                         Adaptation adaptation = parentTableRequestResult.nextAdaptation();
                         internalAccountId = adaptation.get(Paths._Account._InternalAccountId);
                         valueContextForUpdate.setValue(internalAccountId, Paths._Address._InternalAccountId);
+                        valueContextForUpdate.setValue(adaptation.getString(Paths._Account._AccountName), Path.parse("./AccountName"));
+                        valueContextForUpdate.setValue(adaptation.getString(Paths._Account._NameLocalLanguage), Path.parse("./AccountNameLocalLanguage"));
                     } else {
                         LOGGER.error("Parent account not found");
                     }
@@ -232,6 +234,8 @@ public class GenericTrigger extends TableTrigger {
                     internalAccountId = adaptation.get(Paths._Account._InternalAccountId);
                     ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                     valueContextForUpdate.setValue(internalAccountId,Paths._Address._InternalAccountId);
+                    valueContextForUpdate.setValue(adaptation.getString(Paths._Account._AccountName), Path.parse("./AccountName"));
+                    valueContextForUpdate.setValue(adaptation.getString(Paths._Account._NameLocalLanguage), Path.parse("./AccountNameLocalLanguage"));
                     aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
                 } else {
                     LOGGER.error("Parent account not found");

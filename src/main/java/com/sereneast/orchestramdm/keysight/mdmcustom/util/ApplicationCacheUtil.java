@@ -45,7 +45,7 @@ public class ApplicationCacheUtil {
 		return fields;
 	}
 
-    public List<Map<String,String>> getProfileClassToDisplay() {
+    public List<Map<String,String>> getOptionsToDisplay(String tableName,String fieldNameForValue) {
 		int retryCount = 0;
 		List<Map<String,String>> resultList = new ArrayList<>();
 		OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
@@ -56,22 +56,22 @@ public class ApplicationCacheUtil {
 		do{
 			retryCount++;
 			try {
-				orchestraObjectListResponse = orchestraRestClient.get("BReference", "Account", "root/ProfileClass", parameters);
+				orchestraObjectListResponse = orchestraRestClient.get("BReference", "Account", "root/"+tableName, parameters);
 				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
 					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
 						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
 						Map<String, String> resultItem = new HashMap<>();
-						resultItem.put("ProfileClass",record.get("ProfileClass").getContent().toString());
+						resultItem.put(fieldNameForValue,record.get(fieldNameForValue).getContent().toString());
 						resultItem.put("label",record.get("label").getContent()!=null?record.get("label").getContent().toString():"");
 						resultList.add(resultItem);
 					}
 				}
 			} catch (Exception e) {
-				LOGGER.error("Error getting profile class values", e);
+				LOGGER.error("Error getting options to display", e);
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e1) {
-					LOGGER.error("Error getting profile class values", e);
+					LOGGER.error("Error getting options to display", e);
 				}
 			}
 		}while((orchestraObjectListResponse == null || orchestraObjectListResponse.getRows()==null) && retryCount<3);
