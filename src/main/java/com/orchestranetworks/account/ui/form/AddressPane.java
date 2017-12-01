@@ -607,8 +607,8 @@ public class AddressPane implements UIFormPane {
 
 		writer.addJS("function calculatedFields(countryCode){");
 		writer.addJS("var stateValue=ebx_form_getValue(\""+writer.getPrefixedPath(_AddressState).format()+"\");");
-		writer.addJS("console.log('stateValue='+stateValue);");
-		writer.addJS("console.log('stateValue json ='+JSON.stringify(stateValue));");
+		//writer.addJS("console.log('stateValue='+stateValue);");
+		//writer.addJS("console.log('stateValue json ='+JSON.stringify(stateValue));");
 		writer.addJS("var xhr = new XMLHttpRequest();");
 		writer.addJS("xhr.open('GET', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/calculatedFields/country/BReference/Account/'+countryCode);");
 		writer.addJS("xhr.setRequestHeader('Content-Type', 'application/json');");
