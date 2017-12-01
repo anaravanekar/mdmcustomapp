@@ -84,7 +84,7 @@ public class AddressPane implements UIFormPane {
 			}
 			String operatingUnitPrefixedPath = writer.getPrefixedPath(_OperatingUnit).format();
 		}
-		operatingUnitSelectBox.append("<select id=\"OperatingUnitCustom\" onchange=\"changeDropDownValue(\""+writer.getPrefixedPath(_OperatingUnit).format()+"\",this.value,this.options.item(this.selectedIndex).text)\">").append(operatingUnitSelectBoxOptions).append("</select>");
+		operatingUnitSelectBox.append("<select id=\"OperatingUnitCustom\" onchange=\"changeDropDownValue('"+writer.getPrefixedPath(_OperatingUnit).format()+"',this.value,this.options.item(this.selectedIndex).text)\">").append(operatingUnitSelectBoxOptions).append("</select>");
 
 		String currentUserId = context.getSession().getUserReference().getUserId();
 		String openedByUser = context.getValueContext()!=null && context.getValueContext().getValue(Paths._Address._AssignedTo)!=null?context.getValueContext().getValue(Paths._Address._AssignedTo).toString():null;
