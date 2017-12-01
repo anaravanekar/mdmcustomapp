@@ -84,7 +84,7 @@ public class AddressPane implements UIFormPane {
 			}
 			String operatingUnitPrefixedPath = writer.getPrefixedPath(_OperatingUnit).format();
 		}
-		operatingUnitSelectBox.append("<select onchange=\"changeDropDownValue(\""+writer.getPrefixedPath(_OperatingUnit).format()+"\",this.value,this.item(this.selectedIndex).text)\">").append(operatingUnitSelectBoxOptions).append("</select>");
+		operatingUnitSelectBox.append("<select id=\"OperatingUnitCustom\" onchange=\"changeDropDownValue(\""+writer.getPrefixedPath(_OperatingUnit).format()+"\",this.value,this.item(this.selectedIndex).text)\">").append(operatingUnitSelectBoxOptions).append("</select>");
 
 		String currentUserId = context.getSession().getUserReference().getUserId();
 		String openedByUser = context.getValueContext()!=null && context.getValueContext().getValue(Paths._Address._AssignedTo)!=null?context.getValueContext().getValue(Paths._Address._AssignedTo).toString():null;
@@ -618,10 +618,10 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('OperatingUnit')){");
 		writer.addJS("var value = {\"key\":calculatedFieldsJson.OperatingUnit,\"label\":calculatedFieldsJson.OperatingUnit};");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._OperatingUnit).format()).addJS("\", ").addJS(
-				"value").addJS(");");
+				"value").addJS(");document.getElementById('OperatingUnitCustom').value=calculatedFieldsJson.OperatingUnit;");
 		writer.addJS("}");writer.addJS("else{");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._OperatingUnit).format()).addJS("\", ").addJS(
-				"null").addJS(");");
+				"null").addJS(");document.getElementById('OperatingUnitCustom').value=\"\";");
 		writer.addJS("}");
 		writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('TaxRegimeCode')){");
 		writer.addJS("var value = calculatedFieldsJson.TaxRegimeCode;");
