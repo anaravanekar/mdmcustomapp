@@ -51,7 +51,7 @@ public class AccountPane implements UIFormPane {
 					profileClassSelectBoxOptions.append("<option value=\"" + entry.get("ProfileClass") + "\">" + entry.get("label") + "</option>");
 				}
 			}
-			if (!isCurrentValueValidForDisplay) {
+			if (!context.isCreatingRecord() && !isCurrentValueValidForDisplay) {
 				profileClassSelectBoxOptions.append("<option value=\"" + context.getCurrentRecord().getString(_ProfileClass) + "\" selected>" + context.getCurrentRecord().getString(_ProfileClass) + "</option>");
 			}
 			String profileClassPrefixedPath = writer.getPrefixedPath(_ProfileClass).format();

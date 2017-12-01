@@ -79,8 +79,8 @@ public class AddressPane implements UIFormPane {
 					operatingUnitSelectBoxOptions.append("<option value=\"" + entry.get("OperatingUnit") + "\">" + entry.get("label") + "</option>");
 				}
 			}
-			if (!isCurrentValueValidForDisplay) {
-				operatingUnitSelectBoxOptions.append("<option value=\"" + context.getCurrentRecord().getString(_OperatingUnit) + "\" selected>" + context.getCurrentRecord().getString(_OperatingUnit) + "</option>");
+			if (!context.isCreatingRecord() && !isCurrentValueValidForDisplay) {
+				operatingUnitSelectBoxOptions.append("<option value=\"" + context.getCurrentRecord().getString(_OperatingUnit) + "\" selected>DO NOT USE: " + context.getCurrentRecord().getString(_OperatingUnit) + "</option>");
 			}
 			String operatingUnitPrefixedPath = writer.getPrefixedPath(_OperatingUnit).format();
 		}
