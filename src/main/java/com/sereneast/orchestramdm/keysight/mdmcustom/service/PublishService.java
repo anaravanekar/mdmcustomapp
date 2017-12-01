@@ -94,7 +94,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
 
     private int maxRetryJb  = 3;
 
-    private static final String CROSS_REFERENCES_LABEL = "CrossReference";
+    private static final String CROSS_REFERENCES_LABEL = "CrossReferences";
 
     private boolean checkParentIsPublished;
 
