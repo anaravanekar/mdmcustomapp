@@ -56,7 +56,7 @@ public class AccountPane implements UIFormPane {
 			}
 			String profileClassPrefixedPath = writer.getPrefixedPath(_ProfileClass).format();
 		}
-		profileClassSelectBox.append("<select onchange=\"changeDropDownValue(\""+writer.getPrefixedPath(_ProfileClass).format()+"\",this.value,this.item(this.selectedIndex).text)\">").append(profileClassSelectBoxOptions).append("</select>");
+		profileClassSelectBox.append("<select onchange=\"changeDropDownValue(\""+writer.getPrefixedPath(_ProfileClass).format()+"\",this.value,this.options.item(this.selectedIndex).text)\">").append(profileClassSelectBoxOptions).append("</select>");
 
 		String currentUserId = context.getSession().getUserReference().getUserId();
 		String openedByUser = context.getValueContext()!=null && context.getValueContext().getValue(Paths._Account._AssignedTo)!=null?context.getValueContext().getValue(Paths._Account._AssignedTo).toString():null;
