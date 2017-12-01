@@ -650,6 +650,18 @@ public class AddressPane implements UIFormPane {
 				"valueOne").addJS(");");
 		writer.addJS("}");
 
+		writer.addJS("var valueThree = {\"key\":\"3\",\"label\":\"Three copies\"};");
+		writer.addJS("if(\"KR\" == countryCode){");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
+				"valueThree").addJS(");");
+		writer.addJS("}");
+
+		writer.addJS("var valueIndia = {\"key\":\"0.3\",\"label\":\"Suppress because a Government Invoice number is required\"};");
+		writer.addJS("if(\"IN\" == countryCode){");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
+				"valueIndia").addJS(");");
+		writer.addJS("}");
+
 		writer.addJS("var sk = {\"key\":\"N\",\"label\":\"N\"};");
 		writer.addJS("var ic = {\"key\":\"0.2\",\"label\":\"Suppress because of special format requirements\"};");
 		writer.addJS("if(\"JP\" == countryCode){");
@@ -687,6 +699,6 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("function toggleAdditionalInfo(contextValue) {     var koreaRows = document.getElementsByClassName(\"korea_info\");     var malaysiaRows = document.getElementsByClassName(\"malaysia_info\");     var i;     if (contextValue === \"Korean Additional Information\") {  clearMalaysiaInfo();       for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"table-row\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"none\";         }     } else if (contextValue === \"Malaysia Customer Information\") {    clearKoreaInfo();     for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"none\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"table-row\";         }     } else {    clearMalaysiaInfo();clearKoreaInfo();     for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"none\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"none\";         }     } }");
 		writer.addJS("function clearMalaysiaInfo(){ ebx_form_setValue(\""+writer.getPrefixedPath(_AddressSiteCategory).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_ATS).format()+"\",null); }");
 		writer.addJS("function clearKoreaInfo(){ ebx_form_setValue(\""+writer.getPrefixedPath(_TaxablePerson).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_TaxCertificateDate).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_IndustryClassification).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_IndustrySubclassification).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_BusinessNumber).format()+"\",null); }");
-		writer.addJS("function changeDropDownValue(prefixedPath,selectedValue,selectedText){ console.log('selectedValue='+selectedValue+' selectedText='+selectedText);ebx_form_setValue(prefixedPath,{'key':selectedValue,'label':selectedText});}");
+		writer.addJS("function changeDropDownValue(prefixedPath,selectedValue,selectedText){ ebx_form_setValue(prefixedPath,{'key':selectedValue,'label':selectedText});}");
 	}
 }

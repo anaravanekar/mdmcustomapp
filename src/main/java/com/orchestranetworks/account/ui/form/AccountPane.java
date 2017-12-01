@@ -215,6 +215,6 @@ public class AccountPane implements UIFormPane {
 		writer.addJS_cr("document.getElementById(\"divLoading\").classList.add(\"show\");");
 		writer.addJS("}");
 
-		writer.addJS("function changeDropDownValue(prefixedPath,selectedValue,selectedText){ console.log('selectedValue='+selectedValue+' selectedText='+selectedText);ebx_form_setValue(prefixedPath,{'key':selectedValue,'label':selectedText});}");
+		writer.addJS("function changeDropDownValue(prefixedPath,selectedValue,selectedText){ebx_form_setValue(prefixedPath,{'key':selectedValue,'label':selectedText});}");
 	}
 }
