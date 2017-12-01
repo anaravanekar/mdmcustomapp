@@ -98,7 +98,7 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
 
     private int maxRetryJb  = 3;
 
-    private static final String CROSS_REFERENCES_LABEL = "CrossReference";
+    private static final String CROSS_REFERENCES_LABEL = "CrossReferences";
 
     private boolean checkParentIsPublished;
 
