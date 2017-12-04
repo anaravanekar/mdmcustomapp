@@ -63,7 +63,7 @@ public class AddressPane implements UIFormPane {
 		StringBuilder operatingUnitSelectBox = new StringBuilder();
 		StringBuilder operatingUnitSelectBoxOptions = new StringBuilder();
 		operatingUnitSelectBoxOptions.append("<option value=\"\"></option>");
-		ApplicationCacheUtil applicationCacheUtil = new ApplicationCacheUtil();
+		ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
 		List<Map<String,String>> operatingUnitValues = applicationCacheUtil.getOptionsToDisplay("OperatingUnit","OperatingUnit");
 		if(operatingUnitValues!=null) {
 			operatingUnitValues.sort(Comparator.comparing(

@@ -22,11 +22,11 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectListResponse;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectResponse;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.OrchestraRestClient;
+import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -108,18 +108,27 @@ public class GenericTrigger extends TableTrigger {
                     }else{
                         valueContextForUpdate.setValue("Manual Payment", Paths._Account._PaymentReceiptMethod);
                     }
-                    AdaptationTable countryReferenceFieldsTable = aContext.getTable().getContainerAdaptation().getTable(Paths._CountryReferenceFields.getPathInSchema());
+
+                    ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
+                    Map<String,Map<String,String>> countryReferenceFieldsMap = applicationCacheUtil.CountryReferenceFieldsMap("BReference");
+                    Map<String,String> resultItem = countryReferenceFieldsMap!=null?countryReferenceFieldsMap.get(countryCode):null;
+                    if(resultItem!=null){
+                        valueContextForUpdate.setValue(resultItem.get("ProfileClass"), Paths._Account._ProfileClass);
+                        valueContextForUpdate.setValue(resultItem.get("Region"), Paths._Account._Region);
+                    }
+
+                   /* AdaptationTable countryReferenceFieldsTable = aContext.getTable().getContainerAdaptation().getTable(Paths._CountryReferenceFields.getPathInSchema());
                     RequestResult tableRequestResult = countryReferenceFieldsTable.createRequestResult(Paths._CountryReferenceFields._CountryCode.format()+" = '"+countryCode+"'");
                     if (tableRequestResult != null && !tableRequestResult.isEmpty()) {
                         Adaptation resultRecord = tableRequestResult.nextAdaptation();
-                       // if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
+                        // if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
                         //OrchestraObjectResponse objectResponse = orchestraObjectListResponse.getRows().get(0);
                         //Map<String, OrchestraContent> content = objectResponse.getContent();
                         String profileClass = resultRecord.getString(Paths._CountryReferenceFields._ProfileClass);//content.get("ProfileClass").getContent() != null ? content.get("ProfileClass").getContent().toString() : null;
                         String region = resultRecord.getString(Paths._CountryReferenceFields._Region);;//content.get("Region").getContent() != null ? content.get("Region").getContent().toString() : null;
                         valueContextForUpdate.setValue(profileClass, Paths._Account._ProfileClass);
                         valueContextForUpdate.setValue(region, Paths._Account._Region);
-                    }
+                    }*/
                     aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
                 }
             }
@@ -133,6 +142,7 @@ public class GenericTrigger extends TableTrigger {
                     valueContextForUpdate.setValue("N", Paths._Address._SendAcknowledgement);
                     valueContextForUpdate.setValue("Suppress because of special format requirements", Paths._Address._InvoiceCopies);
                 }*/
+
                 if(aContext.getOccurrenceContext().getValue(Paths._Address._TaxEffectiveFrom)==null){
                     update = true;
                     valueContextForUpdate.setValue(Date.from(utc.toInstant()), Paths._Address._TaxEffectiveFrom);
@@ -150,10 +160,16 @@ public class GenericTrigger extends TableTrigger {
                         Adaptation adaptation = parentTableRequestResult.nextAdaptation();
                         internalAccountId = adaptation.get(Paths._Account._InternalAccountId);
                         valueContextForUpdate.setValue(internalAccountId, Paths._Address._InternalAccountId);
+                        valueContextForUpdate.setValue(adaptation.get(Paths._Account._RMTId), Paths._Address._RMTId);
                         valueContextForUpdate.setValue(adaptation.getString(Paths._Account._AccountName), Path.parse("./AccountName"));
                         valueContextForUpdate.setValue(adaptation.getString(Paths._Account._NameLocalLanguage), Path.parse("./AccountNameLocalLanguage"));
                     } else {
                         LOGGER.error("Parent account not found");
+                    }
+                    AdaptationTable table = aContext.getTable();//getAdaptationOccurrence().getContainer().getTable(Paths._Address.getPathInSchema());
+                    RequestResult tableRequestResult = table.createRequestResult(Paths._Address._MDMAccountId.format() + " = '" + String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"'");
+                    if(tableRequestResult==null || tableRequestResult.isEmpty()){
+                        valueContextForUpdate.setValue("Y", Paths._Address._IdentifyingAddress);
                     }
                 }
                 if(update){
@@ -257,7 +273,12 @@ public class GenericTrigger extends TableTrigger {
                 List countryList = (List) aContext.getOccurrenceContext().getValue(Paths._Account._Country);
                 if (countryList != null && !countryList.isEmpty()) {
                     String countryCode = (String) countryList.get(0);
-                    String countryReferenceTablePath = "root/CountryReferenceFields";
+
+                    ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
+                    Map<String,Map<String,String>> countryReferenceFieldsMap = applicationCacheUtil.CountryReferenceFieldsMap("BReference");
+                    Map<String,String> resultItem = countryReferenceFieldsMap!=null?countryReferenceFieldsMap.get(countryCode):null;
+                    if(resultItem!=null){
+                    /*String countryReferenceTablePath = "root/CountryReferenceFields";
                     Map<String, String> parameters = new HashMap<>();
                     parameters.put("filter", "CountryCode='" + countryCode + "'");
                     OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
@@ -269,10 +290,10 @@ public class GenericTrigger extends TableTrigger {
                     }
                     Map<String, String> resultObject = new HashMap<>();
                     if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
-                        OrchestraObjectResponse objectResponse = orchestraObjectListResponse.getRows().get(0);
-                        Map<String, OrchestraContent> content = objectResponse.getContent();
-                        String profileClass = content.get("ProfileClass").getContent() != null ? content.get("ProfileClass").getContent().toString() : null;
-                        String region = content.get("Region").getContent() != null ? content.get("Region").getContent().toString() : null;
+//*/                        //OrchestraObjectResponse objectResponse = orchestraObjectListResponse.getRows().get(0);
+                        //Map<String, OrchestraContent> content = objectResponse.getContent();
+                        String profileClass = resultItem.get("ProfileClass");//content.get("ProfileClass").getContent() != null ? content.get("ProfileClass").getContent().toString() : null;
+                        String region = resultItem.get("Region");//content.get("Region").getContent() != null ? content.get("Region").getContent().toString() : null;
                         ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                         valueContextForUpdate.setValue(profileClass, Paths._Account._ProfileClass);
                         valueContextForUpdate.setValue(region, Paths._Account._Region);

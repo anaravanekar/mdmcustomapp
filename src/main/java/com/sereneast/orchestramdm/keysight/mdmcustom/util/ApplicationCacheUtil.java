@@ -45,6 +45,7 @@ public class ApplicationCacheUtil {
 		return fields;
 	}
 
+	@Cacheable(cacheNames="mainCache",key="{#root.methodName, #tableName, #fieldNameForValue}")
     public List<Map<String,String>> getOptionsToDisplay(String tableName,String fieldNameForValue) {
 		int retryCount = 0;
 		List<Map<String,String>> resultList = new ArrayList<>();
@@ -77,5 +78,42 @@ public class ApplicationCacheUtil {
 		}while((orchestraObjectListResponse == null || orchestraObjectListResponse.getRows()==null) && retryCount<3);
 		return resultList;
     }
+
+	@Cacheable(cacheNames="mainCache",key="{#root.methodName, #dataSpace}")
+	public Map<String,Map<String,String>> CountryReferenceFieldsMap(String dataSpace) {
+		int retryCount = 0;
+		Map<String,Map<String,String>> resultMap = new HashMap<>();
+		OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+		Map<String, String> parameters = new HashMap<>();
+		parameters.put("pageSize", "500");
+		OrchestraObjectListResponse orchestraObjectListResponse = null;
+		do{
+			retryCount++;
+			try {
+				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "Account", "root/CountryReferenceFields", parameters);
+				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
+					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
+						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
+						Map<String, String> resultItem = new HashMap<>();
+						resultItem.put("CountryCode",record.get("CountryCode").getContent().toString());
+						resultItem.put("Country",record.get("Country").getContent().toString());
+						resultItem.put("OperatingUnit",record.get("OperatingUnit").getContent().toString());
+						resultItem.put("Region",record.get("Region").getContent().toString());
+						resultItem.put("ProfileClass",record.get("ProfileClass").getContent().toString());
+						resultItem.put("RegimeCode",record.get("RegimeCode").getContent().toString());
+						resultMap.put(record.get("CountryCode").getContent().toString(),resultItem);
+					}
+				}
+			} catch (Exception e) {
+				LOGGER.error("Error getting options to display", e);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+					LOGGER.error("Error getting options to display", e);
+				}
+			}
+		}while((orchestraObjectListResponse == null || orchestraObjectListResponse.getRows()==null) && retryCount<3);
+		return resultMap;
+	}
 
 }

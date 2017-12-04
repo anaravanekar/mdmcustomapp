@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.*;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.OrchestraRestClient;
+import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.ResultSetToHashMapRowMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,6 +34,9 @@ public class RestController {
 
     @Autowired
     private NamedParameterJdbcTemplate oracleDbNamedParameterJdbcTemplate;
+
+    @Resource
+    private ApplicationCacheUtil applicationCacheUtil;
 
     @RequestMapping(path = "/accountsses", method = RequestMethod.GET)
     public String getAllEmployees() {
@@ -91,6 +97,12 @@ public class RestController {
 
     @RequestMapping(value = "calculatedFields/country/{dataSpace}/{dataSet}/{countryCode}", method = RequestMethod.GET)
     public String getCalculatedFields(@PathVariable("dataSpace") String dataSpace, @PathVariable("dataSet") String dataSet,@PathVariable("countryCode") String countryCode) throws IOException {
+        ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
+        Map<String,Map<String,String>> countryReferenceFieldsMap = applicationCacheUtil.CountryReferenceFieldsMap("BReference");
+        Map<String,String> resultItem = countryReferenceFieldsMap!=null?countryReferenceFieldsMap.get(countryCode):null;
+        Map<String,String> resultObject = new HashMap<>();
+        if(resultItem!=null){
+/*
         String countryReferenceTablePath = "root/CountryReferenceFields";
         OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
         Map<String, String> parameters = new HashMap<>();
@@ -99,12 +111,14 @@ public class RestController {
         OrchestraObjectListResponse orchestraObjectListResponse = orchestraRestClient.get(dataSpace,dataSet,countryReferenceTablePath,parameters);
         Map<String,String> resultObject = new HashMap<>();
         if (orchestraObjectListResponse!=null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
+
             OrchestraObjectResponse objectResponse = orchestraObjectListResponse.getRows().get(0);
-            Map<String,OrchestraContent> content = objectResponse.getContent();
-            String operatingUnit = content.get("OperatingUnit").getContent()!=null?content.get("OperatingUnit").getContent().toString():null;
-            String region = content.get("Region").getContent()!=null?content.get("Region").getContent().toString():null;
-            String profileClass = content.get("ProfileClass").getContent()!=null?content.get("ProfileClass").getContent().toString():null;
-            String regimeCode = content.get("RegimeCode").getContent()!=null?content.get("RegimeCode").getContent().toString():null;
+            Map<String,OrchestraContent> content = objectResponse.getContent();*/
+
+            String operatingUnit = resultItem.get("OperatingUnit");//content.get("OperatingUnit").getContent()!=null?content.get("OperatingUnit").getContent().toString():null;
+            String region = resultItem.get("Region");//content.get("Region").getContent()!=null?content.get("Region").getContent().toString():null;
+            String profileClass = resultItem.get("ProfileClass");//content.get("ProfileClass").getContent()!=null?content.get("ProfileClass").getContent().toString():null;
+            String regimeCode = resultItem.get("RegimeCode");//content.get("RegimeCode").getContent()!=null?content.get("RegimeCode").getContent().toString():null;
             LOGGER.debug("operatingUnit="+operatingUnit+" region="+region+" profileClass="+profileClass+" regimeCode="+regimeCode);
             if(operatingUnit!=null){
                 resultObject.put("OperatingUnit",operatingUnit);

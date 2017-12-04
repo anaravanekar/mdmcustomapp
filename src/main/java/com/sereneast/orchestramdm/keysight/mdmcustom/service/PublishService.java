@@ -315,7 +315,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                     final RequestResult childTableRequestResult = childTable.createRequestResult(parentIdPathInChild.format() + "='" + adaptation.get(objectPrimaryKeyPath) + "'");
                     if (childTableRequestResult != null && !childTableRequestResult.isEmpty()) {
                         Map<String, Path> fieldPathMap = null;
-                        ApplicationCacheUtil applicationCacheUtil = new ApplicationCacheUtil();
+                        ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
                         try {
                             fieldPathMap = applicationCacheUtil.getObjectDirectFields(Paths._BusinessPurpose.class.getName());
                         } catch (IllegalAccessException | ClassNotFoundException e) {

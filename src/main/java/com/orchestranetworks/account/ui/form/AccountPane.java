@@ -35,7 +35,7 @@ public class AccountPane implements UIFormPane {
 		StringBuilder profileClassSelectBox = new StringBuilder();
 		StringBuilder profileClassSelectBoxOptions = new StringBuilder();
 		profileClassSelectBoxOptions.append("<option value=\"\"></option>");
-		ApplicationCacheUtil applicationCacheUtil = new ApplicationCacheUtil();
+		ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
 		List<Map<String,String>> profileClassValues = applicationCacheUtil.getOptionsToDisplay("ProfileClass","ProfileClass");
 		if(profileClassValues!=null) {
 			profileClassValues.sort(Comparator.comparing(
@@ -140,7 +140,7 @@ public class AccountPane implements UIFormPane {
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_Notes);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_Notes);writer.add("</td></tr>");
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_Region);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_Region);writer.add("</td></tr>");
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_RelatedAddress);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_RelatedAddress);writer.add("</td></tr>");
-		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_InternalAccountId);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_InternalAccountId);writer.add("</td></tr>");
+		writer.add("<tr class=\"internal_info\"><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_InternalAccountId);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_InternalAccountId);writer.add("</td></tr>");
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_SystemName);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_SystemName);writer.add("</td></tr>");
 
 		String systemId = !context.isCreatingRecord() && context.getCurrentRecord()!=null?context.getCurrentRecord().getString(_SystemId):null;
@@ -216,5 +216,6 @@ public class AccountPane implements UIFormPane {
 		writer.addJS("}");
 
 		writer.addJS("function changeDropDownValue(prefixedPath,selectedValue,selectedText){ebx_form_setValue(prefixedPath,{'key':selectedValue,'label':selectedText});}");
+		writer.addJS("function toggleInternalInfo(accountType) {     \tvar internalRows = document.getElementsByClassName(\"internal_info\");       \tvar i;     \tif (accountType === \"I\") {  \t\tfor (i = 0; i < internalRows.length; i++) {             \t\t\tinternalRows[i].style.display = \"table-row\";         \t\t}          \t} else {   ebx_form_setValue(\""+writer.getPrefixedPath(_InternalAccountId).format()+"\",null);      \t\tfor (i = 0; i < internalRows.length; i++) {             \t\t\tinternalRows[i].style.display = \"none\";         \t\t}              \t} }");
 	}
 }
