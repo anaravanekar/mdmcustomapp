@@ -52,7 +52,7 @@ public class ApplicationCacheUtil {
 		OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put("filter", "Display='Y'");
-		parameters.put("pageSize", "100");
+		parameters.put("pageSize", "unbounded");
 		OrchestraObjectListResponse orchestraObjectListResponse = null;
 		do{
 			retryCount++;
@@ -85,7 +85,7 @@ public class ApplicationCacheUtil {
 		Map<String,Map<String,String>> resultMap = new HashMap<>();
 		OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
 		Map<String, String> parameters = new HashMap<>();
-		parameters.put("pageSize", "500");
+		parameters.put("pageSize", "unbounded");
 		OrchestraObjectListResponse orchestraObjectListResponse = null;
 		do{
 			retryCount++;
