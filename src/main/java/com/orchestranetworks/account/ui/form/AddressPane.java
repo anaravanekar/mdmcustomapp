@@ -41,7 +41,7 @@ public class AddressPane implements UIFormPane {
 				if (requestResult != null && !requestResult.isEmpty()) {
 					Adaptation record = requestResult.nextAdaptation();*/
 					accountName = context.getCurrentRecord().getString(Path.parse("./AccountName"));//record.getString(Paths._Account._AccountName);
-					accountLocalName = context.getCurrentRecord().getString(Path.parse("./AccountNameLocalLanguage"));//record.getString(Paths._Account._NameLocalLanguage)!=null?record.getString(Paths._Account._NameLocalLanguage):"";
+					accountLocalName = context.getCurrentRecord().getString(Path.parse("./AccountNameLocalLanguage"))!=null?context.getCurrentRecord().getString(Path.parse("./AccountNameLocalLanguage")):"";//record.getString(Paths._Account._NameLocalLanguage)!=null?record.getString(Paths._Account._NameLocalLanguage):"";
 					textToAppend.append(" of ").append(accountName);
 //				}
 			}
@@ -209,7 +209,7 @@ public class AddressPane implements UIFormPane {
 			writer.add("</td>");
 			writer.add("</tr>");
 		}
-		String internalAccountId = StringUtils.isNotBlank(context.getCurrentRecord().getString(Paths._Address._InternalAccountId))?context.getCurrentRecord().getString(Paths._Address._InternalAccountId):null;
+		String internalAccountId = !context.isCreatingRecord() && StringUtils.isNotBlank(context.getCurrentRecord().getString(Paths._Address._InternalAccountId))?context.getCurrentRecord().getString(Paths._Address._InternalAccountId):null;
 		if(internalAccountId==null) {
 			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 			writer.addLabel(_RMTId);
