@@ -137,10 +137,23 @@ public class AccountPane implements UIFormPane {
 		}else{
 			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_EmgLastTrans);writer.add("</td>");writer.add("<td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_EmgLastTrans);writer.add("</td></tr>");
 		}
+		String accountType = !context.isCreatingRecord()?context.getCurrentRecord().getString(_AccountType):null;
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_Notes);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_Notes);writer.add("</td></tr>");
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_Region);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_Region);writer.add("</td></tr>");
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_RelatedAddress);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_RelatedAddress);writer.add("</td></tr>");
-		writer.add("<tr class=\"internal_info\" style=\"display:none;\"><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_InternalAccountId);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_InternalAccountId);writer.add("</td></tr>");
+		if("I".equals(accountType)){
+			writer.add("<tr class=\"internal_info\"><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_InternalAccountId);
+			writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_InternalAccountId);
+			writer.add("</td></tr>");
+		}else {
+			writer.add("<tr class=\"internal_info\" style=\"display:none;\"><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+			writer.addLabel(_InternalAccountId);
+			writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
+			writer.addWidget(_InternalAccountId);
+			writer.add("</td></tr>");
+		}
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_SystemName);writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_SystemName);writer.add("</td></tr>");
 
 		String systemId = !context.isCreatingRecord() && context.getCurrentRecord()!=null?context.getCurrentRecord().getString(_SystemId):null;
