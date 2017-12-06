@@ -708,7 +708,7 @@ public class AddressPane implements UIFormPane {
 				"ic").addJS(");");
 		writer.addJS("}");
 
-		writer.addJS("if(\"PO\" === countryCode){");
+		writer.addJS("if(\"PL\" === countryCode){");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_SendAcknowledgement).format()).addJS("\", ").addJS(
 				"sk").addJS(");");
 		writer.addJS("}");
@@ -718,7 +718,7 @@ public class AddressPane implements UIFormPane {
 				"valueTwo").addJS(");");
 		writer.addJS("}");
 
-		writer.addJS("if(\"PO\" === countryCode){");
+		writer.addJS("if(\"PL\" === countryCode){");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
 				"valueThree").addJS(");");
 		writer.addJS("}");
