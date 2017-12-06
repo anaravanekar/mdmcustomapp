@@ -3,6 +3,7 @@ package com.sereneast.orchestramdm.keysight.mdmcustom.service;
 import com.onwbp.adaptation.AdaptationTable;
 import com.onwbp.adaptation.RequestResult;
 import com.orchestranetworks.schema.trigger.AfterCreateOccurrenceContext;
+import com.orchestranetworks.schema.trigger.NewTransientOccurrenceContext;
 import com.orchestranetworks.schema.trigger.TableTrigger;
 import com.orchestranetworks.schema.trigger.TriggerSetupContext;
 import com.orchestranetworks.service.OperationException;
@@ -16,6 +17,10 @@ public class BusinessPurposeTrigger extends TableTrigger {
 
     @Override
     public void setup(TriggerSetupContext triggerSetupContext) {
+    }
+
+    public void handleNewContext(NewTransientOccurrenceContext newContext) {
+        newContext.getOccurrenceContextForUpdate().setValue(newContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId),Paths._BusinessPurpose._Location);
     }
 
     public void handleAfterCreate(AfterCreateOccurrenceContext aContext) throws OperationException {

@@ -71,6 +71,7 @@ public class GenericTrigger extends TableTrigger {
 
     }
 
+
     public void handleAfterCreate(AfterCreateOccurrenceContext aContext) throws OperationException{
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())) {
             initialize();
@@ -142,7 +143,16 @@ public class GenericTrigger extends TableTrigger {
                     valueContextForUpdate.setValue("N", Paths._Address._SendAcknowledgement);
                     valueContextForUpdate.setValue("Suppress because of special format requirements", Paths._Address._InvoiceCopies);
                 }*/
-
+                if(aContext.getOccurrenceContext().getValue(Paths._Address._TaxRegimeCode)==null){
+                    String countryCode = aContext.getAdaptationOccurrence().getString(Paths._Address._Country);
+                    ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
+                    Map<String,Map<String,String>> countryReferenceFieldsMap = applicationCacheUtil.CountryReferenceFieldsMap("BReference");
+                    Map<String,String> resultItem = countryReferenceFieldsMap!=null?countryReferenceFieldsMap.get(countryCode):null;
+                    if(resultItem!=null){
+                        update = true;
+                        valueContextForUpdate.setValue(resultItem.get("RegimeCode"), Paths._Address._TaxRegimeCode);
+                    }
+                }
                 if(aContext.getOccurrenceContext().getValue(Paths._Address._TaxEffectiveFrom)==null){
                     update = true;
                     valueContextForUpdate.setValue(Date.from(utc.toInstant()), Paths._Address._TaxEffectiveFrom);

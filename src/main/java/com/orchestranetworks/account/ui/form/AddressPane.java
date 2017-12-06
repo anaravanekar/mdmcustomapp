@@ -676,7 +676,11 @@ public class AddressPane implements UIFormPane {
 
 		writer.addJS("var valueOne = {\"key\":\"1\",\"label\":\"One copy\"};");
 		writer.addJS("var valueTwo = {\"key\":\"2\",\"label\":\"Two copies\"};");
-		writer.addJS("if(\"US\" == countryCode){");
+		writer.addJS("var valueThree = {\"key\":\"3\",\"label\":\"Three copies\"};");
+		writer.addJS("var valueFour = {\"key\":\"4\",\"label\":\"Four copies\"};");
+		writer.addJS("var valueFive = {\"key\":\"5\",\"label\":\"Five copies\"};");
+
+		writer.addJS("if(\"US\" === countryCode){");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
 				"valueTwo").addJS(");");
 		writer.addJS("}else{");
@@ -684,25 +688,49 @@ public class AddressPane implements UIFormPane {
 				"valueOne").addJS(");");
 		writer.addJS("}");
 
-		writer.addJS("var valueThree = {\"key\":\"3\",\"label\":\"Three copies\"};");
-		writer.addJS("if(\"KR\" == countryCode){");
+		writer.addJS("if(\"KR\" === countryCode){");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
 				"valueThree").addJS(");");
 		writer.addJS("}");
 
 		writer.addJS("var valueIndia = {\"key\":\"0.3\",\"label\":\"Suppress because a Government Invoice number is required\"};");
-		writer.addJS("if(\"IN\" == countryCode){");
+		writer.addJS("if(\"IN\" === countryCode){");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
 				"valueIndia").addJS(");");
 		writer.addJS("}");
 
 		writer.addJS("var sk = {\"key\":\"N\",\"label\":\"N\"};");
 		writer.addJS("var ic = {\"key\":\"0.2\",\"label\":\"Suppress because of special format requirements\"};");
-		writer.addJS("if(\"JP\" == countryCode){");
+		writer.addJS("if(\"JP\" === countryCode){");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_SendAcknowledgement).format()).addJS("\", ").addJS(
 				"sk").addJS(");");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
 				"ic").addJS(");");
+		writer.addJS("}");
+
+		writer.addJS("if(\"PO\" === countryCode){");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_SendAcknowledgement).format()).addJS("\", ").addJS(
+				"sk").addJS(");");
+		writer.addJS("}");
+
+		writer.addJS("if(\"GU\" === countryCode || \"VE\" === countryCode || \"PR\" === countryCode){");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
+				"valueTwo").addJS(");");
+		writer.addJS("}");
+
+		writer.addJS("if(\"PO\" === countryCode){");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
+				"valueThree").addJS(");");
+		writer.addJS("}");
+
+		writer.addJS("if(\"MX\" === countryCode){");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
+				"valueFour").addJS(");");
+		writer.addJS("}");
+
+		writer.addJS("if(\"AR\" === countryCode){");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
+				"valueFive").addJS(");");
 		writer.addJS("}");
 
 		writer.addJS("};");//onload function
