@@ -77,7 +77,7 @@ public class BusinessPurposePane implements UIFormPane {
 		writer.add("</table>");
 
 		writer.addJS("function populateLocation(mdmAddressId){");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_Location).format()).addJS("\", ").addJS("mdmAddressId);");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_Location).format()).addJS("\", ").addJS("mdmAddressId.key);");
 		writer.addJS("}");
 	}
 }
