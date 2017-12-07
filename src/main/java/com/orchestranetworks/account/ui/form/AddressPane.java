@@ -682,6 +682,8 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("var valueThree = {\"key\":\"3\",\"label\":\"Three copies\"};");
 		writer.addJS("var valueFour = {\"key\":\"4\",\"label\":\"Four copies\"};");
 		writer.addJS("var valueFive = {\"key\":\"5\",\"label\":\"Five copies\"};");
+		writer.addJS("var sk = {\"key\":\"N\",\"label\":\"N\"};");
+		writer.addJS("var sky = {\"key\":\"Y\",\"label\":\"Y\"};");
 
 		writer.addJS("if(\"US\" === countryCode){");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
@@ -702,13 +704,15 @@ public class AddressPane implements UIFormPane {
 				"valueIndia").addJS(");");
 		writer.addJS("}");
 
-		writer.addJS("var sk = {\"key\":\"N\",\"label\":\"N\"};");
 		writer.addJS("var ic = {\"key\":\"0.2\",\"label\":\"Suppress because of special format requirements\"};");
 		writer.addJS("if(\"JP\" === countryCode){");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_SendAcknowledgement).format()).addJS("\", ").addJS(
 				"sk").addJS(");");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
 				"ic").addJS(");");
+		writer.addJS("}else{");
+		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_SendAcknowledgement).format()).addJS("\", ").addJS(
+				"sky").addJS(");");
 		writer.addJS("}");
 
 		writer.addJS("if(\"PL\" === countryCode){");
