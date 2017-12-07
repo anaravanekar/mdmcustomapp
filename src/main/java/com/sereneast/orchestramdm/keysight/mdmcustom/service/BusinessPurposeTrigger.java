@@ -25,6 +25,7 @@ public class BusinessPurposeTrigger extends TableTrigger {
 
     public void handleAfterCreate(AfterCreateOccurrenceContext aContext) throws OperationException {
         if(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId)!=null) {
+            ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
             Object addressId = aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId);
             String purposeId = String.valueOf(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMPurposeId));
             String condition = Paths._BusinessPurpose._MDMAddressId.format() + " = '" + String.valueOf(addressId)+"'";
@@ -34,11 +35,12 @@ public class BusinessPurposeTrigger extends TableTrigger {
                 if(!String.valueOf(tableRequestResult.nextAdaptation().get(Paths._BusinessPurpose._MDMPurposeId)).equals(purposeId)){
                     return;
                 }
-                ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                 valueContextForUpdate.setValue("Y", Paths._BusinessPurpose._Primary);
                 aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
             }
-
+            if(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._Location)==null){
+                valueContextForUpdate.setValue(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId), Paths._BusinessPurpose._Location);
+            }
         }
     }
 }
