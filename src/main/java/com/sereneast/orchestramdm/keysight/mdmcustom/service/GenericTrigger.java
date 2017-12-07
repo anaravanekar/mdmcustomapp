@@ -178,7 +178,7 @@ public class GenericTrigger extends TableTrigger {
                     }
                     AdaptationTable table = aContext.getTable();//getAdaptationOccurrence().getContainer().getTable(Paths._Address.getPathInSchema());
                     RequestResult tableRequestResult = table.createRequestResult(Paths._Address._MDMAccountId.format() + " = '" + String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"'");
-                    if(tableRequestResult==null || tableRequestResult.isEmpty()){
+                    if(tableRequestResult==null || tableRequestResult.isEmpty() || tableRequestResult.getSize()==1){
                         valueContextForUpdate.setValue("Y", Paths._Address._IdentifyingAddress);
                     }
                 }

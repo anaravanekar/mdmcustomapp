@@ -649,13 +649,16 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("xhr.onload = function() {");
 		writer.addJS("if (xhr.status === 200) {");
 		writer.addJS("var calculatedFieldsJson = JSON.parse(xhr.responseText);");
-		writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('OperatingUnit')){");
-		writer.addJS("var value = {\"key\":calculatedFieldsJson.OperatingUnit,\"label\":calculatedFieldsJson.OperatingUnit};");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._OperatingUnit).format()).addJS("\", ").addJS(
-				"value").addJS(");document.getElementById('OperatingUnitCustom').value=calculatedFieldsJson.OperatingUnit;");
+		writer.addJS("if (ebx_form_getValue(\""+writer.getPrefixedPath(Paths._Address._OperatingUnit).format()+"\").key){");
 		writer.addJS("}");writer.addJS("else{");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._OperatingUnit).format()).addJS("\", ").addJS(
-				"null").addJS(");document.getElementById('OperatingUnitCustom').value=\"\";");
+			writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('OperatingUnit')){");
+			writer.addJS("var value = {\"key\":calculatedFieldsJson.OperatingUnit,\"label\":calculatedFieldsJson.OperatingUnit}tingUni;");
+			writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._OperatingUnit).format()).addJS("\", ").addJS(
+					"value").addJS(");document.getElementById('OperatingUnitCustom').value=calculatedFieldsJson.OperatingUnit;");
+			writer.addJS("}");writer.addJS("else{");
+			writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._OperatingUnit).format()).addJS("\", ").addJS(
+					"null").addJS(");document.getElementById('OperatingUnitCustom').value=\"\";");
+			writer.addJS("}");
 		writer.addJS("}");
 		writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('TaxRegimeCode')){");
 		writer.addJS("var value = calculatedFieldsJson.TaxRegimeCode;");
