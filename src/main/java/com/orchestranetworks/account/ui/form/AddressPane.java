@@ -552,6 +552,48 @@ public class AddressPane implements UIFormPane {
 		writer.add("</td>");
 		writer.add("</tr>");
 
+		//brazil
+		writer.add("<tr class=\"brazil_info\" style=\"display:"+("Brazilian Additional Information".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
+		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.addLabel(_InscriptionType);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.addWidget(_InscriptionType);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.addLabel(_InsciptionNumber);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.addWidget(_InsciptionNumber);
+		writer.add("</td>");
+		writer.add("</tr>");
+
+		//brazil
+		writer.add("<tr class=\"brazil_info\" style=\"display:"+("Brazilian Additional Information".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
+		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.addLabel(_InscriptionBranch);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.addWidget(_InscriptionBranch);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.addLabel(_InscriptionDigit);
+		writer.add("</td>");
+		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.addWidget(_InscriptionDigit);
+		writer.add("</td>");
+		writer.add("</tr>");
+
+		//brazil
+		writer.add("<tr class=\"brazil_info\" style=\"display:"+("Brazilian Additional Information".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
+		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.addLabel(_StateInscription);
+		writer.add("</td>");
+		writer.add("<td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.addWidget(_StateInscription);
+		writer.add("</td>");
+		writer.add("</tr>");
+
 		writer.add("<tr>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_TaxRegistrationNumber);
@@ -661,9 +703,9 @@ public class AddressPane implements UIFormPane {
 			writer.addJS("}");
 		writer.addJS("}");
 		writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('TaxRegimeCode')){");
-		writer.addJS("var value = calculatedFieldsJson.TaxRegimeCode;");
+		writer.addJS("var valueTax = calculatedFieldsJson.TaxRegimeCode;");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._TaxRegimeCode).format()).addJS("\", ").addJS(
-				"value").addJS(");");
+				"valueTax").addJS(");");
 		writer.addJS("}");writer.addJS("else{");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._TaxRegimeCode).format()).addJS("\", ").addJS(
 				"null").addJS(");");
@@ -764,10 +806,25 @@ public class AddressPane implements UIFormPane {
 		writer.addJS_cr("document.getElementById(\"divLoading\").classList.add(\"show\");");
 		writer.addJS("}");
 
+		writer.addJS("function toggleAdditionalInfo(contextValue) {");
+		writer.addJS("  var malaysia_fields = [\""+writer.getPrefixedPath(_AddressSiteCategory).format()+"\",\""+writer.getPrefixedPath(_ATS).format()+"\"];");
+		writer.addJS("  var korea_fields = [\""+writer.getPrefixedPath(_TaxablePerson).format()+"\",\""+
+				writer.getPrefixedPath(_TaxCertificateDate).format()+"\",\""+
+				writer.getPrefixedPath(_IndustryClassification).format()+"\",\""+writer.getPrefixedPath(_IndustrySubclassification).format()+"\",\""+
+				writer.getPrefixedPath(_BusinessNumber).format()+"\"];");
+		writer.addJS("  var brazil_fields = [\""+writer.getPrefixedPath(_InscriptionType).format()+"\",\""+writer.getPrefixedPath(_InsciptionNumber).format()+"\",\""+
+				writer.getPrefixedPath(_InscriptionBranch).format()+"\",\""+writer.getPrefixedPath(_InscriptionDigit).format()+"\",\""+
+				writer.getPrefixedPath(_StateInscription).format()+"\"];");
+		writer.addJS("  if (contextValue === \"Korean Additional Information\") {         clearInfo(malaysia_fields);     clearInfo(brazil_fields);     hideInfo(\"malaysia_info\");     hideInfo(\"brazil_info\");     showInfo(\"korea_info\");     } else if (contextValue === \"Malaysia Customer Information\") {         clearInfo(korea_fields);     clearInfo(brazil_fields);     hideInfo(\"korea_info\");     hideInfo(\"brazil_info\");     showInfo(\"malaysia_info\");     } else if (contextValue === \"Brazilian Additional Information\") {         clearInfo(korea_fields);     clearInfo(malaysia_fields);     hideInfo(\"korea_info\");     hideInfo(\"malaysia_info\");     showInfo(\"brazil_info\");     } else {         clearInfo(korea_fields);     clearInfo(malaysia_fields);     clearInfo(brazil_fields);     hideInfo(\"korea_info\");     hideInfo(\"malaysia_info\");     hideInfo(\"brazil_info\");     }");
+		writer.addJS("}");
+
 		writer.addJS("function appendToFormHeader(textToAppend) { var span = document.createElement(\"span\"); var t = document.createTextNode(textToAppend); span.appendChild(t); document.getElementById(\"ebx_WorkspaceHeader\").getElementsByTagName(\"h2\")[0].appendChild(span); }");
-		writer.addJS("function toggleAdditionalInfo(contextValue) {     var koreaRows = document.getElementsByClassName(\"korea_info\");     var malaysiaRows = document.getElementsByClassName(\"malaysia_info\");     var i;     if (contextValue === \"Korean Additional Information\") {  clearMalaysiaInfo();       for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"table-row\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"none\";         }     } else if (contextValue === \"Malaysia Customer Information\") {    clearKoreaInfo();     for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"none\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"table-row\";         }     } else {    clearMalaysiaInfo();clearKoreaInfo();     for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"none\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"none\";         }     } }");
-		writer.addJS("function clearMalaysiaInfo(){ ebx_form_setValue(\""+writer.getPrefixedPath(_AddressSiteCategory).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_ATS).format()+"\",null); }");
-		writer.addJS("function clearKoreaInfo(){ ebx_form_setValue(\""+writer.getPrefixedPath(_TaxablePerson).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_TaxCertificateDate).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_IndustryClassification).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_IndustrySubclassification).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_BusinessNumber).format()+"\",null); }");
+		//writer.addJS("function toggleAdditionalInfo(contextValue) {     var koreaRows = document.getElementsByClassName(\"korea_info\");     var malaysiaRows = document.getElementsByClassName(\"malaysia_info\");     var i;     if (contextValue === \"Korean Additional Information\") {  clearMalaysiaInfo();       for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"table-row\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"none\";         }     } else if (contextValue === \"Malaysia Customer Information\") {    clearKoreaInfo();     for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"none\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"table-row\";         }     } else {    clearMalaysiaInfo();clearKoreaInfo();     for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"none\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"none\";         }     } }");
+		//writer.addJS("function clearMalaysiaInfo(){ ebx_form_setValue(\""+writer.getPrefixedPath(_AddressSiteCategory).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_ATS).format()+"\",null); }");
+		//writer.addJS("function clearKoreaInfo(){ ebx_form_setValue(\""+writer.getPrefixedPath(_TaxablePerson).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_TaxCertificateDate).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_IndustryClassification).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_IndustrySubclassification).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_BusinessNumber).format()+"\",null); }");
 		writer.addJS("function changeDropDownValue(prefixedPath,selectedValue,selectedText){ ebx_form_setValue(prefixedPath,{'key':selectedValue,'label':selectedText});}");
+		writer.addJS("function hideInfo(className) {  var rows = document.getElementsByClassName(className);  for (var i = 0; i < rows.length; i++) {   rows[i].style.display = \"none\";  } }");
+		writer.addJS("function showInfo(className) {  var rows = document.getElementsByClassName(className);  for (var i = 0; i < rows.length; i++) {   rows[i].style.display = \"table-row\";  } }");
+		writer.addJS("function clearInfo(fields) {    for (var i = 0; i < fields.length; i++) {       ebx_form_setValue(fields[i], null);     }   }");
 	}
 }
