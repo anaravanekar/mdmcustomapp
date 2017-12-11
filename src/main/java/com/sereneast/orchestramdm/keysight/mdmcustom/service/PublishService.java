@@ -291,6 +291,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
         try {
             // Set up requests
             for (Adaptation adaptation : selectedRecords) {
+                childrenToUpdateInJitterbit = new ArrayList<>();
                 if (checkParentIsPublished) {
                     if(adaptation.get(parentForeignKeyPath)==null){
                         throw new ApplicationRuntimeException(ERROR_MESSAGE_PARENT_NOT_FOUND);
