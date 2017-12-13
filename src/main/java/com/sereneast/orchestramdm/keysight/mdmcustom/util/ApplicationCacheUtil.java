@@ -230,4 +230,47 @@ public class ApplicationCacheUtil {
 		}
 		return options;
 	}
+
+	@Cacheable(cacheNames="mainCache",key="{#root.methodName, #dataSpace, #countryCode, #territoryType}", unless="#result == null")
+	public HashSet<String> getOptionsList(String dataSpace,String countryCode,String territoryType) {
+		int retryCount = 0;
+		HashSet<String> options = new HashSet<>();
+		OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+		Map<String, String> parameters = new HashMap<>();
+		parameters.put("pageSize", "unbounded");
+		parameters.put("filter", "CountryCode='"+countryCode+"'");
+		OrchestraObjectListResponse orchestraObjectListResponse = null;
+		do{
+			retryCount++;
+			try {
+				if("STATE".equalsIgnoreCase(territoryType)) {
+					orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "Account", "root/State", parameters);
+				}else if("PROVINCE".equalsIgnoreCase(territoryType)){
+					orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "Account", "root/Province", parameters);
+				}
+				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
+					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
+						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
+						if("STATE".equalsIgnoreCase(territoryType)) {
+							options.add(record.get("StateCode").getContent().toString());
+						}else if("PROVINCE".equalsIgnoreCase(territoryType)){
+							options.add(record.get("ProvinceCode").getContent().toString());
+						}
+					}
+				}
+			} catch (Exception e) {
+				LOGGER.error("Error getting State options to display", e);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+					LOGGER.error("Error getting State options to display", e);
+				}
+			}
+		}while((orchestraObjectListResponse == null || orchestraObjectListResponse.getRows()==null) && retryCount<3);
+		if(options!=null && options.isEmpty()){
+			options = null;
+		}
+		return options;
+	}
+
 }

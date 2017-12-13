@@ -10,13 +10,12 @@ import com.optimaize.langdetect.text.TextObject;
 import com.optimaize.langdetect.text.TextObjectFactory;
 import com.orchestranetworks.schema.Path;
 import com.orchestranetworks.schema.trigger.*;
-import com.orchestranetworks.service.OperationException;
-import com.orchestranetworks.service.ProcedureContext;
-import com.orchestranetworks.service.ValueContextForUpdate;
+import com.orchestranetworks.service.*;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.EbxProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationOperationException;
+import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectListResponse;
@@ -143,8 +142,15 @@ public class GenericTrigger extends TableTrigger {
                     valueContextForUpdate.setValue("N", Paths._Address._SendAcknowledgement);
                     valueContextForUpdate.setValue("Suppress because of special format requirements", Paths._Address._InvoiceCopies);
                 }*/
+                String countryCode = aContext.getAdaptationOccurrence().getString(Paths._Address._Country);
+                if(countryCode!=null){
+                    boolean valid = validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState),
+                            aContext.getAdaptationOccurrence().getString(Paths._Address._Province));
+                    if(!valid){
+                        throw OperationException.createError("Invalid State/Province");
+                    }
+                }
                 if(aContext.getOccurrenceContext().getValue(Paths._Address._TaxRegimeCode)==null){
-                    String countryCode = aContext.getAdaptationOccurrence().getString(Paths._Address._Country);
                     ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
                     Map<String,Map<String,String>> countryReferenceFieldsMap = applicationCacheUtil.CountryReferenceFieldsMap("BReference");
                     Map<String,String> resultItem = countryReferenceFieldsMap!=null?countryReferenceFieldsMap.get(countryCode):null;
@@ -246,6 +252,18 @@ public class GenericTrigger extends TableTrigger {
                 valueContextForUpdate.setValue("Suppress because of special format requirements", Paths._Address._InvoiceCopies);
                 aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
             }*/
+            if("ADDRESS".equalsIgnoreCase(objectName) &&
+                    (aContext.getChanges().getChange(Paths._Address._Country)!=null || aContext.getChanges().getChange(Paths._Address._AddressState)!=null
+                    || aContext.getChanges().getChange(Paths._Address._Province)!=null)){
+                String countryCode = aContext.getAdaptationOccurrence().getString(Paths._Address._Country);
+                if(countryCode!=null){
+                    boolean valid = validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState),
+                            aContext.getAdaptationOccurrence().getString(Paths._Address._Province));
+                    if(!valid){
+                        throw OperationException.createError("Invalid State/Province");
+                    }
+                }
+            }
             if( "ADDRESS".equalsIgnoreCase(objectName) && aContext.getChanges().getChange(Paths._Address._MDMAccountId)!=null &&
                     aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null){
                 Object internalAccountId = null;
@@ -501,6 +519,27 @@ public class GenericTrigger extends TableTrigger {
             LOGGER.error("Language could not be detected. May be because of probability of detected language is less than minimal confidence 0.999");
         }
         return detectedLanguage;
+    }
+
+    private boolean validateStateAndProvince(String countryCode,String currentState,String currentProvince) throws OperationException {
+        ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
+        Map<String,String> territoryTypeMap = applicationCacheUtil.getTerritoryTypeMap("BReference");
+        HashSet<String> options = new HashSet<>();
+        if("STATE".equalsIgnoreCase(territoryTypeMap.get(countryCode))){
+            options = applicationCacheUtil.getOptionsList("BReference",countryCode,"STATE");
+            if(options==null){
+                throw OperationException.createError("Error getting state options");
+            }
+            return options.contains(currentState);
+        }else if("PROVINCE".equalsIgnoreCase(territoryTypeMap.get(countryCode))){
+            options = applicationCacheUtil.getOptionsList("BReference",countryCode,"PROVINCE");
+            if(options==null){
+                throw OperationException.createError("Error getting province options");
+            }
+            return options.contains(currentProvince);
+        }else{
+            return true;
+        }
     }
 
     public boolean isInitialized() {
