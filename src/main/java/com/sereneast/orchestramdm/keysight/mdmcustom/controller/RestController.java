@@ -137,6 +137,21 @@ public class RestController {
         return mapper.writeValueAsString(resultObject);
     }
 
+    @RequestMapping(value = "selectOptions/{dataSpace}/{territoryType}/{countryCode}", method = RequestMethod.GET)
+    public String getStateOptions(@PathVariable("dataSpace") String dataSpace, @PathVariable("territoryType") String territoryType,@PathVariable("countryCode") String countryCode) throws IOException {
+        ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
+        Map<String,List<Map<String,String>>> resultObject = new HashMap<>();
+        List<Map<String,String>> options = new ArrayList<>();
+        if("state".equalsIgnoreCase(territoryType)){
+            options = applicationCacheUtil.getStateOptions(dataSpace,countryCode);
+        }else if("province".equalsIgnoreCase(territoryType)){
+            options = applicationCacheUtil.getProvinceOptions(dataSpace,countryCode);
+        }
+        resultObject.put("options",options);
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(resultObject);
+    }
+
     private String getTargetPredicate(String mdmId, String mdmIdFieldName, String targetId) {
         String condition = "DaqaMetaData/TargetRecord='" + mdmId + "'";
         if (StringUtils.isNotBlank(targetId) && StringUtils.isNotBlank(mdmId)) {

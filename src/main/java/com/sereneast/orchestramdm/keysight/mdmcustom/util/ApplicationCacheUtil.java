@@ -116,4 +116,118 @@ public class ApplicationCacheUtil {
 		return resultMap;
 	}
 
+	@Cacheable(cacheNames="mainCache",key="{#root.methodName, #dataSpace}", unless="#result == null")
+	public Map<String,String> getTerritoryTypeMap(String dataSpace) {
+		int retryCount = 0;
+		Map<String,String> resultMap = new HashMap<>();
+		OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+		Map<String, String> parameters = new HashMap<>();
+		parameters.put("pageSize", "unbounded");
+		OrchestraObjectListResponse orchestraObjectListResponse = null;
+		do{
+			retryCount++;
+			try {
+				//state
+				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "Account", "root/State", parameters);
+				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
+					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
+						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
+						Map<String, String> resultItem = new HashMap<>();
+						resultMap.put(record.get("CountryCode").getContent().toString(),"STATE");
+					}
+				}
+				//province
+				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "Account", "root/Province", parameters);
+				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
+					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
+						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
+						Map<String, String> resultItem = new HashMap<>();
+						resultMap.put(record.get("CountryCode").getContent().toString(),"PROVINCE");
+					}
+				}
+			} catch (Exception e) {
+				LOGGER.error("Error getting state/province options", e);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+					LOGGER.error("Error getting state/province options", e);
+				}
+			}
+		}while((orchestraObjectListResponse == null || orchestraObjectListResponse.getRows()==null) && retryCount<3);
+		return resultMap;
+	}
+
+	@Cacheable(cacheNames="mainCache",key="{#root.methodName, #dataSpace, #countryCode}", unless="#result == null")
+	public List<Map<String,String>> getStateOptions(String dataSpace,String countryCode) {
+		int retryCount = 0;
+		List<Map<String,String>> options = new ArrayList<>();
+		OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+		Map<String, String> parameters = new HashMap<>();
+		parameters.put("pageSize", "unbounded");
+		parameters.put("filter", "CountryCode='"+countryCode+"'");
+		OrchestraObjectListResponse orchestraObjectListResponse = null;
+		do{
+			retryCount++;
+			try {
+				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "Account", "root/State", parameters);
+				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
+					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
+						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
+						Map<String, String> resultItem = new HashMap<>();
+						resultItem.put("Option",record.get("State").getContent().toString());
+						resultItem.put("OptionValue",record.get("StateCode").getContent().toString());
+						options.add(resultItem);
+					}
+				}
+			} catch (Exception e) {
+				LOGGER.error("Error getting State options to display", e);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+					LOGGER.error("Error getting State options to display", e);
+				}
+			}
+		}while((orchestraObjectListResponse == null || orchestraObjectListResponse.getRows()==null) && retryCount<3);
+		if(options!=null && options.isEmpty()){
+			options = null;
+		}
+		return options;
+	}
+
+	@Cacheable(cacheNames="mainCache",key="{#root.methodName, #dataSpace, #countryCode}", unless="#result == null")
+	public List<Map<String,String>> getProvinceOptions(String dataSpace,String countryCode) {
+		int retryCount = 0;
+		List<Map<String,String>> options = new ArrayList<>();
+		OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+		Map<String, String> parameters = new HashMap<>();
+		parameters.put("pageSize", "unbounded");
+		parameters.put("filter", "CountryCode='"+countryCode+"'");
+		OrchestraObjectListResponse orchestraObjectListResponse = null;
+		do{
+			retryCount++;
+			try {
+				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "Account", "root/Province", parameters);
+				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
+					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
+						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
+						Map<String, String> resultItem = new HashMap<>();
+						resultItem.put("Option",record.get("Province").getContent().toString());
+						resultItem.put("OptionValue",record.get("ProvinceCode").getContent().toString());
+						options.add(resultItem);
+					}
+				}
+			} catch (Exception e) {
+				LOGGER.error("Error getting Province options to display", e);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+					LOGGER.error("Error getting Province options to display", e);
+				}
+			}
+		}while((orchestraObjectListResponse == null || orchestraObjectListResponse.getRows()==null) && retryCount<3);
+		if(options!=null && options.isEmpty()){
+			options = null;
+		}
+		return options;
+	}
 }

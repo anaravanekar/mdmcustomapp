@@ -1,5 +1,6 @@
 package com.orchestranetworks.account.ui.form;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onwbp.adaptation.Adaptation;
 import com.onwbp.adaptation.AdaptationTable;
 import com.onwbp.adaptation.RequestResult;
@@ -12,6 +13,7 @@ import com.orchestranetworks.ui.form.UIFormPaneWriter;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
+import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -64,6 +66,14 @@ public class AddressPane implements UIFormPane {
 		StringBuilder operatingUnitSelectBoxOptions = new StringBuilder();
 		operatingUnitSelectBoxOptions.append("<option value=\"\"></option>");
 		ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
+		Map<String,String> territoryTypeMap = applicationCacheUtil.getTerritoryTypeMap("BReference");
+		String territoryTypeMapJsonString = "{}";
+		try{
+			ObjectMapper mapper = new ObjectMapper();
+			territoryTypeMapJsonString = mapper.writeValueAsString(territoryTypeMap);
+		}catch (Exception e){
+			throw new ApplicationRuntimeException("Error getting territory types for countries");
+		}
 		List<Map<String,String>> operatingUnitValues = applicationCacheUtil.getOptionsToDisplay("OperatingUnit","OperatingUnit");
 		if(operatingUnitValues!=null) {
 			operatingUnitValues.sort(Comparator.comparing(
@@ -399,8 +409,8 @@ public class AddressPane implements UIFormPane {
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_AddressState);
 		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_AddressState);
+		writer.add("<td colspan=\"1\" style=\"padding-left:5px;" + CELL_STYLE_LEFT + "\">");
+		writer.add("<div id='stateCustomDiv'><select id=\"customStateSelect\" onChange=\"ebx_form_setValue('"+writer.getPrefixedPath(_AddressState).format()+"',this.value)\"></select></div>");writer.add("<div id='stateStandardDiv' style=\"display:none;\">");writer.addWidget(_AddressState);writer.add("</div>");
 		writer.add("</td>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_StateLocalLanguage);
@@ -414,8 +424,8 @@ public class AddressPane implements UIFormPane {
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_Province);
 		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
-		writer.addWidget(_Province);
+		writer.add("<td colspan=\"1\" style=\"padding-left:5px;" + CELL_STYLE_LEFT + "\">");
+		writer.add("<div id='provinceCustomDiv'><select id=\"customProvinceSelect\" onChange=\"ebx_form_setValue('"+writer.getPrefixedPath(_Province).format()+"',this.value)\"></select></div>");writer.add("<div id='provinceStandardDiv' style=\"display:none;\">");writer.addWidget(_Province);writer.add("</div>");
 		writer.add("</td>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_ProvinceLocalLanguage);
@@ -682,6 +692,7 @@ public class AddressPane implements UIFormPane {
 		String port = restProperties.getOrchestra().getPort();
 
 		writer.addJS("function calculatedFields(countryCode){");
+		writer.addJS("updateRelatedOptions(countryCode,null,null);");
 		writer.addJS("var stateValue=ebx_form_getValue(\""+writer.getPrefixedPath(_AddressState).format()+"\");");
 		//writer.addJS("console.log('stateValue='+stateValue);");
 		//writer.addJS("console.log('stateValue json ='+JSON.stringify(stateValue));");
@@ -691,7 +702,7 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("xhr.onload = function() {");
 		writer.addJS("if (xhr.status === 200) {");
 		writer.addJS("var calculatedFieldsJson = JSON.parse(xhr.responseText);");
-		writer.addJS("if (ebx_form_getValue('"+writer.getPrefixedPath(Paths._Address._OperatingUnit).format()+"').key){");
+		writer.addJS("if (ebx_form_getValue('"+writer.getPrefixedPath(Paths._Address._OperatingUnit).format()+"') && ebx_form_getValue('"+writer.getPrefixedPath(Paths._Address._OperatingUnit).format()+"').key){");
 		writer.addJS("}");writer.addJS("else{");
 			writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('OperatingUnit')){");
 			writer.addJS("var value = {\"key\":calculatedFieldsJson.OperatingUnit,\"label\":calculatedFieldsJson.OperatingUnit};");
@@ -826,5 +837,34 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("function hideInfo(className) {  var rows = document.getElementsByClassName(className);  for (var i = 0; i < rows.length; i++) {   rows[i].style.display = \"none\";  } }");
 		writer.addJS("function showInfo(className) {  var rows = document.getElementsByClassName(className);  for (var i = 0; i < rows.length; i++) {   rows[i].style.display = \"table-row\";  } }");
 		writer.addJS("function clearInfo(fields) {    for (var i = 0; i < fields.length; i++) {       ebx_form_setValue(fields[i], null);     }   }");
+
+		writer.addJS("function toggeleStandardFields(displayStandard) { if (displayStandard) { document.getElementById('stateCustomDiv').style.display = 'none'; document.getElementById('provinceCustomDiv').style.display = 'none'; document.getElementById('stateStandardDiv').style.display = 'block'; document.getElementById('provinceStandardDiv').style.display = 'block'; } else { document.getElementById('stateCustomDiv').style.display = 'block'; document.getElementById('provinceCustomDiv').style.display = 'block'; document.getElementById('stateStandardDiv').style.display = 'none'; document.getElementById('provinceStandardDiv').style.display = 'none'; } }");
+		writer.addJS("function updateRelatedOptions(countryCode,currentStateValue,currentProvinceValue) {");
+		writer.addJS("if(!countryCode){return;}");
+		writer.addJS("var urlForOptions = \""+protocol+"://"+host+":"+port+"/mdmcustomapp/selectOptions/BReference/\";");
+		writer.addJS("var statePrefixedPath = \""+writer.getPrefixedPath(Paths._Address._AddressState).format()+"\";");
+		writer.addJS("var provincePrefixedPath = \""+writer.getPrefixedPath(Paths._Address._Province).format()+"\";");
+		writer.addJS("var territoryTypeMap = "+territoryTypeMapJsonString+";");
+		writer.addJS("var stateSelect = document.getElementById(\"customStateSelect\"); var provinceSelect = document.getElementById(\"customProvinceSelect\"); var blankOption = new Option(\"[not defined]\", \"\"); blankOption.setAttribute(\"disabled\", \"\"); blankOption.setAttribute(\"style\", \"display:none;\"); if (territoryTypeMap[countryCode] === \"STATE\") { urlForOptions = urlForOptions + \"state/\" + countryCode; toggeleStandardFields(false); } else if (territoryTypeMap[countryCode] === \"PROVINCE\") { urlForOptions = urlForOptions + \"province/\" + countryCode; toggeleStandardFields(false); } else { while (provinceSelect.options.length) { provinceSelect.remove(0); } provinceSelect.options.add(blankOption); while (stateSelect.options.length) { stateSelect.remove(0); } stateSelect.options.add(blankOption); ebx_form_setValue(statePrefixedPath, null); ebx_form_setValue(provincePrefixedPath, null); toggeleStandardFields(true); try { ebx_form_setValue(statePrefixedPath, currentStateValue); ebx_form_setValue(provincePrefixedPath, currentProvinceValue); } catch (err) {} return; } var xhr = new XMLHttpRequest(); xhr.open(\"GET\", urlForOptions); xhr.onload = function() { if (xhr.status === 200) { var obj = JSON.parse(xhr.responseText); var selectOptions = obj.options; if (territoryTypeMap[countryCode] === \"STATE\") { while (provinceSelect.options.length) { provinceSelect.remove(0); } provinceSelect.options.add(blankOption); while (stateSelect.options.length) { stateSelect.remove(0); } if (selectOptions) { var i; for (i = 0; i < selectOptions.length; i++) { var newOption = new Option(selectOptions[i].Option, selectOptions[i].OptionValue); stateSelect.options.add(newOption); } ebx_form_setValue(statePrefixedPath, selectOptions[0].OptionValue); ebx_form_setValue(provincePrefixedPath, null); } else { ebx_form_setValue(statePrefixedPath, null); ebx_form_setValue(provincePrefixedPath, null); } if (currentStateValue) { try { document.getElementById('customStateSelect').value = currentStateValue; ebx_form_setValue(statePrefixedPath, currentStateValue); } catch (err) {} } } else if (territoryTypeMap[countryCode] === \"PROVINCE\") { while (provinceSelect.options.length) { provinceSelect.remove(0); } while (stateSelect.options.length) { stateSelect.remove(0); } stateSelect.options.add(blankOption); if (selectOptions) { var i; for (i = 0; i < selectOptions.length; i++) { var newOption = new Option(selectOptions[i].Option, selectOptions[i].OptionValue); provinceSelect.options.add(newOption); } ebx_form_setValue(statePrefixedPath, null); ebx_form_setValue(provincePrefixedPath, selectOptions[0].OptionValue); } else { ebx_form_setValue(statePrefixedPath, null); ebx_form_setValue(provincePrefixedPath, null); } if (currentProvinceValue) { try { document.getElementById('customProvinceSelect').value = currentProvinceValue; ebx_form_setValue(provincePrefixedPath, currentProvinceValue); } catch (err) {} } } else { while (provinceSelect.options.length) { provinceSelect.remove(0); } provinceSelect.options.add(blankOption); while (stateSelect.options.length) { stateSelect.remove(0); } stateSelect.options.add(blankOption); ebx_form_setValue(statePrefixedPath, null); ebx_form_setValue(provincePrefixedPath, null); } } else { while (provinceSelect.options.length) { provinceSelect.remove(0); } provinceSelect.options.add(blankOption); while (stateSelect.options.length) { stateSelect.remove(0); } stateSelect.options.add(blankOption); ebx_form_setValue(statePrefixedPath, null); ebx_form_setValue(provincePrefixedPath, null); try { ebx_form_setValue(statePrefixedPath, currentStateValue); ebx_form_setValue(provincePrefixedPath, currentProvinceValue); } catch (err) {} } }; xhr.send();");
+		writer.addJS("}");
+		String currentCountryCode=null;
+		String currentState=null;
+		String currentProvince=null;
+		if(!context.isCreatingRecord() && context.getCurrentRecord()!=null){
+			currentCountryCode=context.getCurrentRecord().getString(Paths._Address._Country);
+			currentState=context.getCurrentRecord().getString(Paths._Address._AddressState);
+			currentProvince=context.getCurrentRecord().getString(Paths._Address._Province);
+			if(currentState==null && currentProvince==null){
+				writer.addJS("updateRelatedOptions('" + currentCountryCode + "',null,null);");
+			}else if(currentState==null && currentProvince!=null){
+				writer.addJS("updateRelatedOptions('" + currentCountryCode + "',null,'" + currentProvince + "');");
+			}else if(currentState!=null && currentProvince==null){
+				writer.addJS("updateRelatedOptions('" + currentCountryCode + "','" + currentState + "',null);");
+			}else {
+				writer.addJS("updateRelatedOptions('" + currentCountryCode + "','" + currentState + "','" + currentProvince + "');");
+			}
+		}else{
+			writer.addJS("updateRelatedOptions('AF',null,null);");
+		}
 	}
 }
