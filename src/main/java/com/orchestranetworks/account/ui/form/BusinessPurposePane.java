@@ -57,6 +57,12 @@ public class BusinessPurposePane implements UIFormPane {
 		writer.add("</td></tr>");
 
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.addLabel(_OperatingUnit);
+		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.addWidget(_OperatingUnit);
+		writer.add("</td></tr>");
+
+		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_Status);
 		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
 		writer.addWidget(_Status);

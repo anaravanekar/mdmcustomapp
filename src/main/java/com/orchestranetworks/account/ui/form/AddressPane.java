@@ -61,11 +61,9 @@ public class AddressPane implements UIFormPane {
 			}
 		}
 
-		//operatingUnit custom html
-		StringBuilder operatingUnitSelectBox = new StringBuilder();
-		StringBuilder operatingUnitSelectBoxOptions = new StringBuilder();
-		operatingUnitSelectBoxOptions.append("<option value=\"\"></option>");
 		ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
+
+		//get territorytypes for countries
 		Map<String,String> territoryTypeMap = applicationCacheUtil.getTerritoryTypeMap("BReference");
 		String territoryTypeMapJsonString = "{}";
 		try{
@@ -74,6 +72,12 @@ public class AddressPane implements UIFormPane {
 		}catch (Exception e){
 			throw new ApplicationRuntimeException("Error getting territory types for countries");
 		}
+
+		//operatingUnit custom html
+/*
+		StringBuilder operatingUnitSelectBox = new StringBuilder();
+		StringBuilder operatingUnitSelectBoxOptions = new StringBuilder();
+		operatingUnitSelectBoxOptions.append("<option value=\"\"></option>");
 		List<Map<String,String>> operatingUnitValues = applicationCacheUtil.getOptionsToDisplay("OperatingUnit","OperatingUnit");
 		if(operatingUnitValues!=null) {
 			operatingUnitValues.sort(Comparator.comparing(
@@ -95,6 +99,7 @@ public class AddressPane implements UIFormPane {
 			String operatingUnitPrefixedPath = writer.getPrefixedPath(_OperatingUnit).format();
 		}
 		operatingUnitSelectBox.append("<select id=\"OperatingUnitCustom\" onchange=\"changeDropDownValue('"+writer.getPrefixedPath(_OperatingUnit).format()+"',this.value,this.options.item(this.selectedIndex).text)\">").append(operatingUnitSelectBoxOptions).append("</select>");
+*/
 
 		String currentUserId = context.getSession().getUserReference().getUserId();
 		String openedByUser = context.getValueContext()!=null && context.getValueContext().getValue(Paths._Address._AssignedTo)!=null?context.getValueContext().getValue(Paths._Address._AssignedTo).toString():null;
@@ -167,8 +172,10 @@ public class AddressPane implements UIFormPane {
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_OperatingUnit);
 		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"padding-left:5px;" + CELL_STYLE_LEFT + "\">");
-		writer.add(operatingUnitSelectBox.toString());writer.add("<div style=\"display:none;\">");writer.addWidget(_OperatingUnit);writer.add("</div>");
+		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		//writer.add("<td colspan=\"1\" style=\"padding-left:5px;" + CELL_STYLE_LEFT + "\">");
+		//writer.add(operatingUnitSelectBox.toString());writer.add("<div style=\"display:none;\">");writer.addWidget(_OperatingUnit);writer.add("</div>");
+		writer.addWidget(_OperatingUnit);
 		writer.add("</td>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_Status);
@@ -702,7 +709,7 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("xhr.onload = function() {");
 		writer.addJS("if (xhr.status === 200) {");
 		writer.addJS("var calculatedFieldsJson = JSON.parse(xhr.responseText);");
-		writer.addJS("if (ebx_form_getValue('"+writer.getPrefixedPath(Paths._Address._OperatingUnit).format()+"') && ebx_form_getValue('"+writer.getPrefixedPath(Paths._Address._OperatingUnit).format()+"').key){");
+		/*writer.addJS("if (ebx_form_getValue('"+writer.getPrefixedPath(Paths._Address._OperatingUnit).format()+"') && ebx_form_getValue('"+writer.getPrefixedPath(Paths._Address._OperatingUnit).format()+"').key){");
 		writer.addJS("}");writer.addJS("else{");
 			writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('OperatingUnit')){");
 			writer.addJS("var value = {\"key\":calculatedFieldsJson.OperatingUnit,\"label\":calculatedFieldsJson.OperatingUnit};");
@@ -712,7 +719,7 @@ public class AddressPane implements UIFormPane {
 			writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._OperatingUnit).format()).addJS("\", ").addJS(
 					"null").addJS(");document.getElementById('OperatingUnitCustom').value=\"\";");
 			writer.addJS("}");
-		writer.addJS("}");
+		writer.addJS("}");*/
 		writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('TaxRegimeCode')){");
 		writer.addJS("var valueTax = calculatedFieldsJson.TaxRegimeCode;");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._TaxRegimeCode).format()).addJS("\", ").addJS(
