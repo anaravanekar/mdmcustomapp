@@ -452,6 +452,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                                     List<OrchestraContent> bpOus = (List<OrchestraContent>)businessPurposeObject.getContent().get("OperatingUnit").getContent();
                                     for(OrchestraContent bpOuContent:bpOus) {
                                         if (String.valueOf(bpOuContent.getContent()).equals(operatingUnit)) {
+                                            businessPurposeObject.getContent().remove("OperatingUnit");
                                             businessPurposesFinal.add(businessPurposeObject);
                                             break;
                                         }
