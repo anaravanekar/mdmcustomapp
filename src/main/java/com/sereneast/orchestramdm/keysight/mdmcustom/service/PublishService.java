@@ -16,6 +16,7 @@ import com.orchestranetworks.userservice.*;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.EbxProperties;
+import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.ws.Orchestra;
 import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
@@ -448,8 +449,12 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                             List<OrchestraObject> businessPurposesFinal = new ArrayList<>();
                             if (childrenToUpdateInJitterbit != null && !childrenToUpdateInJitterbit.isEmpty()) {
                                 for(OrchestraObject businessPurposeObject:childrenToUpdateInJitterbit) {
-                                    if(String.valueOf(businessPurposeObject.getContent().get("OperatingUnit")).equals(operatingUnit)){
-                                        businessPurposesFinal.add(businessPurposeObject);
+                                    List<OrchestraContent> bpOus = (List<OrchestraContent>)businessPurposeObject.getContent().get("OperatingUnit").getContent();
+                                    for(OrchestraContent bpOuContent:bpOus) {
+                                        if (String.valueOf(bpOuContent.getContent()).equals(operatingUnit)) {
+                                            businessPurposesFinal.add(businessPurposeObject);
+                                            break;
+                                        }
                                     }
                                 }
                                 if(!businessPurposesFinal.isEmpty()) {
