@@ -293,7 +293,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             for (Adaptation adaptation : selectedRecords) {
                 childrenToUpdateInJitterbit = new ArrayList<>();
                 if (checkParentIsPublished) {
-                    if(adaptation.get(parentForeignKeyPath)==null){
+                    if (adaptation.get(parentForeignKeyPath) == null) {
                         throw new ApplicationRuntimeException(ERROR_MESSAGE_PARENT_NOT_FOUND);
                     }
                     LOGGER.debug("Getting account.......");
@@ -310,13 +310,13 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                     }
                 }
 
-                if(parentIdPathInChild!=null) {
+                if (parentIdPathInChild != null) {
                     Adaptation container = adaptation.getContainer();
                     AdaptationTable childTable = container.getTable(childPathInSchema);
                     final RequestResult childTableRequestResult = childTable.createRequestResult(parentIdPathInChild.format() + "='" + adaptation.get(objectPrimaryKeyPath) + "'");
                     if (childTableRequestResult != null && !childTableRequestResult.isEmpty()) {
                         Map<String, Path> fieldPathMap = null;
-                        ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
+                        ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil) SpringContext.getApplicationContext().getBean("applicationCacheUtil");
                         try {
                             fieldPathMap = applicationCacheUtil.getObjectDirectFields(Paths._BusinessPurpose.class.getName());
                         } catch (IllegalAccessException | ClassNotFoundException e) {
@@ -351,13 +351,13 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                                     List<OrchestraObject> suspectsFound = getSuspects(child);
                                     OrchestraObject orchestraObject = new OrchestraObject();
                                     Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
-                                    jsonFieldsMap.put(objectPrimaryKeyPath.format().replaceAll("\\.\\/", ""),new OrchestraContent(child.get(objectPrimaryKeyPath)));
-                                    jsonFieldsMap.put(systemIdPath.format().replaceAll("\\.\\/", ""),new OrchestraContent(child.get(systemIdPath)));
-                                    jsonFieldsMap.put(systemNamePath.format().replaceAll("\\.\\/", ""),new OrchestraContent(child.get(systemNamePath)));
-                                    jsonFieldsMap.put("DQState",new OrchestraContent(child.get(Path.parse("./DaqaMetaData/State"))));
+                                    jsonFieldsMap.put(objectPrimaryKeyPath.format().replaceAll("\\.\\/", ""), new OrchestraContent(child.get(objectPrimaryKeyPath)));
+                                    jsonFieldsMap.put(systemIdPath.format().replaceAll("\\.\\/", ""), new OrchestraContent(child.get(systemIdPath)));
+                                    jsonFieldsMap.put(systemNamePath.format().replaceAll("\\.\\/", ""), new OrchestraContent(child.get(systemNamePath)));
+                                    jsonFieldsMap.put("DQState", new OrchestraContent(child.get(Path.parse("./DaqaMetaData/State"))));
                                     orchestraObject.setContent(jsonFieldsMap);
                                     suspects.add(orchestraObject);
-                                    if(suspectsFound!=null && !suspectsFound.isEmpty()){
+                                    if (suspectsFound != null && !suspectsFound.isEmpty()) {
                                         suspects.addAll(suspectsFound);
                                     }
                                     objectPrimaryKeyPath = tempAddressKeyPath;
@@ -381,10 +381,10 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                 Map<String, OrchestraContent> jsonFieldsMapForReference = new HashMap<>();
                 for (String fieldName : fieldPathMap.keySet()) {
                     Object fieldValue = adaptation.get(fieldPathMap.get(fieldName));
-                    if(fieldValue instanceof List){
-                        List objArray = (List)fieldValue;
+                    if (fieldValue instanceof List) {
+                        List objArray = (List) fieldValue;
                         List<OrchestraContent> contentList = new ArrayList<>();
-                        for(Object obj:objArray){
+                        for (Object obj : objArray) {
                             contentList.add(new OrchestraContent(obj));
                         }
                         fieldValue = contentList;
@@ -401,7 +401,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                 //Set up for update in Jitterbit
                 OrchestraObject orchestraObjectToUpdateInJitterbit = new OrchestraObject();
                 Map<String, OrchestraContent> jsonFieldsMapForJitterbit = new HashMap<>();
-                if(!"BUSINESSPURPOSE".equalsIgnoreCase(objectName)) {
+                if (!"BUSINESSPURPOSE".equalsIgnoreCase(objectName)) {
                     for (String fieldName : fieldPathMap.keySet()) {
                         Object fieldValue = adaptation.get(fieldPathMap.get(fieldName));
                         if (fieldValue instanceof List) {
@@ -424,13 +424,13 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                         List<OrchestraObject> suspectsFound = getSuspects(adaptation);
                         OrchestraObject orchestraObject = new OrchestraObject();
                         Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
-                        jsonFieldsMap.put(objectPrimaryKeyPath.format().replaceAll("\\.\\/", ""),new OrchestraContent(adaptation.get(objectPrimaryKeyPath)));
-                        jsonFieldsMap.put(systemIdPath.format().replaceAll("\\.\\/", ""),new OrchestraContent(adaptation.get(systemIdPath)));
-                        jsonFieldsMap.put(systemNamePath.format().replaceAll("\\.\\/", ""),new OrchestraContent(adaptation.get(systemNamePath)));
-                        jsonFieldsMap.put("DQState",new OrchestraContent(adaptation.get(Path.parse("./DaqaMetaData/State"))));
+                        jsonFieldsMap.put(objectPrimaryKeyPath.format().replaceAll("\\.\\/", ""), new OrchestraContent(adaptation.get(objectPrimaryKeyPath)));
+                        jsonFieldsMap.put(systemIdPath.format().replaceAll("\\.\\/", ""), new OrchestraContent(adaptation.get(systemIdPath)));
+                        jsonFieldsMap.put(systemNamePath.format().replaceAll("\\.\\/", ""), new OrchestraContent(adaptation.get(systemNamePath)));
+                        jsonFieldsMap.put("DQState", new OrchestraContent(adaptation.get(Path.parse("./DaqaMetaData/State"))));
                         orchestraObject.setContent(jsonFieldsMap);
                         suspects.add(orchestraObject);
-                        if(suspectsFound!=null && !suspectsFound.isEmpty()){
+                        if (suspectsFound != null && !suspectsFound.isEmpty()) {
                             suspects.addAll(suspectsFound);
                         }
                     }
@@ -439,21 +439,46 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                     } else {
                         jsonFieldsMapForJitterbit.put(CROSS_REFERENCES_LABEL, new OrchestraContent(null));
                     }
-                    if(childrenToUpdateInJitterbit!=null && !childrenToUpdateInJitterbit.isEmpty()){
-                        jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(childrenToUpdateInJitterbit));
-                    }else if("ADDRESS".equalsIgnoreCase(objectName)){
-                        jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
+                    if ("ADDRESS".equalsIgnoreCase(objectName)) {
+                        List<String>  operatingUnits = adaptation.getList(Paths._Address._OperatingUnit);
+                        if(operatingUnits==null || operatingUnits.isEmpty()){
+                            throw new ApplicationRuntimeException("Operating Unit is required for address.");
+                        }
+                        for(String operatingUnit:operatingUnits){
+                            List<OrchestraObject> businessPurposesFinal = new ArrayList<>();
+                            if (childrenToUpdateInJitterbit != null && !childrenToUpdateInJitterbit.isEmpty()) {
+                                for(OrchestraObject businessPurposeObject:childrenToUpdateInJitterbit) {
+                                    if(String.valueOf(businessPurposeObject.getContent().get("OperatingUnit")).equals(operatingUnit)){
+                                        businessPurposesFinal.add(businessPurposeObject);
+                                    }
+                                }
+                                if(!businessPurposesFinal.isEmpty()) {
+                                    jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(businessPurposesFinal));
+                                }else{
+                                    jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
+                                }
+                            } else {
+                                jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
+                            }
+                            Map<String, OrchestraContent> addressContent = new HashMap<>();
+                            addressContent.putAll(jsonFieldsMapForJitterbit);
+                            addressContent.put("OperatingUnit",new OrchestraContent(operatingUnit));
+                            OrchestraObject addressObjectForJb = new OrchestraObject();
+                            addressObjectForJb.setContent(addressContent);
+                            recordsToUpdateInJitterbit.add(addressObjectForJb);
+                        }
+                    }else {
+                        orchestraObjectToUpdateInJitterbit.setContent(jsonFieldsMapForJitterbit);
+                        recordsToUpdateInJitterbit.add(orchestraObjectToUpdateInJitterbit);
                     }
-                    orchestraObjectToUpdateInJitterbit.setContent(jsonFieldsMapForJitterbit);
-                    recordsToUpdateInJitterbit.add(orchestraObjectToUpdateInJitterbit);
                 }
-            }
+            }//for selected records
 
             //Execute updates
             promoteToReference(recordsToUpdateInReference);
             LOGGER.info("Promoted {} to reference",objectName);
             if(recordsToUpdateInJitterbit!=null && !recordsToUpdateInJitterbit.isEmpty()) {
-                publishToJitterbit(recordsToUpdateInJitterbit);
+                //publishToJitterbit(recordsToUpdateInJitterbit);
                 LOGGER.info("Published {} to Jitterbit",objectName);
             }
             if(!"BUSINESSPURPOSE".equalsIgnoreCase(objectName)) {
