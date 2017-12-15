@@ -449,6 +449,11 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                             List<OrchestraObject> businessPurposesFinal = new ArrayList<>();
                             if (childrenToUpdateInJitterbit != null && !childrenToUpdateInJitterbit.isEmpty()) {
                                 for(OrchestraObject businessPurposeObject:childrenToUpdateInJitterbit) {
+                                    if(businessPurposeObject.getContent().get("OperatingUnit")==null || ((List)businessPurposeObject.getContent().get("OperatingUnit")).isEmpty()){
+                                        //throw new ApplicationRuntimeException("OperatingUnit is required for Business Purpose");
+                                        LOGGER.trace("skipping bp as ou is not present");
+                                        continue;
+                                    }
                                     List<OrchestraContent> bpOus = (List<OrchestraContent>)businessPurposeObject.getContent().get("OperatingUnit").getContent();
                                     for(OrchestraContent bpOuContent:bpOus) {
                                         if (String.valueOf(bpOuContent.getContent()).equals(operatingUnit)) {
