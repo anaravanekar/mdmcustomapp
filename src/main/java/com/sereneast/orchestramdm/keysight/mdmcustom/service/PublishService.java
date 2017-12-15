@@ -483,7 +483,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
             promoteToReference(recordsToUpdateInReference);
             LOGGER.info("Promoted {} to reference",objectName);
             if(recordsToUpdateInJitterbit!=null && !recordsToUpdateInJitterbit.isEmpty()) {
-                //publishToJitterbit(recordsToUpdateInJitterbit);
+                publishToJitterbit(recordsToUpdateInJitterbit);
                 LOGGER.info("Published {} to Jitterbit",objectName);
             }
             if(!"BUSINESSPURPOSE".equalsIgnoreCase(objectName)) {
