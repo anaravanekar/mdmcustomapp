@@ -332,6 +332,7 @@ public interface Paths
 		public static final Path _Status = Path.parse("./Status");
 		public static final Path _Location = Path.parse("./Location");
 		public static final Path _BatchCode = Path.parse("./BatchCode");
+		public static final Path _OperatingUnit = Path.parse("./OperatingUnit");
 	} 
 
 	// Table type path
