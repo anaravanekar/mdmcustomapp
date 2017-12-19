@@ -455,6 +455,8 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                                         continue;
                                     }
                                     List<OrchestraContent> bpOus = (List<OrchestraContent>)businessPurposeObject.getContent().get("OperatingUnit").getContent();
+                                    String mdmPurposeId = String.valueOf(businessPurposeObject.getContent().get("MDMPurposeId").getContent());
+                                    String mdmAddressId = String.valueOf(businessPurposeObject.getContent().get("MDMAddressId").getContent());
                                     for(OrchestraContent bpOuContent:bpOus) {
                                         if (String.valueOf(bpOuContent.getContent()).equals(operatingUnit)) {
                                             OrchestraObject businessPurposeToJb = new OrchestraObject();
@@ -464,6 +466,9 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                                             businessPurposeToJb.setContent(bpToJbContent);
                                             businessPurposesFinal.add(businessPurposeToJb);
                                             break;
+                                        }
+                                        if(!operatingUnits.contains(String.valueOf(bpOuContent.getContent()))){
+                                            throw new ApplicationRuntimeException("Operating unit "+String.valueOf(bpOuContent.getContent())+" found in Business Purpose "+mdmPurposeId+" does not exist for Address "+mdmAddressId);
                                         }
                                     }
                                 }

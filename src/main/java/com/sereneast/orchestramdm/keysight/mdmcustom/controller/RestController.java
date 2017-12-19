@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.*;
@@ -22,10 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @org.springframework.web.bind.annotation.RestController
 public class RestController {
@@ -150,6 +146,29 @@ public class RestController {
         resultObject.put("options",options);
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(resultObject);
+    }
+
+    @RequestMapping(value = "checkIfOuExists/{dataSpace}/{dataSet}/{mdmAddressId}/{operatingUnit}", method = RequestMethod.GET)
+    public String checkIfOuExists(@PathVariable("dataSpace") String dataSpace, @PathVariable("dataSet") String dataSet,@PathVariable("mdmAddressId") String mdmAddressId,@PathVariable("operatingUnit") String operatingUnit) throws IOException {
+        Map<String,Boolean> result = new HashMap<>();
+        result.put("result",false);
+        String path = "root/Address/"+mdmAddressId+"/OperatingUnit";
+        HashSet<String> addressOuSet = new HashSet<>();
+        OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+        OrchestraObjectListResponse orchestraObjectListResponse = orchestraRestClient.get("BCMDReference","Account",path,null);
+        if(orchestraObjectListResponse.getContent()!=null){
+            List contentList = (List)orchestraObjectListResponse.getContent();
+            for(Object content: contentList){
+                if(content!=null && ((Map)content).get("content")!=null) {
+                    addressOuSet.add(((Map)content).get("content").toString());
+                }
+            }
+        }
+        if(addressOuSet.contains(operatingUnit)){
+            result.put("result",true);
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(result);
     }
 
     private String getTargetPredicate(String mdmId, String mdmIdFieldName, String targetId) {

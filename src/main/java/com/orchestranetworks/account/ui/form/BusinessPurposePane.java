@@ -4,6 +4,8 @@ import com.orchestranetworks.schema.Path;
 import com.orchestranetworks.ui.form.UIFormContext;
 import com.orchestranetworks.ui.form.UIFormPane;
 import com.orchestranetworks.ui.form.UIFormPaneWriter;
+import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
+import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,8 +84,32 @@ public class BusinessPurposePane implements UIFormPane {
 
 		writer.add("</table>");
 
+		RestProperties restProperties = (RestProperties) SpringContext.getApplicationContext().getBean("restProperties");
+		String protocol = "true".equals(restProperties.getOrchestra().getSsl())?"https":"http";
+		String host = restProperties.getOrchestra().getHost();
+		String port = restProperties.getOrchestra().getPort();
+
 		writer.addJS("function populateLocation(mdmAddressId){");
 		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_Location).format()).addJS("\", ").addJS("mdmAddressId.key);");
 		writer.addJS("}");
+
+		writer.addJS("function checkIfOuExists(operatingUnit){");
+		String dataSpace= context.getCurrentDataSet().getHome().getKey().format();
+		writer.addJS("var addressIdObj = ebx_form_getValue(\"").addJS(writer.getPrefixedPath(_MDMAddressId).format()).addJS("\");");
+		writer.addJS("if(addressIdObj && operatingUnit){");
+		writer.addJS("var xhr = new XMLHttpRequest();");
+		writer.addJS("xhr.open('GET', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/checkIfOuExists/"+dataSpace+"/Account/'+addressIdObj.key+'/'+operatingUnit.key);");
+		writer.addJS("xhr.setRequestHeader('Content-Type', 'application/json');");
+		writer.addJS("xhr.onload = function() {");
+		writer.addJS("if (xhr.status === 200) {");
+		//writer.addJS("console.log(JSON.parse(xhr.responseText));");
+		writer.addJS("if(JSON.parse(xhr.responseText).result===false){alert('Operating Unit '+operatingUnit.key+' does not exist on address.');}");
+		//writer.addJS("console.log('ou='+ebx_form_getValue(\""+writer.getPrefixedPath(_OperatingUnit).format()+"\"));");
+		writer.addJS("}else{");
+		writer.addJS("alert('An error occurred while checking Operating Unit in Address. Please contact your administrator.');");
+		writer.addJS("}");
+		writer.addJS("};");
+		writer.addJS("xhr.send();");
+		writer.addJS("}}");
 	}
 }

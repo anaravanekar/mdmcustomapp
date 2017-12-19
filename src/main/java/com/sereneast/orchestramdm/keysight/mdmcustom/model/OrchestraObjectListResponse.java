@@ -9,6 +9,7 @@ import java.util.Map;
 public class OrchestraObjectListResponse {
     private List<OrchestraObjectResponse> rows;
     private Map<String,Object> pagination;
+    private Object content;
 
     public List<OrchestraObjectResponse> getRows() {
         return rows;
@@ -24,5 +25,13 @@ public class OrchestraObjectListResponse {
 
     public void setPagination(Map<String, Object> pagination) {
         this.pagination = pagination;
+    }
+
+    public Object getContent() {
+        return content;
+    }
+
+    public void setContent(Object content) {
+        this.content = content;
     }
 }
