@@ -86,36 +86,13 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Custom Master Data View",
 				"",-2,
 				new Path[]{Paths._Account.getPathInSchema(),Paths._Address.getPathInSchema()}));
-/*		aContext.registerUserService(new TableViewSampleServiceDeclaration(
-				ServiceKey.forModuleServiceName("mdmcustomapp",AccountPublishRecursiveService.class.getSimpleName()),
-				AccountPublishRecursiveService.class,
-				"Promote and Publish Recursive",
-				"Promote and Publish Recursive",
-				"",-1,
-				toPath("/root/Account")));
-		aContext.registerUserService(new TableViewSampleServiceDeclaration(
-				ServiceKey.forModuleServiceName("mdmcustomapp",AddressPublishRecursiveService.class.getSimpleName()),
-				AddressPublishRecursiveService.class,
-				"Promote and Publish Recursive",
-				"Promote and Publish Recursive",
-				"",-1,
-				toPath("/root/Address")));*/
-/*		aContext.registerUserService(new RecordSampleServiceDeclaration(
-				ServiceKey.forModuleServiceName("mdmcustomapp",RecordUpdateShowUpdatedByService.class.getSimpleName()),
-				RecordUpdateShowUpdatedByService.class,
-				"Update Record",
-				"Update Record",
-				"",
-				toPath("/root/Account")));*/
+		aContext.registerUserService(new DatasetViewUserServiceDeclaration(
+				ServiceKey.forModuleServiceName("mdmcustomapp",RefreshCacheService.class.getSimpleName()),
+				RefreshCacheService.class,
+				"Refresh Cache",
+				"Refresh Cache",
+				""));
 	}
-	/*public void init(ServletConfig config) throws ServletException {
-		super.init(config);
-		ModulesRegister.registerWebApp(this, config);
-	}
-
-	public void destroy() {
-		ModulesRegister.unregisterWebApp(this, this.getServletConfig());
-	}*/
 
 	private static Path[] toPath(String... paths)
 	{

@@ -9,12 +9,14 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectRespon
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.OrchestraRestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -273,4 +275,8 @@ public class ApplicationCacheUtil {
 		return options;
 	}
 
+	@CacheEvict(value="mainCache",allEntries=true)
+	public void evictAllCacheEntries(){
+		LOGGER.debug("Cache evicted at "+Instant.now().toString());
+	}
 }
