@@ -475,10 +475,12 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                                 if(!businessPurposesFinal.isEmpty()) {
                                     jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(businessPurposesFinal));
                                 }else{
-                                    jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
+                                    throw new ApplicationRuntimeException("Business Purpose does not exist for Operating Unit "+operatingUnit);
+                                    //jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
                                 }
                             } else {
-                                jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
+                                throw new ApplicationRuntimeException("Business Purpose does not exist for Operating Unit "+operatingUnit);
+                                //jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
                             }
                             Map<String, OrchestraContent> addressContent = new HashMap<>();
                             addressContent.putAll(jsonFieldsMapForJitterbit);
