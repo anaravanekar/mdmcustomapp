@@ -1,0 +1,49 @@
+.custom-error-image{
+    background-image: url(errorimage.jpg);
+    background-position: center top;
+    background-size: 200px 200px;
+    background-repeat: no-repeat;
+    height: 40%;
+}
+.custom-error-header{
+    font-size: 2em;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    text-align: center;
+}
+.custom-error-message{
+    font-size: 1.6em;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: normal;
+    text-align: center;
+    color: #292f33;
+    margin-top: 25px;
+    margin-left: 200px;
+    margin-right: 200px;
+    line-height: 120%;
+}
+.custom-success-image{
+    background-image: url(success.png);
+    background-position: center top;
+    background-size: 200px 200px;
+    background-repeat: no-repeat;
+    height: 40%;
+}
+.custom-success-header{
+    font-size: 2em;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    text-align: center;
+    color: #08B850;
+}
+.custom-success-message{
+    font-size: 1.6em;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: normal;
+    text-align: center;
+    color: #292f33;
+    margin-top: 25px;
+    margin-left: 200px;
+    margin-right: 200px;
+    line-height: 120%;
+}

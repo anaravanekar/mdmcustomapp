@@ -16,7 +16,6 @@ import com.orchestranetworks.userservice.*;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.EbxProperties;
-import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.ws.Orchestra;
 import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
@@ -28,20 +27,14 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 
-public class PublishService implements UserService<TableViewEntitySelection>,ApplicationContextAware
-{
+public class PublishService implements UserService<TableViewEntitySelection> {
     private static final Logger LOGGER = LoggerFactory.getLogger(PublishService.class);
-
-    private ApplicationContext applicationContext;
 
     private String objectName;
 
@@ -73,15 +66,17 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
 
     private List<ObjectKey> objectKeys = new ArrayList<>();
 
-    private static final String ERROR_MESSAGE_REFERENCE_FAIL = "Error promoting records to Reference dataspace";
+    private static final String ERROR_MESSAGE_REFERENCE_FAIL = "An error occurred while promoting records to the Reference dataspace in MDM.";
 
-    private static final String ERROR_MESSAGE_JITTERBIT_FAIL = "Error publishing records to Jitterbit";
+    private static final String ERROR_MESSAGE_JITTERBIT_FAIL = "Publish request to Jitterbit failed with the following error.";
 
-    private static final String ERROR_MESSAGE_PARENT_NOT_PUBLISHED = "Can not publish record. Parent record has not been published.";
+    private static final String ERROR_MESSAGE_PARENT_NOT_PUBLISHED = "Can not publish address. Account has not been published yet.";
 
-    private static final String ERROR_MESSAGE_PARENT_NOT_FOUND = "Can not publish record. Parent record does not exist.";
+    private static final String ERROR_MESSAGE_PARENT_NOT_FOUND = "Can not publish address. Account does not exist.";
 
-    private static final String ERROR_UPDATING_FLAG = "Error updating published flag";
+    private static final String ERROR_UPDATING_FLAG = "An error occurred while updating Published field in MDM.";
+
+    private static final String ERROR_MDM_DATA = "There's a problem with the data in MDM.";
 
     private static final int MAX_RETRY_COUNT = 5;
 
@@ -181,6 +176,7 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
         String loadingDivId = "divLoading";
         aWriter.add("<div ");
         aWriter.addSafeAttribute("id", divId);
+        aWriter.addSafeAttribute("style", "height:100%;");
         aWriter.add("></div>");
         aWriter.add("<div ");
         aWriter.addSafeAttribute("id", loadingDivId);
@@ -248,7 +244,17 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
         }catch(ApplicationRuntimeException e){
             finalMessage = e.getMessage();
         }
-        anAjaxResponse.getWriter().add(finalMessage);
+        if(!"Selected records were promoted and published successfully.".equalsIgnoreCase(finalMessage)) {
+            anAjaxResponse.getWriter().add("<div class=\"custom-error-image\"></div>");
+            anAjaxResponse.getWriter().add("<div class=\"custom-error-header\">Oh No! Something went wrong.</div>");
+            anAjaxResponse.getWriter().add("<div class=\"custom-error-message\">" + finalMessage);
+            anAjaxResponse.getWriter().add("</div>");
+        }else{
+            anAjaxResponse.getWriter().add("<div class=\"custom-success-image\"></div>");
+            anAjaxResponse.getWriter().add("<div class=\"custom-success-header\">Success!</div>");
+            anAjaxResponse.getWriter().add("<div class=\"custom-success-message\">" + finalMessage);
+            anAjaxResponse.getWriter().add("</div>");
+        }
     }
 
     private boolean validateRecord(String objectName, Adaptation container,Adaptation adaptation) {
@@ -468,18 +474,18 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                                             break;
                                         }
                                         if(!operatingUnits.contains(String.valueOf(bpOuContent.getContent()))){
-                                            throw new ApplicationRuntimeException("Operating unit "+String.valueOf(bpOuContent.getContent())+" found in Business Purpose "+mdmPurposeId+" does not exist for Address "+mdmAddressId);
+                                            throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Operating unit "+String.valueOf(bpOuContent.getContent())+" found in Business Purpose "+mdmPurposeId+" does not exist for Address "+mdmAddressId+".");
                                         }
                                     }
                                 }
                                 if(!businessPurposesFinal.isEmpty()) {
                                     jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(businessPurposesFinal));
                                 }else{
-                                    throw new ApplicationRuntimeException("Business Purpose does not exist for Operating Unit "+operatingUnit);
+                                    throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Business Purpose does not exist for Operating Unit "+operatingUnit+".");
                                     //jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
                                 }
                             } else {
-                                throw new ApplicationRuntimeException("Business Purpose does not exist for Operating Unit "+operatingUnit);
+                                throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Business Purpose does not exist for Operating Unit "+operatingUnit+".");
                                 //jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
                             }
                             Map<String, OrchestraContent> addressContent = new HashMap<>();
@@ -523,11 +529,14 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                     throw new ApplicationRuntimeException("Error publishing children",e);
                 }
             }else{
-                message = "Publish successful";
+                message = "Selected records were promoted and published successfully.";
             }
         }catch(ApplicationRuntimeException e){
-            String rootCauseMessage = e.getRootCause()!=null?"\nRoot Cause: "+e.getRootCause().getMessage():"";
-            message = "ERROR: "+e.getMessage()+rootCauseMessage;
+            String rootCauseMessage = e.getRootCause()!=null?" Root Cause: "+e.getRootCause().getMessage():"";
+            message = e.getMessage()+rootCauseMessage;
+            if("ADDRESS".equalsIgnoreCase(objectName)){
+                message=message+" None of the addresses were published.";
+            }
             LOGGER.error("Error publishing records: \n",e);
         }
         return message;
@@ -617,10 +626,10 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
                 ProcedureResult result = null;
                 result = svc.execute(procedure);
                 if (result == null || result.hasFailed()) {
-                    LOGGER.info("proc failed " + result.getExceptionFullMessage(Locale.ENGLISH));
+                    LOGGER.debug("proc failed " + result.getExceptionFullMessage(Locale.ENGLISH));
                     throw new ApplicationRuntimeException(ERROR_UPDATING_FLAG);
                 } else {
-                    LOGGER.info("proc success ");
+                    LOGGER.debug("proc success ");
                 }
             }
             OrchestraObject obj = recordsToUpdateInReference.get(i);
@@ -639,10 +648,10 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
 //            LOGGER.debug("Request to update flag:"+mapper.writeValueAsString(objList));
             RestResponse response = orchestraRestClient.promote(referenceDataSpaceUrl, referenceDataSetUrl, tablePathUrl, objList, parameters);
             if(response.getStatus()!=200 && response.getStatus()!=201){
-                throw new ApplicationRuntimeException("Error updating success flag in reference dataspace: "+String.valueOf(mapper.writeValueAsString(response.getResponseBody())));
+                throw new ApplicationRuntimeException(ERROR_UPDATING_FLAG+" "+String.valueOf(mapper.writeValueAsString(response.getResponseBody())));
             }
         } catch (IOException e) {
-            throw new ApplicationRuntimeException("Error updating success flag in reference dataspace",e);
+            throw new ApplicationRuntimeException(ERROR_UPDATING_FLAG,e);
         }
     }
 
@@ -682,17 +691,6 @@ public class PublishService implements UserService<TableViewEntitySelection>,App
         }
         resultObject.setContent(contents);
         return resultObject;
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        LOGGER.debug("Setting application context");
-        this.applicationContext = applicationContext;
-        if(applicationContext!=null) {
-            LOGGER.debug("Got application context initializing cacheutil");
-            applicationCacheUtil = (ApplicationCacheUtil) applicationContext.getBean("applicationCacheUtil");
-        }
-
     }
 
     public String getObjectName() {
