@@ -230,5 +230,9 @@ public class AccountPane implements UIFormPane {
 
 		writer.addJS("function changeDropDownValue(prefixedPath,selectedValue,selectedText){ebx_form_setValue(prefixedPath,{'key':selectedValue,'label':selectedText});}");
 		writer.addJS("function toggleInternalInfo(accountType) {     \tvar internalRows = document.getElementsByClassName(\"internal_info\");       \tvar i;     \tif (accountType === \"I\") {  \t\tfor (i = 0; i < internalRows.length; i++) {             \t\t\tinternalRows[i].style.display = \"table-row\";         \t\t}          \t} else {   ebx_form_setValue(\""+writer.getPrefixedPath(_InternalAccountId).format()+"\",null);      \t\tfor (i = 0; i < internalRows.length; i++) {             \t\t\tinternalRows[i].style.display = \"none\";         \t\t}              \t} }");
+		writer.addJS("function hideCreate() { var createButtons = document.querySelectorAll('[title=\"Create a record\"]'); if(createButtons){ createButtons.forEach(function(domNode, index){ domNode.parentNode.style.display='none'; domNode.parentNode.nextSibling.style.display='none'; }); }  }");
+		if(!context.isCreatingRecord() && "MERGED".equalsIgnoreCase(context.getCurrentRecord().getString(Paths._Account._DaqaMetaData_State))){
+			writer.addJS("hideCreate();");
+		}
 	}
 }
