@@ -186,6 +186,8 @@ public class GenericTrigger extends TableTrigger {
                     RequestResult tableRequestResult = table.createRequestResult(Paths._Address._MDMAccountId.format() + " = '" + String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"'");
                     if(tableRequestResult==null || tableRequestResult.isEmpty() || tableRequestResult.getSize()==1){
                         valueContextForUpdate.setValue("Y", Paths._Address._IdentifyingAddress);
+                    }else if(aContext.getOccurrenceContext().getValue(Paths._Address._IdentifyingAddress)==null){
+                        valueContextForUpdate.setValue("N", Paths._Address._IdentifyingAddress);
                     }
                 }
                 if(update){
