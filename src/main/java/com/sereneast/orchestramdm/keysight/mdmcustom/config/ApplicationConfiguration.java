@@ -3,6 +3,9 @@ package com.sereneast.orchestramdm.keysight.mdmcustom.config;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.DatabaseProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.EbxProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
+import org.jasypt.encryption.StringEncryptor;
+import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
+import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -61,5 +64,20 @@ public class ApplicationConfiguration {
     @Bean
     public NamedParameterJdbcTemplate ebxDbNamedParameterJdbcTemplate(@Qualifier("ebxDbDataSource")DataSource dataSource){
         return new NamedParameterJdbcTemplate(dataSource);
+    }
+
+    @Bean("jasyptStringEncryptor")
+    public StringEncryptor stringEncryptor() {
+        PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
+        SimpleStringPBEConfig config = new SimpleStringPBEConfig();
+        config.setPassword("WJ~%$(sMJKbVA2m!");
+        config.setAlgorithm("PBEWithMD5AndDES");
+        config.setKeyObtentionIterations("1000");
+        config.setPoolSize("1");
+        config.setProviderName("SunJCE");
+        config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
+        config.setStringOutputType("base64");
+        encryptor.setConfig(config);
+        return encryptor;
     }
 }

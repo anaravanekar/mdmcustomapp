@@ -2,30 +2,40 @@ keysight:
   rest:
     orchestra:
       username: admin
-      password: admin
+      password: ENC(8J2dxSoZoqXKMw6O3K2Hveo+1KimsbZS)
       ssl: false
       host: localhost
       port: 8080
       baseURI: /ebx-dataservices/rest/data/
       version: v1
       paths: { base: /ebx-dataservices/rest/data/ }
+      connectTimeout: 5000
+      readTimeout: 60000
     jitterbit:
       username: MDM_USER
-      password: Keysight@123
+      password: ENC(h1dFMdplH4oWnd8yQv+L4ggX3iFFzY1g)
       ssl: true
       host: Keysight.jitterbit.net
       port: null
       baseURI: /Development/
-      version: 1
+      version: 1.0
       paths: { account: MDM_Customer_to_Oracle, address: MDM_Customer_Address }
+      connectTimeout: 5000
+      readTimeout: 70000
   ebx:
     matching:
       lovsToMerge: { account: [Country], address: null }
+    retryWaitJb: 10000
+    retryWaitMdm: 1000
+    maxRetryJb: 3
+    maxRetryMdm: 3
+    doNotAssignToUsers:
+      - reduser
   database:
     ebx:
       driverClassName: oracle.jdbc.driver.OracleDriver
-      username: ebx
-      password: ebx
+      username: ebxnew
+      password: ENC(IxqoMALrsXCsI89yxj55YA==)
       url: 'jdbc:oracle:thin:@localhost:1521:xe'
       maxActive: 50
       maxIdle: 20
@@ -47,3 +57,6 @@ spring:
 server:
   port: 8039
   contextPath: /mdmcustomapp
+management:
+  security:
+    enabled: false
