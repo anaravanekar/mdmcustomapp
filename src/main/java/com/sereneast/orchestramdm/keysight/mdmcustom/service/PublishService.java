@@ -468,6 +468,19 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                                             OrchestraObject businessPurposeToJb = new OrchestraObject();
                                             Map<String, OrchestraContent> bpToJbContent = new HashMap<>();
                                             bpToJbContent.putAll(businessPurposeObject.getContent());
+                                            List<OrchestraContent> primaryInOus = (List<OrchestraContent>)bpToJbContent.get("Primary").getContent();
+                                            boolean primary = false;
+                                            for(OrchestraContent content:primaryInOus){
+                                                if(content.getContent().toString().equals(operatingUnit)){
+                                                    primary=true;
+                                                    break;
+                                                }
+                                            }
+                                            if(primary){
+                                                bpToJbContent.put("Primary",new OrchestraContent("Y"));
+                                            }else{
+                                                bpToJbContent.put("Primary",new OrchestraContent("N"));
+                                            }
                                             bpToJbContent.remove("OperatingUnit");
                                             businessPurposeToJb.setContent(bpToJbContent);
                                             businessPurposesFinal.add(businessPurposeToJb);
