@@ -37,9 +37,9 @@ public class BusinessPurposeTrigger extends TableTrigger {
         LOGGER.debug("handleAfterCreate called");
         boolean update = false;
         ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
-        if(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId)!=null &&
-                !((List)aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId)).isEmpty()) {
-            if(aContext.getAdaptationOccurrence().get(Paths._BusinessPurpose._Primary)==null){
+        if(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId)!=null) {
+            if(aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._Primary)==null ||
+                    aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._Primary).isEmpty()){
                 List<String> bpExistsOus = new ArrayList<>();
                 List<String> primaryForOus = new ArrayList<>();
                 List thisOus = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._OperatingUnit);
@@ -115,9 +115,8 @@ public class BusinessPurposeTrigger extends TableTrigger {
             List<String> currentOus = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._OperatingUnit);
             HashSet<String> currentOusSet = currentOus!=null?new HashSet<>(currentOus):new HashSet<>();
             HashSet<String> oUsRemovedSet = new HashSet<>(oUsBeforeSet);oUsRemovedSet.removeAll(new HashSet<>(currentOusSet));
-            HashSet<String> oUsAddedSet = new HashSet<>(currentOusSet);oUsRemovedSet.removeAll(new HashSet<>(oUsBeforeSet));
+            HashSet<String> oUsAddedSet = new HashSet<>(currentOusSet);oUsAddedSet.removeAll(new HashSet<>(oUsBeforeSet));
             primaryForOusSet.removeAll(oUsRemovedSet);
-            primaryForOus = new ArrayList<>(primaryForOusSet);
             List<String> thisOus = new ArrayList<>(oUsAddedSet);
             Object addressId = aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId);
             String purposeId = String.valueOf(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMPurposeId));
@@ -153,10 +152,11 @@ public class BusinessPurposeTrigger extends TableTrigger {
             }
             for(Object ou:thisOus){
                 if(!bpExistsOus.contains(String.valueOf(ou))){
-                    primaryForOus.add(String.valueOf(ou));
+                    primaryForOusSet.add(String.valueOf(ou));
                 }
             }
-            if(!primaryForOus.isEmpty()){
+            if(!primaryForOusSet.isEmpty()){
+                primaryForOus = new ArrayList<>(primaryForOusSet);
                 valueContextForUpdate.setValue(primaryForOus, Paths._BusinessPurpose._Primary);
                 update = true;
             }
