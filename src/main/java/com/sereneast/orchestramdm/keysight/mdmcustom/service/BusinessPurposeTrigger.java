@@ -37,7 +37,8 @@ public class BusinessPurposeTrigger extends TableTrigger {
         LOGGER.debug("handleAfterCreate called");
         boolean update = false;
         ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
-        if(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId)!=null) {
+        if(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId)!=null &&
+                !((List)aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId)).isEmpty()) {
             if(aContext.getAdaptationOccurrence().get(Paths._BusinessPurpose._Primary)==null){
                 List<String> bpExistsOus = new ArrayList<>();
                 List<String> primaryForOus = new ArrayList<>();
