@@ -7,18 +7,12 @@ import com.orchestranetworks.schema.trigger.*;
 import com.orchestranetworks.service.OperationException;
 import com.orchestranetworks.service.ValueContextForUpdate;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
-import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
-import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
-import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.OrchestraRestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class BusinessPurposeTrigger extends TableTrigger {
     private static final Logger LOGGER = LoggerFactory.getLogger(BusinessPurposeTrigger.class);
@@ -44,51 +38,52 @@ public class BusinessPurposeTrigger extends TableTrigger {
         boolean update = false;
         ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
         if(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId)!=null) {
-            boolean bpExists = false;
-            List<String> bpExistsOus = new ArrayList<>();
-            List<String> primaryForOus = new ArrayList<>();
-            List thisOus = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._OperatingUnit);
-            Object addressId = aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId);
-            String purposeId = String.valueOf(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMPurposeId));
-            String condition = Paths._Address._MDMAddressId.format() + " = " + String.valueOf(addressId)+"";
-            String mdmAccountId = null;
-            AdaptationTable bpTable = aContext.getTable();
-            AdaptationTable addressTable = aContext.getTable().getContainerAdaptation().getTable(Paths._Address.getPathInSchema());
-            RequestResult thisAddressRequestResult = addressTable.createRequestResult(condition);
-            if(thisAddressRequestResult !=null && !thisAddressRequestResult.isEmpty()){
-                mdmAccountId = thisAddressRequestResult.nextAdaptation().getString(Paths._Address._MDMAccountId);
-                String accountIdCondition = Paths._Address._MDMAccountId.format()+" = '"+mdmAccountId+"'";
-                RequestResult allAddressesRequestResult = addressTable.createRequestResult(accountIdCondition);
-                if(allAddressesRequestResult!=null && !allAddressesRequestResult.isEmpty()){
-                    OUTER_LOOP:
-                    for (Adaptation address; (address = allAddressesRequestResult.nextAdaptation()) != null; ) {
-                            String bpCondition = Paths._BusinessPurpose._BusinessPurpose.format()+" = '"+aContext.getAdaptationOccurrence().getString(Paths._BusinessPurpose._BusinessPurpose)+"'"
-                                    +" and ("+Paths._BusinessPurpose._MDMAddressId.format()+" = '"+address.get(Paths._Address._MDMAddressId).toString()+"')";
+            if(aContext.getAdaptationOccurrence().get(Paths._BusinessPurpose._Primary)==null){
+                List<String> bpExistsOus = new ArrayList<>();
+                List<String> primaryForOus = new ArrayList<>();
+                List thisOus = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._OperatingUnit);
+                thisOus = thisOus!=null?thisOus:new ArrayList();
+                Object addressId = aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId);
+                String purposeId = String.valueOf(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMPurposeId));
+                String condition = Paths._Address._MDMAddressId.format() + " = " + String.valueOf(addressId) + "";
+                String mdmAccountId = null;
+                AdaptationTable bpTable = aContext.getTable();
+                AdaptationTable addressTable = aContext.getTable().getContainerAdaptation().getTable(Paths._Address.getPathInSchema());
+                RequestResult thisAddressRequestResult = addressTable.createRequestResult(condition);
+                if (thisAddressRequestResult != null && !thisAddressRequestResult.isEmpty()) {
+                    mdmAccountId = thisAddressRequestResult.nextAdaptation().getString(Paths._Address._MDMAccountId);
+                    String accountIdCondition = Paths._Address._MDMAccountId.format() + " = '" + mdmAccountId + "'";
+                    RequestResult allAddressesRequestResult = addressTable.createRequestResult(accountIdCondition);
+                    if (allAddressesRequestResult != null && !allAddressesRequestResult.isEmpty()) {
+                        for (Adaptation address; (address = allAddressesRequestResult.nextAdaptation()) != null; ) {
+                            String bpCondition = Paths._BusinessPurpose._BusinessPurpose.format() + " = '" + aContext.getAdaptationOccurrence().getString(Paths._BusinessPurpose._BusinessPurpose) + "'"
+                                    + " and (" + Paths._BusinessPurpose._MDMAddressId.format() + " = '" + address.get(Paths._Address._MDMAddressId).toString() + "')";
                             RequestResult bpRequestResult = bpTable.createRequestResult(bpCondition);
-                            if(bpRequestResult!=null && !bpRequestResult.isEmpty()){
+                            if (bpRequestResult != null && !bpRequestResult.isEmpty()) {
                                 for (Adaptation bp; (bp = bpRequestResult.nextAdaptation()) != null; ) {
                                     List resultBpOu = bp.getList(Paths._BusinessPurpose._OperatingUnit);
                                     String resultPurposeId = String.valueOf(bp.get(Paths._BusinessPurpose._MDMPurposeId));
-                                    if(!purposeId.equals(resultPurposeId) && thisOus!=null && !thisOus.isEmpty() && resultBpOu!=null && !resultBpOu.isEmpty()){
-                                        for(Object ou:thisOus){
-                                            if(resultBpOu.contains(ou)){
+                                    if (!purposeId.equals(resultPurposeId) && !thisOus.isEmpty() && resultBpOu != null && !resultBpOu.isEmpty()) {
+                                        for (Object ou : thisOus) {
+                                            if (resultBpOu.contains(ou)) {
                                                 bpExistsOus.add(String.valueOf(ou));
                                             }
                                         }
                                     }
                                 }
                             }
+                        }
                     }
                 }
-            }
-            for(Object ou:thisOus){
-                if(!bpExistsOus.contains(String.valueOf(ou))){
-                    primaryForOus.add(String.valueOf(ou));
+                for (Object ou : thisOus) {
+                    if (!bpExistsOus.contains(String.valueOf(ou))) {
+                        primaryForOus.add(String.valueOf(ou));
+                    }
                 }
-            }
-            if(!primaryForOus.isEmpty()){
-                valueContextForUpdate.setValue(primaryForOus, Paths._BusinessPurpose._Primary);
-                update = true;
+                if (!primaryForOus.isEmpty()) {
+                    valueContextForUpdate.setValue(primaryForOus, Paths._BusinessPurpose._Primary);
+                    update = true;
+                }
             }
             if(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._Location)==null){
                 valueContextForUpdate.setValue(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId), Paths._BusinessPurpose._Location);
@@ -106,8 +101,68 @@ public class BusinessPurposeTrigger extends TableTrigger {
     }
 
     @Override
-    public void handleAfterModify(AfterModifyOccurrenceContext var1) throws OperationException {
+    public void handleAfterModify(AfterModifyOccurrenceContext aContext) throws OperationException {
         LOGGER.debug("handleAfterModify called");
+        boolean update = false;
+        ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
+        if(aContext.getChanges()!=null && aContext.getChanges().getChange(Paths._BusinessPurpose._OperatingUnit)!=null) {
+            List<String> bpExistsOus = new ArrayList<>();
+            List<String> primaryForOus = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._Primary);
+            HashSet<String> primaryForOusSet = primaryForOus!=null?new HashSet<>(primaryForOus):new HashSet<>();
+            List<String> oUsBefore = aContext.getChanges().getChange(Paths._BusinessPurpose._OperatingUnit).getValueBefore()!=null?(List)aContext.getChanges().getChange(Paths._BusinessPurpose._OperatingUnit).getValueBefore():null;
+            HashSet<String> oUsBeforeSet = oUsBefore!=null?new HashSet<>(oUsBefore):new HashSet<>();
+            List<String> currentOus = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._OperatingUnit);
+            HashSet<String> currentOusSet = currentOus!=null?new HashSet<>(currentOus):new HashSet<>();
+            HashSet<String> oUsRemovedSet = new HashSet<>(oUsBeforeSet);oUsRemovedSet.removeAll(new HashSet<>(currentOusSet));
+            HashSet<String> oUsAddedSet = new HashSet<>(currentOusSet);oUsRemovedSet.removeAll(new HashSet<>(oUsBeforeSet));
+            primaryForOusSet.removeAll(oUsRemovedSet);
+            primaryForOus = new ArrayList<>(primaryForOusSet);
+            List<String> thisOus = new ArrayList<>(oUsAddedSet);
+            Object addressId = aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId);
+            String purposeId = String.valueOf(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMPurposeId));
+            String condition = Paths._Address._MDMAddressId.format() + " = " + String.valueOf(addressId)+"";
+            String mdmAccountId = null;
+            AdaptationTable bpTable = aContext.getTable();
+            AdaptationTable addressTable = aContext.getTable().getContainerAdaptation().getTable(Paths._Address.getPathInSchema());
+            RequestResult thisAddressRequestResult = addressTable.createRequestResult(condition);
+            if(thisAddressRequestResult !=null && !thisAddressRequestResult.isEmpty()){
+                mdmAccountId = thisAddressRequestResult.nextAdaptation().getString(Paths._Address._MDMAccountId);
+                String accountIdCondition = Paths._Address._MDMAccountId.format()+" = '"+mdmAccountId+"'";
+                RequestResult allAddressesRequestResult = addressTable.createRequestResult(accountIdCondition);
+                if(allAddressesRequestResult!=null && !allAddressesRequestResult.isEmpty()){
+                    for (Adaptation address; (address = allAddressesRequestResult.nextAdaptation()) != null; ) {
+                        String bpCondition = Paths._BusinessPurpose._BusinessPurpose.format() + " = '" + aContext.getAdaptationOccurrence().getString(Paths._BusinessPurpose._BusinessPurpose) + "'"
+                                + " and (" + Paths._BusinessPurpose._MDMAddressId.format() + " = '" + address.get(Paths._Address._MDMAddressId).toString() + "')";
+                        RequestResult bpRequestResult = bpTable.createRequestResult(bpCondition);
+                        if (bpRequestResult != null && !bpRequestResult.isEmpty()) {
+                            for (Adaptation bp; (bp = bpRequestResult.nextAdaptation()) != null; ) {
+                                List resultBpOu = bp.getList(Paths._BusinessPurpose._OperatingUnit);
+                                String resultPurposeId = String.valueOf(bp.get(Paths._BusinessPurpose._MDMPurposeId));
+                                if (!purposeId.equals(resultPurposeId) && !thisOus.isEmpty() && resultBpOu != null && !resultBpOu.isEmpty()) {
+                                    for (Object ou : thisOus) {
+                                        if (resultBpOu.contains(ou)) {
+                                            bpExistsOus.add(String.valueOf(ou));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            for(Object ou:thisOus){
+                if(!bpExistsOus.contains(String.valueOf(ou))){
+                    primaryForOus.add(String.valueOf(ou));
+                }
+            }
+            if(!primaryForOus.isEmpty()){
+                valueContextForUpdate.setValue(primaryForOus, Paths._BusinessPurpose._Primary);
+                update = true;
+            }
+        }
+        if(update){
+            aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
+        }
     }
 
     @Override
