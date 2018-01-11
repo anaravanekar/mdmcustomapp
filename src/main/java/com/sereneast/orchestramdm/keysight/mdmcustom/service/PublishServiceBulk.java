@@ -505,14 +505,14 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                     Thread.sleep(retryWaitMdm);
                 }
                 LOGGER.debug("Promoting to Reference: \n"+mapper.writeValueAsString(orchestraObjectList));
-                //response = orchestraRestClient.promote(referenceDataSpaceUrl, referenceDataSetUrl, tablePathUrl, orchestraObjectList, parameters);
-                response = new RestResponse();
-                response.setStatus(200);
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HHmm");
                 java.nio.file.Path file = java.nio.file.Paths.get(System.getProperty("ebx.home"),"mdm_"+objectName+"_"+LocalTime.now().format(dtf)+".json");
                 try { file = Files.createFile(file); } catch(FileAlreadyExistsException ignored){}
                 Files.write(file,mapper.writeValueAsString(orchestraObjectList).getBytes());
                 LOGGER.info("MDM {} Retry attempt:{} Status:{}",objectName,retryCount,response.getStatus());
+                response = orchestraRestClient.promote(referenceDataSpaceUrl, referenceDataSetUrl, tablePathUrl, orchestraObjectList, parameters);
+//                response = new RestResponse();
+//                response.setStatus(200);
                 retryCount++;
             }while(retryCount<maxRetryMdm && (response==null || response.getStatus()>=300));
             if(response.getStatus()!=200 && response.getStatus()!=201){
