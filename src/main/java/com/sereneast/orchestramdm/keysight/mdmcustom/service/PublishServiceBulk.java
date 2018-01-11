@@ -509,7 +509,7 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                 java.nio.file.Path file = java.nio.file.Paths.get(System.getProperty("ebx.home"),"mdm_"+objectName+"_"+LocalTime.now().format(dtf)+".json");
                 try { file = Files.createFile(file); } catch(FileAlreadyExistsException ignored){}
                 Files.write(file,mapper.writeValueAsString(orchestraObjectList).getBytes());
-                LOGGER.info("MDM {} Retry attempt:{} Status:{}",objectName,retryCount,response.getStatus());
+//                LOGGER.info("MDM {} Retry attempt:{} Status:{}",objectName,retryCount,response.getStatus());
                 response = orchestraRestClient.promote(referenceDataSpaceUrl, referenceDataSetUrl, tablePathUrl, orchestraObjectList, parameters);
 //                response = new RestResponse();
 //                response.setStatus(200);
