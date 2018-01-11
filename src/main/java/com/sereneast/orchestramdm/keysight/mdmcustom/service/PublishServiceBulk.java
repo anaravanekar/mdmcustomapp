@@ -238,14 +238,14 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
             for (ObjectKey objectKey : objectKeys) {
                 LOGGER.debug("Getting adaptation for objectKey=" + objectKey.getName());
                 Adaptation adaptation = (Adaptation) aContext.getValueContext(objectKey).getValue();
-                if("Golden".equalsIgnoreCase(adaptation.getString(daqaStateFieldPath))){
+                //if("Golden".equalsIgnoreCase(adaptation.getString(daqaStateFieldPath))){
                     selectedRecords.add(adaptation);
-                }else{
+              /*  }else{
                     throw new ApplicationRuntimeException("Only Golden records can be published. Please select Golden records and try again.");
                 }
                 if(!validateRecord(objectName,adaptation.getContainer(),adaptation)){
                     throw new ApplicationRuntimeException("At least one golden state address and at least one golden state business purpose is mandatory for publish.");
-                }
+                }*/
             }
             finalMessage = promoteAndPublish(selectedRecords, aContext);
         }catch(ApplicationRuntimeException e){
@@ -327,11 +327,11 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                         }
                         for (Adaptation child; (child = childTableRequestResult.nextAdaptation()) != null; ) {
                             if (!"ADDRESS".equalsIgnoreCase(objectName)) {
-                                if ("Golden".equalsIgnoreCase(child.getString(Paths._Address._DaqaMetaData_State))) {
+//                                if ("Golden".equalsIgnoreCase(child.getString(Paths._Address._DaqaMetaData_State))) {
                                     children.add(child);
-                                }
+//                                }
                             } else {
-                                if ("Golden".equalsIgnoreCase(child.getString(Paths._BusinessPurpose._DaqaMetaData_State))) {
+//                                if ("Golden".equalsIgnoreCase(child.getString(Paths._BusinessPurpose._DaqaMetaData_State))) {
                                     OrchestraObject orchestraChildToUpdateInJitterbit = new OrchestraObject();
                                     Map<String, OrchestraContent> jsonFieldsMapForJitterbit = new HashMap<>();
                                     for (String fieldName : fieldPathMap.keySet()) {
@@ -373,7 +373,7 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                                     orchestraChildToUpdateInJitterbit.setContent(jsonFieldsMapForJitterbit);
                                     childrenToUpdateInJitterbit.add(orchestraChildToUpdateInJitterbit);
                                     children.add(child);
-                                }
+//                                }
                             }
                         }
                     }
