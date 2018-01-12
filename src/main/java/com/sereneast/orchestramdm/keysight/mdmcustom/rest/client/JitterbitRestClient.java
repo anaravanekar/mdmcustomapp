@@ -3,6 +3,8 @@ package com.sereneast.orchestramdm.keysight.mdmcustom.rest.client;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
+import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
+import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.RestResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.client.ClientProperties;
@@ -19,6 +21,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -82,6 +85,45 @@ public class JitterbitRestClient {
             LOGGER.debug("TIME: {} Jitterbit REST begin", LocalTime.now());
             LOGGER.debug("jb request: "+jsonRequest);
             Response response = request.post(Entity.json(jsonRequest));
+            response.bufferEntity();
+            RestResponse restResponse = new RestResponse();
+            restResponse.setStatus(response.getStatus());
+            try {
+                restResponse.setResponseBody(response.readEntity(new GenericType<HashMap<String, Object>>(){}));
+            }catch(Exception e){
+                restResponse.setResponseBody(mapper.readValue(response.readEntity(String.class), new TypeReference<Map<String, String>>(){}));
+            }
+            LOGGER.info("jb response: "+response.readEntity(String.class));
+            LOGGER.debug("TIME: {} Jitterbit REST end",LocalTime.now());
+
+            return restResponse;
+
+        }finally{
+            client.close();
+        }
+    }
+
+    public RestResponse insertBulk(OrchestraObjectList requestObject, final Map<String,String> parameters, String objectName) throws IOException {
+        Client client = ClientBuilder.newClient();
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            this.baseUrl = "https://Keysight.jitterbit.net/Development/1.0";
+            this.feature = HttpAuthenticationFeature.basic("keysight", "keysight123");
+            client.register(feature);
+            String targetUrl = baseUrl+"/"+("account".equalsIgnoreCase(objectName)?"MDMAccounts":"MDMAddress");
+            WebTarget target = client.target(targetUrl);
+            if (parameters != null)
+                for (Map.Entry<String, String> entry : parameters.entrySet())
+                    target = target.queryParam(entry.getKey(), entry.getValue());
+            Invocation.Builder request = target.request(MediaType.APPLICATION_JSON);
+            request.property(ClientProperties.CONNECT_TIMEOUT, restProperties.getJitterbit().getConnectTimeout()!=null?
+                    restProperties.getJitterbit().getConnectTimeout():5000);
+            request.property(ClientProperties.READ_TIMEOUT, restProperties.getJitterbit().getReadTimeout()!=null?
+                    restProperties.getJitterbit().getReadTimeout():70000);
+
+            LOGGER.debug("TIME: {} Jitterbit REST begin", LocalTime.now());
+//            LOGGER.debug("jb request: "+jsonRequest);
+            Response response = request.post(Entity.json(mapper.writeValueAsString(requestObject)));
             response.bufferEntity();
             RestResponse restResponse = new RestResponse();
             restResponse.setStatus(response.getStatus());

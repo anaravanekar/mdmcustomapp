@@ -457,10 +457,14 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
             LOGGER.info("Promoted {} to reference",objectName);
             if(recordsToUpdateInJitterbit!=null && !recordsToUpdateInJitterbit.isEmpty()) {
                 publishToJitterbit(recordsToUpdateInJitterbit);
+                recordsToUpdateInJitterbit.clear();
+                recordsToUpdateInJitterbit=null;
                 LOGGER.info("Published {} to Jitterbit",objectName);
             }
             if(!"BUSINESSPURPOSE".equalsIgnoreCase(objectName)) {
                 //updateFlagToSuccess(aContext, selectedRecords, recordsToUpdateInReference);
+                recordsToUpdateInReference.clear();
+                recordsToUpdateInReference=null;
                 LOGGER.info("Updated {} flag",objectName);
             }
             if(!children.isEmpty()){
@@ -551,13 +555,13 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                 if (retryCount > 0) {
                     Thread.sleep(retryWaitJb);
                 }
-                //response = jitterbitRestClient.insert(mapper.writeValueAsString(orchestraObjectList), null,objectName.toLowerCase());
-                response = new RestResponse();
-                response.setStatus(200);
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HHmm");
                 java.nio.file.Path file = java.nio.file.Paths.get(System.getProperty("ebx.home"),"jitterbit_"+objectName+"_"+LocalTime.now().format(dtf)+".json");
                 try { file = Files.createFile(file); } catch(FileAlreadyExistsException ignored){}
                 Files.write(file,mapper.writeValueAsString(orchestraObjectList).getBytes());
+                response = jitterbitRestClient.insertBulk(orchestraObjectList, null,objectName.toLowerCase());
+//                response = new RestResponse();
+//                response.setStatus(200);
                 LOGGER.info("JB {} Retry attempt:{} Status:{}",objectName,retryCount,response.getStatus());
                 retryCount++;
             } while (retryCount < maxRetryJb && (response == null || response.getStatus() >= 300));
