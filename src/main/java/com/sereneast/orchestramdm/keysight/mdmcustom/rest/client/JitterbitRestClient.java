@@ -3,7 +3,6 @@ package com.sereneast.orchestramdm.keysight.mdmcustom.rest.client;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.RestResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +20,6 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -123,7 +121,7 @@ public class JitterbitRestClient {
 
             LOGGER.debug("TIME: {} Jitterbit REST begin", LocalTime.now());
 //            LOGGER.debug("jb request: "+jsonRequest);
-            Response response = request.post(Entity.json(mapper.writeValueAsString(requestObject)));
+            Response response = request.post(Entity.json(requestObject));
             response.bufferEntity();
             RestResponse restResponse = new RestResponse();
             restResponse.setStatus(response.getStatus());
