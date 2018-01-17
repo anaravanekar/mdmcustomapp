@@ -150,6 +150,10 @@ public class BusinessPurposeTrigger extends TableTrigger {
                     }
                 }
             }
+            if(!oUsRemovedSet.isEmpty()){
+                valueContextForUpdate.setValue(new ArrayList<>(oUsRemovedSet), Paths._BusinessPurpose._RemovedOperatingUnits);
+                update = true;
+            }
             for(Object ou:thisOus){
                 if(!bpExistsOus.contains(String.valueOf(ou))){
                     primaryForOusSet.add(String.valueOf(ou));

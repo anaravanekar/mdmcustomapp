@@ -451,6 +451,8 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                         if(operatingUnits==null || operatingUnits.isEmpty()){
                             throw new ApplicationRuntimeException("Operating Unit is required for address.");
                         }
+                        List<String> removedOperatingUnits = adaptation.getList(Paths._Address._RemovedOperatingUnits)!=null?adaptation.getList(Paths._Address._RemovedOperatingUnits):new ArrayList<>();
+                        operatingUnits.addAll(removedOperatingUnits);
                         for(String operatingUnit:operatingUnits){
                             List<OrchestraObject> businessPurposesFinal = new ArrayList<>();
                             if (childrenToUpdateInJitterbit != null && !childrenToUpdateInJitterbit.isEmpty()) {
@@ -482,6 +484,13 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                                                 bpToJbContent.put("Primary",new OrchestraContent("N"));
                                             }
                                             bpToJbContent.remove("OperatingUnit");
+                                            List<String> removedOperatingUnitsBp = businessPurposeObject.getContent().get("RemovedOperatingUnits").getContent()!=null?(List<String>)businessPurposeObject.getContent().get("RemovedOperatingUnits").getContent():null;
+                                            if(removedOperatingUnitsBp!=null && removedOperatingUnitsBp.contains(operatingUnit)){
+                                                bpToJbContent.put("Status",new OrchestraContent("I"));
+                                            }else{
+                                                bpToJbContent.put("Status",new OrchestraContent("A"));
+                                            }
+                                            bpToJbContent.remove("RemovedOperatingUnits");
                                             businessPurposeToJb.setContent(bpToJbContent);
                                             businessPurposesFinal.add(businessPurposeToJb);
                                             break;
@@ -493,7 +502,7 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                                 }
                                 if(!businessPurposesFinal.isEmpty()) {
                                     jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(businessPurposesFinal));
-                                }else{
+                                }else if(!removedOperatingUnits.contains(operatingUnit)){
                                     throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Business Purpose does not exist for Operating Unit "+operatingUnit+".");
                                     //jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
                                 }
@@ -504,6 +513,12 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                             Map<String, OrchestraContent> addressContent = new HashMap<>();
                             addressContent.putAll(jsonFieldsMapForJitterbit);
                             addressContent.put("OperatingUnit",new OrchestraContent(operatingUnit));
+                            if(removedOperatingUnits!=null && removedOperatingUnits.contains(operatingUnit)){
+                                addressContent.put("OperatingUnitStatus",new OrchestraContent("I"));
+                            }else{
+                                addressContent.put("OperatingUnitStatus",new OrchestraContent("I"));
+                            }
+                            addressContent.remove("RemovedOperatingUnits");
                             OrchestraObject addressObjectForJb = new OrchestraObject();
                             addressObjectForJb.setContent(addressContent);
                             recordsToUpdateInJitterbit.add(addressObjectForJb);
@@ -628,11 +643,14 @@ public class PublishService implements UserService<TableViewEntitySelection> {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         for (int i=0;i<selectedRecords.size();i++) {
             Adaptation record = selectedRecords.get(i);
-            if(!"Y".equals(record.get(Paths._Account._Published))) {
+            if(!"Y".equals(record.get(Paths._Account._Published)) || (("ADDRESS".equalsIgnoreCase(objectName) || "BUSINESSPURPOSE".equalsIgnoreCase(objectName)) && record.get(Paths._Address._RemovedOperatingUnits)!=null)) {
                 Procedure procedure = procedureContext -> {
                     ValueContextForUpdate valueContextForUpdate = procedureContext.getContext(record.getAdaptationName());
                     valueContextForUpdate.setValue("Y", flagFieldPath);//TODO change
                     valueContextForUpdate.setValue(currentTime, Paths._Address._LastPublished);
+                    if(("ADDRESS".equalsIgnoreCase(objectName) || "BUSINESSPURPOSE".equalsIgnoreCase(objectName)) && record.get(Paths._Address._RemovedOperatingUnits)!=null){
+                        valueContextForUpdate.setValue(null, Paths._Address._RemovedOperatingUnits);
+                    }
                     procedureContext.doModifyContent(record, valueContextForUpdate);
                 };
                 ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), record.getHome());
@@ -656,6 +674,11 @@ public class PublishService implements UserService<TableViewEntitySelection> {
         OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");        Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("updateOrInsert", "true");
         OrchestraObjectList objList = new OrchestraObjectList();
+        for(OrchestraObject orchestraObject: recordsToUpdateInReference){
+            if("ADDRESS".equalsIgnoreCase(objectName) || "BUSINESSPURPOSE".equalsIgnoreCase(objectName)) {
+                orchestraObject.getContent().put("RemovedOperatingUnits", null);
+            }
+        }
         objList.setRows(recordsToUpdateInReference);
         try {
 //            LOGGER.debug("Request to update flag:"+mapper.writeValueAsString(objList));

@@ -266,25 +266,41 @@ public class GenericTrigger extends TableTrigger {
                     }
                 }
             }
-            if( "ADDRESS".equalsIgnoreCase(objectName) && aContext.getChanges().getChange(Paths._Address._MDMAccountId)!=null &&
-                    aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null){
-                Object internalAccountId = null;
-                Integer addressMdmAccountId = Integer.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId).toString());
-                String condition = Paths._Account._MDMAccountId.format()+" = "+addressMdmAccountId;
-                Adaptation container = aContext.getTable().getContainerAdaptation();
-                AdaptationTable parentTable = container.getTable(Paths._Account.getPathInSchema());
-                final RequestResult parentTableRequestResult = parentTable.createRequestResult(condition);
-                if (parentTableRequestResult != null && !parentTableRequestResult.isEmpty()) {
-                    LOGGER.debug("Parent found");
-                    Adaptation adaptation = parentTableRequestResult.nextAdaptation();
-                    internalAccountId = adaptation.get(Paths._Account._InternalAccountId);
-                    ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
-                    valueContextForUpdate.setValue(internalAccountId,Paths._Address._InternalAccountId);
-                    valueContextForUpdate.setValue(adaptation.getString(Paths._Account._AccountName), Path.parse("./AccountName"));
-                    valueContextForUpdate.setValue(adaptation.getString(Paths._Account._NameLocalLanguage), Path.parse("./AccountNameLocalLanguage"));
-                    aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(),valueContextForUpdate);
-                } else {
-                    LOGGER.error("Parent account not found");
+            if( "ADDRESS".equalsIgnoreCase(objectName)){
+                boolean update = false;
+                ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
+                if(aContext.getChanges().getChange(Paths._Address._MDMAccountId)!=null &&
+                    aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null) {
+                    Object internalAccountId = null;
+                    Integer addressMdmAccountId = Integer.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId).toString());
+                    String condition = Paths._Account._MDMAccountId.format() + " = " + addressMdmAccountId;
+                    Adaptation container = aContext.getTable().getContainerAdaptation();
+                    AdaptationTable parentTable = container.getTable(Paths._Account.getPathInSchema());
+                    final RequestResult parentTableRequestResult = parentTable.createRequestResult(condition);
+                    if (parentTableRequestResult != null && !parentTableRequestResult.isEmpty()) {
+                        LOGGER.debug("Parent found");
+                        Adaptation adaptation = parentTableRequestResult.nextAdaptation();
+                        internalAccountId = adaptation.get(Paths._Account._InternalAccountId);
+                        valueContextForUpdate.setValue(internalAccountId, Paths._Address._InternalAccountId);
+                        valueContextForUpdate.setValue(adaptation.getString(Paths._Account._AccountName), Path.parse("./AccountName"));
+                        valueContextForUpdate.setValue(adaptation.getString(Paths._Account._NameLocalLanguage), Path.parse("./AccountNameLocalLanguage"));
+                        update = true;
+                    } else {
+                        LOGGER.error("Parent account not found");
+                    }
+                }
+                if(aContext.getChanges().getChange(Paths._Address._OperatingUnit)!=null){
+                    ValueChange change = aContext.getChanges().getChange(Paths._Address._OperatingUnit);
+                    List<String> before = change.getValueBefore()!=null?(List<String>)change.getValueBefore():new ArrayList<>();
+                    List<String> now = change.getValueAfter()!=null?(List<String>)change.getValueAfter():new ArrayList<>();
+                    List<String> removed = before.removeAll(now)?before:null;
+                    if(removed!=null && aContext.getAdaptationOccurrence().get(Paths._Address._Published)!=null){
+                        valueContextForUpdate.setValue(removed,Paths._Address._RemovedOperatingUnits);
+                        update = true;
+                    }
+                }
+                if(update){
+                    aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
                 }
             }
             ProcedureContext procedureContext = aContext.getProcedureContext();

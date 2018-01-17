@@ -261,6 +261,7 @@ public interface Paths
 		public static final Path _Locale = Path.parse("./Locale");
 		public static final Path _RelatedBusinessPurpose = Path.parse("./RelatedBusinessPurpose");
 		public static final Path _MergedTargetRecord = Path.parse("./MergedTargetRecord");
+		public static final Path _RemovedOperatingUnits = Path.parse("./RemovedOperatingUnits");
 	} 
 
 	// Table type path
@@ -333,6 +334,7 @@ public interface Paths
 		public static final Path _Location = Path.parse("./Location");
 		public static final Path _BatchCode = Path.parse("./BatchCode");
 		public static final Path _OperatingUnit = Path.parse("./OperatingUnit");
+		public static final Path _RemovedOperatingUnits = Path.parse("./RemovedOperatingUnits");
 	} 
 
 	// Table type path
