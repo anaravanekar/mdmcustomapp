@@ -10,13 +10,16 @@ import com.optimaize.langdetect.text.TextObject;
 import com.optimaize.langdetect.text.TextObjectFactory;
 import com.orchestranetworks.schema.Path;
 import com.orchestranetworks.schema.trigger.*;
-import com.orchestranetworks.service.*;
+import com.orchestranetworks.service.OperationException;
+import com.orchestranetworks.service.ProcedureContext;
+import com.orchestranetworks.service.ValueContextForUpdate;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.EbxProperties;
-import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationOperationException;
-import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.*;
+import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
+import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
+import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
+import com.sereneast.orchestramdm.keysight.mdmcustom.model.RestResponse;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.OrchestraRestClient;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -253,7 +256,7 @@ public class GenericTrigger extends TableTrigger {
             }*/
             if("ADDRESS".equalsIgnoreCase(objectName) &&
                     (aContext.getChanges().getChange(Paths._Address._Country)!=null || aContext.getChanges().getChange(Paths._Address._AddressState)!=null
-                    || aContext.getChanges().getChange(Paths._Address._Province)!=null)){
+                            || aContext.getChanges().getChange(Paths._Address._Province)!=null)){
                 String countryCode = aContext.getAdaptationOccurrence().getString(Paths._Address._Country);
                 if(countryCode!=null){
                     boolean valid = validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState),
@@ -267,7 +270,7 @@ public class GenericTrigger extends TableTrigger {
                 boolean update = false;
                 ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                 if(aContext.getChanges().getChange(Paths._Address._MDMAccountId)!=null &&
-                    aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null) {
+                        aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null) {
                     Object internalAccountId = null;
                     Integer addressMdmAccountId = Integer.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId).toString());
                     String condition = Paths._Account._MDMAccountId.format() + " = " + addressMdmAccountId;
@@ -290,28 +293,30 @@ public class GenericTrigger extends TableTrigger {
                     ValueChange change = aContext.getChanges().getChange(Paths._Address._OperatingUnit);
                     List<String> before = change.getValueBefore()!=null?(List<String>)change.getValueBefore():new ArrayList<>();
                     List<String> now = change.getValueAfter()!=null?(List<String>)change.getValueAfter():new ArrayList<>();
-                    List<String> removed = before.removeAll(now)?before:null;
-                    if(removed!=null){
-                        if(aContext.getAdaptationOccurrence().get(Paths._Address._Published)!=null) {
-                            valueContextForUpdate.setValue(removed, Paths._Address._RemovedOperatingUnits);
-                            update = true;
-                        }
-                        /*AdaptationTable table = aContext.getOccurrenceContext().getAdaptationInstance().getTable(Paths._BusinessPurpose.getPathInSchema());
-                        RequestResult bpResult = table.createRequestResult(Paths._BusinessPurpose._MDMAddressId.format()+" = '"+aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId)+"'");
-                        if(bpResult!=null && !bpResult.isEmpty()){
-                            List<OrchestraObject> rows = new ArrayList<>();
-                            for (Adaptation bpAdapatation; (bpAdapatation=bpResult.nextAdaptation()) != null;) {
-                                if(bpAdapatation.getList(Paths._BusinessPurpose._OperatingUnit)!=null){
-                                    List<String> ous = (List<String>)bpAdapatation.getList(Paths._BusinessPurpose._OperatingUnit);
-                                    List<String> ousRemoved = new ArrayList<>();
+                    List<String> removed = new ArrayList<>(before);
+                    List<String> added = new ArrayList<>(now);
+                    List<String> ousWithNoBp = new ArrayList<>();
+                    HashSet<String> bpOus = new HashSet<>();
+                    removed = removed.removeAll(now)?removed:null;
+                    added = added.removeAll(before)?added:null;
+                    AdaptationTable table = aContext.getOccurrenceContext().getAdaptationInstance().getTable(Paths._BusinessPurpose.getPathInSchema());
+                    RequestResult bpResult = table.createRequestResult(Paths._BusinessPurpose._MDMAddressId.format()+" = '"+aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId)+"'");
+                    List<OrchestraObject> bpRowsToRemoveOu = new ArrayList<>();
+                    if(bpResult!=null && !bpResult.isEmpty()) {
+                        for (Adaptation bpAdapatation; (bpAdapatation = bpResult.nextAdaptation()) != null; ) {
+                            if (bpAdapatation.getList(Paths._BusinessPurpose._OperatingUnit) != null) {
+                                List<String> ous = (List<String>) bpAdapatation.getList(Paths._BusinessPurpose._OperatingUnit);
+                                if (ous != null) {
+                                    bpOus.addAll(ous);
+                                    List<String> bpOusRemoved = new ArrayList<>();
                                     for(String ou: ous){
                                         if(removed.contains(ou)){
-                                            ousRemoved.add(ou);
+                                            bpOusRemoved.add(ou);
                                         }
                                     }
-                                    if(!ousRemoved.isEmpty()){
+                                    if(!bpOusRemoved.isEmpty()){
                                         List<String> ousNew = new ArrayList<>(ous);
-                                        ousNew.removeAll(ousRemoved);
+                                        ousNew.removeAll(bpOusRemoved);
                                         OrchestraObject orchestraObject = new OrchestraObject();
                                         Map<String, OrchestraContent> content = new HashMap<>();
                                         List<OrchestraContent> ousNewContent = new ArrayList<>();
@@ -319,34 +324,64 @@ public class GenericTrigger extends TableTrigger {
                                         for(String ounew:ousNew){
                                             ousNewContent.add(new OrchestraContent(ounew));
                                         }
-                                        for(String our:ousRemoved){
+                                        List<String> existingRemovedOus = (List<String>) bpAdapatation.getList(Paths._BusinessPurpose._RemovedOperatingUnits);
+                                        HashSet<String> removedBpOusSet = new HashSet<>(bpOusRemoved);
+                                        removedBpOusSet.addAll(existingRemovedOus);
+                                        bpOusRemoved = new ArrayList<>(removedBpOusSet);
+                                        for(String our:bpOusRemoved){
                                             ousRemovedContent.add(new OrchestraContent(our));
                                         }
                                         content.put("MDMPurposeId",new OrchestraContent(bpAdapatation.get(Paths._BusinessPurpose._MDMPurposeId)));
-                                        content.put("OperatingUnit",new OrchestraContent(ousNew));
-                                        content.put("RemovedOperatingUnits",new OrchestraContent(ousRemoved));
+                                        content.put("OperatingUnit",new OrchestraContent(ousNewContent));
+                                        content.put("RemovedOperatingUnits",new OrchestraContent(ousRemovedContent));
+                                        content.put("Location",new OrchestraContent(bpAdapatation.getString(Paths._BusinessPurpose._Location)));
                                         orchestraObject.setContent(content);
-                                        rows.add(orchestraObject);
+                                        bpRowsToRemoveOu.add(orchestraObject);
                                     }
                                 }
                             }
-                            if(!rows.isEmpty()){
+                        }
+                    }
+                    if(added!=null && aContext.getAdaptationOccurrence().getString(Paths._Address._Published)!=null){
+                        for(String addedOu:added){
+                            if(!bpOus.contains(addedOu)){
+                                ousWithNoBp.add(addedOu);
+                            }
+                        }
+                        if(!ousWithNoBp.isEmpty()){
+                            throw OperationException.createError("No Business Purpose exists for Operating Units "+StringUtils.join(ousWithNoBp, ',')+". Please add Business Purpose(s) first.");
+                        }
+                    }
+                    if(removed!=null){
+                        if(aContext.getAdaptationOccurrence().get(Paths._Address._Published)!=null) {
+                            if(aContext.getAdaptationOccurrence().getList(Paths._Address._RemovedOperatingUnits)!=null){
+                                List<String> existingRemovedOus = aContext.getAdaptationOccurrence().getList(Paths._Address._RemovedOperatingUnits);
+                                HashSet<String> removedOusSet = new HashSet<>(removed);
+                                removedOusSet.addAll(existingRemovedOus);
+                                removed = new ArrayList<>(removedOusSet);
+                            }
+                            valueContextForUpdate.setValue(removed, Paths._Address._RemovedOperatingUnits);
+                            update = true;
+                        }
+                        if(!bpRowsToRemoveOu.isEmpty()){
+                            Runnable deleteOusFromBpRunnable = () -> {
                                 String dataSpace = aContext.getAdaptationHome().getKey().format();
                                 OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
-                                orchestraObjectList.setRows(rows);
+                                orchestraObjectList.setRows(bpRowsToRemoveOu);
                                 OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
                                 Map<String, String> parameters = new HashMap<String, String>();
                                 parameters.put("updateOrInsert", "true");
                                 try {
                                     RestResponse response = orchestraRestClient.promote(dataSpace, "Account", "root/BusinessPurpose", orchestraObjectList, parameters);
                                     if(response.getStatus()>=300){
-                                        throw OperationException.createError("Error removing Operating Units from BusinessPurpose. status: "+response.getStatus());
+                                        LOGGER.error("Error removing Operating Units from BusinessPurpose. response: "+response.getResponseBody());
                                     }
                                 } catch (IOException e) {
-                                    throw OperationException.createError("Error removing Operating Units from BusinessPurpose. "+e.getMessage());
+                                    LOGGER.error("Error removing Operating Units from BusinessPurpose. ",e);
                                 }
-                            }
-                        }*/
+                            };
+                            new Thread(deleteOusFromBpRunnable).start();
+                        }
                     }
                 }
                 if(update){

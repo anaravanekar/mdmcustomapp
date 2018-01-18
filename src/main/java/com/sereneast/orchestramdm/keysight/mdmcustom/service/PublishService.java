@@ -501,7 +501,7 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                                             businessPurposesFinal.add(businessPurposeToJb);
                                             break;
                                         }
-                                        if(!operatingUnits.contains(String.valueOf(bpOuContent.getContent()))){
+                                        if(!operatingUnits.contains(String.valueOf(bpOuContent.getContent())) && !removedBpOus.contains(String.valueOf(bpOuContent.getContent()))){
                                             throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Operating unit "+String.valueOf(bpOuContent.getContent())+" found in Business Purpose "+mdmPurposeId+" does not exist for Address "+mdmAddressId+".");
                                         }
                                     }
@@ -649,14 +649,11 @@ public class PublishService implements UserService<TableViewEntitySelection> {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         for (int i=0;i<selectedRecords.size();i++) {
             Adaptation record = selectedRecords.get(i);
-            if(!"Y".equals(record.get(Paths._Account._Published)) || (("ADDRESS".equalsIgnoreCase(objectName) || "BUSINESSPURPOSE".equalsIgnoreCase(objectName)) && record.get(Paths._Address._RemovedOperatingUnits)!=null)) {
+            if(!"Y".equals(record.get(Paths._Account._Published))) {
                 Procedure procedure = procedureContext -> {
                     ValueContextForUpdate valueContextForUpdate = procedureContext.getContext(record.getAdaptationName());
                     valueContextForUpdate.setValue("Y", flagFieldPath);//TODO change
                     valueContextForUpdate.setValue(currentTime, Paths._Address._LastPublished);
-                    if(("ADDRESS".equalsIgnoreCase(objectName) || "BUSINESSPURPOSE".equalsIgnoreCase(objectName)) && record.get(Paths._Address._RemovedOperatingUnits)!=null){
-                        valueContextForUpdate.setValue(null, Paths._Address._RemovedOperatingUnits);
-                    }
                     procedureContext.doModifyContent(record, valueContextForUpdate);
                 };
                 ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), record.getHome());
@@ -680,11 +677,6 @@ public class PublishService implements UserService<TableViewEntitySelection> {
         OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");        Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("updateOrInsert", "true");
         OrchestraObjectList objList = new OrchestraObjectList();
-        for(OrchestraObject orchestraObject: recordsToUpdateInReference){
-            if("ADDRESS".equalsIgnoreCase(objectName) || "BUSINESSPURPOSE".equalsIgnoreCase(objectName)) {
-                orchestraObject.getContent().put("RemovedOperatingUnits", null);
-            }
-        }
         objList.setRows(recordsToUpdateInReference);
         try {
 //            LOGGER.debug("Request to update flag:"+mapper.writeValueAsString(objList));

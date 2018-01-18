@@ -115,6 +115,8 @@ public class BusinessPurposeTrigger extends TableTrigger {
             List<String> currentOus = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._OperatingUnit);
             HashSet<String> currentOusSet = currentOus!=null?new HashSet<>(currentOus):new HashSet<>();
             HashSet<String> oUsRemovedSet = new HashSet<>(oUsBeforeSet);oUsRemovedSet.removeAll(new HashSet<>(currentOusSet));
+            List<String> existingOusRemoved = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._RemovedOperatingUnits);
+            existingOusRemoved = existingOusRemoved!=null?existingOusRemoved:new ArrayList<>();
             HashSet<String> oUsAddedSet = new HashSet<>(currentOusSet);oUsAddedSet.removeAll(new HashSet<>(oUsBeforeSet));
             primaryForOusSet.removeAll(oUsRemovedSet);
             List<String> thisOus = new ArrayList<>(oUsAddedSet);
@@ -151,6 +153,7 @@ public class BusinessPurposeTrigger extends TableTrigger {
                 }
             }
             if(!oUsRemovedSet.isEmpty()){
+                oUsRemovedSet.addAll(existingOusRemoved);
                 valueContextForUpdate.setValue(new ArrayList<>(oUsRemovedSet), Paths._BusinessPurpose._RemovedOperatingUnits);
                 update = true;
             }
