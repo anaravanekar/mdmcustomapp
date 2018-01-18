@@ -16,10 +16,7 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.EbxProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationOperationException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectListResponse;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectResponse;
+import com.sereneast.orchestramdm.keysight.mdmcustom.model.*;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.OrchestraRestClient;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -294,9 +291,62 @@ public class GenericTrigger extends TableTrigger {
                     List<String> before = change.getValueBefore()!=null?(List<String>)change.getValueBefore():new ArrayList<>();
                     List<String> now = change.getValueAfter()!=null?(List<String>)change.getValueAfter():new ArrayList<>();
                     List<String> removed = before.removeAll(now)?before:null;
-                    if(removed!=null && aContext.getAdaptationOccurrence().get(Paths._Address._Published)!=null){
-                        valueContextForUpdate.setValue(removed,Paths._Address._RemovedOperatingUnits);
-                        update = true;
+                    if(removed!=null){
+                        if(aContext.getAdaptationOccurrence().get(Paths._Address._Published)!=null) {
+                            valueContextForUpdate.setValue(removed, Paths._Address._RemovedOperatingUnits);
+                            update = true;
+                        }
+                        /*AdaptationTable table = aContext.getOccurrenceContext().getAdaptationInstance().getTable(Paths._BusinessPurpose.getPathInSchema());
+                        RequestResult bpResult = table.createRequestResult(Paths._BusinessPurpose._MDMAddressId.format()+" = '"+aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId)+"'");
+                        if(bpResult!=null && !bpResult.isEmpty()){
+                            List<OrchestraObject> rows = new ArrayList<>();
+                            for (Adaptation bpAdapatation; (bpAdapatation=bpResult.nextAdaptation()) != null;) {
+                                if(bpAdapatation.getList(Paths._BusinessPurpose._OperatingUnit)!=null){
+                                    List<String> ous = (List<String>)bpAdapatation.getList(Paths._BusinessPurpose._OperatingUnit);
+                                    List<String> ousRemoved = new ArrayList<>();
+                                    for(String ou: ous){
+                                        if(removed.contains(ou)){
+                                            ousRemoved.add(ou);
+                                        }
+                                    }
+                                    if(!ousRemoved.isEmpty()){
+                                        List<String> ousNew = new ArrayList<>(ous);
+                                        ousNew.removeAll(ousRemoved);
+                                        OrchestraObject orchestraObject = new OrchestraObject();
+                                        Map<String, OrchestraContent> content = new HashMap<>();
+                                        List<OrchestraContent> ousNewContent = new ArrayList<>();
+                                        List<OrchestraContent> ousRemovedContent = new ArrayList<>();
+                                        for(String ounew:ousNew){
+                                            ousNewContent.add(new OrchestraContent(ounew));
+                                        }
+                                        for(String our:ousRemoved){
+                                            ousRemovedContent.add(new OrchestraContent(our));
+                                        }
+                                        content.put("MDMPurposeId",new OrchestraContent(bpAdapatation.get(Paths._BusinessPurpose._MDMPurposeId)));
+                                        content.put("OperatingUnit",new OrchestraContent(ousNew));
+                                        content.put("RemovedOperatingUnits",new OrchestraContent(ousRemoved));
+                                        orchestraObject.setContent(content);
+                                        rows.add(orchestraObject);
+                                    }
+                                }
+                            }
+                            if(!rows.isEmpty()){
+                                String dataSpace = aContext.getAdaptationHome().getKey().format();
+                                OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
+                                orchestraObjectList.setRows(rows);
+                                OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+                                Map<String, String> parameters = new HashMap<String, String>();
+                                parameters.put("updateOrInsert", "true");
+                                try {
+                                    RestResponse response = orchestraRestClient.promote(dataSpace, "Account", "root/BusinessPurpose", orchestraObjectList, parameters);
+                                    if(response.getStatus()>=300){
+                                        throw OperationException.createError("Error removing Operating Units from BusinessPurpose. status: "+response.getStatus());
+                                    }
+                                } catch (IOException e) {
+                                    throw OperationException.createError("Error removing Operating Units from BusinessPurpose. "+e.getMessage());
+                                }
+                            }
+                        }*/
                     }
                 }
                 if(update){

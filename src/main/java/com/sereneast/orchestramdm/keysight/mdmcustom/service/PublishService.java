@@ -463,6 +463,13 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                                         continue;
                                     }
                                     List<OrchestraContent> bpOus = (List<OrchestraContent>)businessPurposeObject.getContent().get("OperatingUnit").getContent();
+                                    List<OrchestraContent> removedOus = (List<OrchestraContent>)businessPurposeObject.getContent().get("RemovedOperatingUnits").getContent();
+                                    removedOus = removedOus!=null?removedOus:new ArrayList<>();
+                                    List<String> removedBpOus = new ArrayList<>();
+                                    for(OrchestraContent removedOuContent: removedOus){
+                                        removedBpOus.add(removedOuContent.getContent().toString());
+                                    }
+                                    bpOus.addAll(removedOus);
                                     String mdmPurposeId = String.valueOf(businessPurposeObject.getContent().get("MDMPurposeId").getContent());
                                     String mdmAddressId = String.valueOf(businessPurposeObject.getContent().get("MDMAddressId").getContent());
                                     for(OrchestraContent bpOuContent:bpOus) {
@@ -484,8 +491,7 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                                                 bpToJbContent.put("Primary",new OrchestraContent("N"));
                                             }
                                             bpToJbContent.remove("OperatingUnit");
-                                            List<String> removedOperatingUnitsBp = businessPurposeObject.getContent().get("RemovedOperatingUnits").getContent()!=null?(List<String>)businessPurposeObject.getContent().get("RemovedOperatingUnits").getContent():null;
-                                            if(removedOperatingUnitsBp!=null && removedOperatingUnitsBp.contains(operatingUnit)){
+                                            if(removedBpOus.contains(operatingUnit)){
                                                 bpToJbContent.put("Status",new OrchestraContent("I"));
                                             }else{
                                                 bpToJbContent.put("Status",new OrchestraContent("A"));
@@ -516,7 +522,7 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                             if(removedOperatingUnits!=null && removedOperatingUnits.contains(operatingUnit)){
                                 addressContent.put("OperatingUnitStatus",new OrchestraContent("I"));
                             }else{
-                                addressContent.put("OperatingUnitStatus",new OrchestraContent("I"));
+                                addressContent.put("OperatingUnitStatus",new OrchestraContent("A"));
                             }
                             addressContent.remove("RemovedOperatingUnits");
                             OrchestraObject addressObjectForJb = new OrchestraObject();
