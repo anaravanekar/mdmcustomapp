@@ -305,7 +305,7 @@ public class GenericTrigger extends TableTrigger {
                     if(bpResult!=null && !bpResult.isEmpty()) {
                         for (Adaptation bpAdapatation; (bpAdapatation = bpResult.nextAdaptation()) != null; ) {
                             if (bpAdapatation.getList(Paths._BusinessPurpose._OperatingUnit) != null) {
-                                List<String> ous = (List<String>) bpAdapatation.getList(Paths._BusinessPurpose._OperatingUnit);
+                                List<String> ous = bpAdapatation.getList(Paths._BusinessPurpose._OperatingUnit);
                                 if (ous != null) {
                                     bpOus.addAll(ous);
                                     List<String> bpOusRemoved = new ArrayList<>();
