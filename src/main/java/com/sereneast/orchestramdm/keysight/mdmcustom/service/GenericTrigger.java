@@ -324,7 +324,8 @@ public class GenericTrigger extends TableTrigger {
                                         for(String ounew:ousNew){
                                             ousNewContent.add(new OrchestraContent(ounew));
                                         }
-                                        List<String> existingRemovedOus = (List<String>) bpAdapatation.getList(Paths._BusinessPurpose._RemovedOperatingUnits);
+                                        List<String> existingRemovedOus = bpAdapatation.getList(Paths._BusinessPurpose._RemovedOperatingUnits);
+                                        existingRemovedOus=existingRemovedOus!=null?existingRemovedOus:new ArrayList<>();
                                         HashSet<String> removedBpOusSet = new HashSet<>(bpOusRemoved);
                                         removedBpOusSet.addAll(existingRemovedOus);
                                         bpOusRemoved = new ArrayList<>(removedBpOusSet);
