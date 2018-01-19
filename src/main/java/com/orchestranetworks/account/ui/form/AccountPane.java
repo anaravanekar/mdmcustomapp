@@ -188,9 +188,9 @@ public class AccountPane implements UIFormPane {
 		} catch (IllegalAccessException | ClassNotFoundException | JsonProcessingException e) {
 			throw new ApplicationRuntimeException("Error geting prefixed paths for account",e);
 		}
-		writer.addJS("var mdmRestProtocol = "+protocol+";");
-		writer.addJS("var mdmRestHost = "+host+";");
-		writer.addJS("var mdmRestPort = "+port+";");
+		writer.addJS("var mdmRestProtocol = '"+protocol+"';");
+		writer.addJS("var mdmRestHost = '"+host+"';");
+		writer.addJS("var mdmRestPort = '"+port+"';");
 
 		//JS FUNCTION CALLS
 		if(!context.isCreatingRecord() && "MERGED".equalsIgnoreCase(context.getCurrentRecord().getString(Paths._Account._DaqaMetaData_State))){

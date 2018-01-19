@@ -712,9 +712,9 @@ public class AddressPane implements UIFormPane {
 			throw new ApplicationRuntimeException("Error geting prefixed paths for address",e);
 		}
 		writer.addJS("var territoryTypeMap = "+territoryTypeMapJsonString+";");
-		writer.addJS("var mdmRestProtocol = "+protocol+";");
-		writer.addJS("var mdmRestHost = "+host+";");
-		writer.addJS("var mdmRestPort = "+port+";");
+		writer.addJS("var mdmRestProtocol = '"+protocol+"';");
+		writer.addJS("var mdmRestHost = '"+host+"';");
+		writer.addJS("var mdmRestPort = '"+port+"';");
 
 		//JS FUNCTION CALLS
 		writer.addJS("populateLovsOnLoad();");
