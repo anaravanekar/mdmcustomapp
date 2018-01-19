@@ -1,4 +1,4 @@
-function updateRelatedOptions(countryCode, currentStateValue, currentProvinceValue) {
+/*function updateRelatedOptions(countryCode, currentStateValue, currentProvinceValue) {
     if (!countryCode) {
         return;
     }
@@ -220,6 +220,110 @@ function updateRelatedLocalOptions(countryCode, currentStateValue, currentProvin
     xhr.send();
 }
 
+function calculatedFields(countryCode) {
+    updateRelatedOptions(countryCode, null, null);
+    updateRelatedLocalOptions(countryCode, null, null);
+    var stateValue = ebx_form_getValue(addressPrefixedPaths.AddressState);
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', "'"+mdmRestProtocol+'://'+mdmRestHost+':'+mdmRestPort+'/mdmcustomapp/calculatedFields/country/BReference/Account/' + countryCode);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var calculatedFieldsJson = JSON.parse(xhr.responseText);
+            if (calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('TaxRegimeCode')) {
+                var valueTax = calculatedFieldsJson.TaxRegimeCode;
+                ebx_form_setValue(addressPrefixedPaths.TaxRegimeCode, valueTax);
+            } else {
+                ebx_form_setValue(addressPrefixedPaths.TaxRegimeCode, null);
+            }
+        }
+        var valueOne = {
+            "key": "1",
+            "label": "One copy"
+        };
+        var valueTwo = {
+            "key": "2",
+            "label": "Two copies"
+        };
+        var valueThree = {
+            "key": "3",
+            "label": "Three copies"
+        };
+        var valueFour = {
+            "key": "4",
+            "label": "Four copies"
+        };
+        var valueFive = {
+            "key": "5",
+            "label": "Five copies"
+        };
+        var sk = {
+            "key": "N",
+            "label": "N"
+        };
+        var sky = {
+            "key": "Y",
+            "label": "Y"
+        };
+        if ("US" === countryCode) {
+            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, valueTwo);
+        } else {
+            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, valueOne);
+        }
+        if ("KR" === countryCode) {
+            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, valueThree);
+        }
+        var valueIndia = {
+            "key": "0.3",
+            "label": "Suppress because a Government Invoice number is required"
+        };
+        if ("IN" === countryCode) {
+            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, valueIndia);
+        }
+        var ic = {
+            "key": "0.2",
+            "label": "Suppress because of special format requirements"
+        };
+        if ("JP" === countryCode) {
+            ebx_form_setValue(addressPrefixedPaths.SendAcknowledgement, sk);
+            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, ic);
+        } else {
+            ebx_form_setValue(addressPrefixedPaths.SendAcknowledgement, sky);
+        }
+        if ("PL" === countryCode) {
+            ebx_form_setValue(addressPrefixedPaths.SendAcknowledgement, sk);
+        }
+        if ("GU" === countryCode || "VE" === countryCode || "PR" === countryCode) {
+            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, valueTwo);
+        }
+        if ("PL" === countryCode) {
+            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, valueThree);
+        }
+        if ("MX" === countryCode) {
+            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, valueFour);
+        }
+        if ("AR" === countryCode) {
+            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, valueFive);
+        }
+    };
+    xhr.send();
+}
+
+function saveAssignment(dataSpace, newAssignment, table, primaryKey) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', "'"+mdmRestProtocol+'://'+mdmRestHost+':'+mdmRestPort+'/mdmcustomapp/' + table + '/updateAssignment/' + dataSpace + '/' + primaryKey + '/' + newAssignment.key);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            document.getElementById("divLoading").classList.remove("show");
+        } else {
+            document.getElementById("divLoading").classList.remove("show");
+        }
+    };
+    xhr.send();
+    document.getElementById("divLoading").classList.add("show");
+}
+*/
 function toggeleStandardFields(displayStandard) {
     if (displayStandard) {
         document.getElementById('stateCustomDiv').style.display = 'none';
@@ -352,110 +456,6 @@ function hideCreate() {
             domNode.parentNode.nextSibling.style.display = 'none';
         });
     }
-}
-
-function calculatedFields(countryCode) {
-    updateRelatedOptions(countryCode, null, null);
-    updateRelatedLocalOptions(countryCode, null, null);
-    var stateValue = ebx_form_getValue(addressPrefixedPaths.AddressState);
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', "'"+mdmRestProtocol+'://'+mdmRestHost+':'+mdmRestPort+'/mdmcustomapp/calculatedFields/country/BReference/Account/' + countryCode);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            var calculatedFieldsJson = JSON.parse(xhr.responseText);
-            if (calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('TaxRegimeCode')) {
-                var valueTax = calculatedFieldsJson.TaxRegimeCode;
-                ebx_form_setValue(addressPrefixedPaths.TaxRegimeCode, valueTax);
-            } else {
-                ebx_form_setValue(addressPrefixedPaths.TaxRegimeCode, null);
-            }
-        }
-        var valueOne = {
-            "key": "1",
-            "label": "One copy"
-        };
-        var valueTwo = {
-            "key": "2",
-            "label": "Two copies"
-        };
-        var valueThree = {
-            "key": "3",
-            "label": "Three copies"
-        };
-        var valueFour = {
-            "key": "4",
-            "label": "Four copies"
-        };
-        var valueFive = {
-            "key": "5",
-            "label": "Five copies"
-        };
-        var sk = {
-            "key": "N",
-            "label": "N"
-        };
-        var sky = {
-            "key": "Y",
-            "label": "Y"
-        };
-        if ("US" === countryCode) {
-            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, valueTwo);
-        } else {
-            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, valueOne);
-        }
-        if ("KR" === countryCode) {
-            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, valueThree);
-        }
-        var valueIndia = {
-            "key": "0.3",
-            "label": "Suppress because a Government Invoice number is required"
-        };
-        if ("IN" === countryCode) {
-            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, valueIndia);
-        }
-        var ic = {
-            "key": "0.2",
-            "label": "Suppress because of special format requirements"
-        };
-        if ("JP" === countryCode) {
-            ebx_form_setValue(addressPrefixedPaths.SendAcknowledgement, sk);
-            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, ic);
-        } else {
-            ebx_form_setValue(addressPrefixedPaths.SendAcknowledgement, sky);
-        }
-        if ("PL" === countryCode) {
-            ebx_form_setValue(addressPrefixedPaths.SendAcknowledgement, sk);
-        }
-        if ("GU" === countryCode || "VE" === countryCode || "PR" === countryCode) {
-            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, valueTwo);
-        }
-        if ("PL" === countryCode) {
-            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, valueThree);
-        }
-        if ("MX" === countryCode) {
-            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, valueFour);
-        }
-        if ("AR" === countryCode) {
-            ebx_form_setValue(addressPrefixedPaths.InvoiceCopies, valueFive);
-        }
-    };
-    xhr.send();
-}
-
-function saveAssignment(dataSpace, newAssignment, table, primaryKey) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', "'"+mdmRestProtocol+'://'+mdmRestHost+':'+mdmRestPort+'/mdmcustomapp/' + table + '/updateAssignment/' + dataSpace + '/' + primaryKey + '/' + newAssignment.key);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            document.getElementById("divLoading").classList.remove("show");
-        } else {
-            document.getElementById("divLoading").classList.remove("show");
-        }
-    };
-    xhr.send();
-    document.getElementById("divLoading").classList.add("show");
 }
 
 function toggleInternalInfo(accountType) {
