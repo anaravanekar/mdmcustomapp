@@ -2,7 +2,7 @@ function updateRelatedOptions(countryCode, currentStateValue, currentProvinceVal
     if (!countryCode) {
         return;
     }
-    var urlForOptions = "http://localhost:8080/mdmcustomapp/selectOptions/BReference/";
+    var urlForOptions = "'"+mdmRestProtocol+'://'+mdmRestHost+':'+mdmRestPort+'/mdmcustomapp/selectOptions/BReference/';
     var statePrefixedPath = addressPrefixedPaths.AddressState;
     var provincePrefixedPath = addressPrefixedPaths.Province;
 
@@ -113,7 +113,7 @@ function updateRelatedLocalOptions(countryCode, currentStateValue, currentProvin
     if (!countryCode) {
         return;
     }
-    var urlForOptions = "http://localhost:8080/mdmcustomapp/selectOptions/BReference/";
+    var urlForOptions = "'"+mdmRestProtocol+'://'+mdmRestHost+':'+mdmRestPort+'/mdmcustomapp/selectOptions/BReference/';
     var statePrefixedPath = addressPrefixedPaths.StateLocalLanguage;
     var provincePrefixedPath = addressPrefixedPaths.ProvinceLocalLanguage;
 
@@ -359,7 +359,7 @@ function calculatedFields(countryCode) {
     updateRelatedLocalOptions(countryCode, null, null);
     var stateValue = ebx_form_getValue(addressPrefixedPaths.AddressState);
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'http://localhost:8080/mdmcustomapp/calculatedFields/country/BReference/Account/' + countryCode);
+    xhr.open('GET', "'"+mdmRestProtocol+'://'+mdmRestHost+':'+mdmRestPort+'/mdmcustomapp/calculatedFields/country/BReference/Account/' + countryCode);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onload = function() {
         if (xhr.status === 200) {
