@@ -472,6 +472,7 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                                     bpOus.addAll(removedOus);
                                     String mdmPurposeId = String.valueOf(businessPurposeObject.getContent().get("MDMPurposeId").getContent());
                                     String mdmAddressId = String.valueOf(businessPurposeObject.getContent().get("MDMAddressId").getContent());
+                                    String bpStatus = String.valueOf(businessPurposeObject.getContent().get("Status").getContent());
                                     for(OrchestraContent bpOuContent:bpOus) {
                                         if (String.valueOf(bpOuContent.getContent()).equals(operatingUnit)) {
                                             OrchestraObject businessPurposeToJb = new OrchestraObject();
@@ -491,7 +492,7 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                                                 bpToJbContent.put("Primary",new OrchestraContent("N"));
                                             }
                                             bpToJbContent.remove("OperatingUnit");
-                                            if(removedBpOus.contains(operatingUnit)){
+                                            if(removedBpOus.contains(operatingUnit) || "I".equals(bpStatus)){
                                                 bpToJbContent.put("Status",new OrchestraContent("I"));
                                             }else{
                                                 bpToJbContent.put("Status",new OrchestraContent("A"));
