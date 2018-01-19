@@ -123,7 +123,7 @@ function updateRelatedLocalOptions(countryCode, currentStateValue, currentProvin
     if (territoryTypeMap[countryCode] === "STATE" && ("JP" === countryCode || "RU" === countryCode)) {
         urlForOptions = urlForOptions + "state/" + countryCode;
         toggleStandardFieldsLocal(false);
-    } else if (territoryTypeMap[countryCode] === "PROVINCE" && ("CH" === countryCode || "KR" === countryCode)) {
+    } else if (territoryTypeMap[countryCode] === "PROVINCE" && ("CN" === countryCode || "KR" === countryCode)) {
         urlForOptions = urlForOptions + "province/" + countryCode;
         toggleStandardFieldsLocal(false);
     } else {
