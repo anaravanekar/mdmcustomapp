@@ -23,6 +23,7 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 	public void handleRepositoryStartup(ModuleContextOnRepositoryStartup aContext) throws OperationException {
 		aContext.addPackagedStyleSheetResource("loading.css");
 		aContext.addPackagedStyleSheetResource("custom.css");
+		aContext.addPackagedJavaScriptResource("customScripts.js");
 	}
 
 	@Override

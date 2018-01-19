@@ -1,6 +1,7 @@
 package com.sereneast.orchestramdm.keysight.mdmcustom.util;
 
 import com.orchestranetworks.schema.Path;
+import com.orchestranetworks.ui.form.UIFormPaneWriter;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
@@ -48,7 +49,7 @@ public class ApplicationCacheUtil {
 	}
 
 	@Cacheable(cacheNames="mainCache",key="{#root.methodName, #tableName, #fieldNameForValue}")
-    public List<Map<String,String>> getOptionsToDisplay(String tableName,String fieldNameForValue) {
+	public List<Map<String,String>> getOptionsToDisplay(String tableName,String fieldNameForValue) {
 		int retryCount = 0;
 		List<Map<String,String>> resultList = new ArrayList<>();
 		OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
@@ -79,7 +80,7 @@ public class ApplicationCacheUtil {
 			}
 		}while((orchestraObjectListResponse == null || orchestraObjectListResponse.getRows()==null) && retryCount<3);
 		return resultList;
-    }
+	}
 
 	@Cacheable(cacheNames="mainCache",key="{#root.methodName, #dataSpace}")
 	public Map<String,Map<String,String>> CountryReferenceFieldsMap(String dataSpace) {
@@ -278,5 +279,21 @@ public class ApplicationCacheUtil {
 	@CacheEvict(value="mainCache",allEntries=true)
 	public void evictAllCacheEntries(){
 		LOGGER.debug("Cache evicted at "+Instant.now().toString());
+	}
+
+	@Cacheable(cacheNames="mainCache",key="{#root.methodName, #className}")
+	public Map<String,String> getPrefixedPaths(String className, UIFormPaneWriter writer) throws IllegalAccessException, ClassNotFoundException {
+		Map<String,String> perefixedPaths = new HashMap<>();
+		Field[] accountPathFields = Class.forName(className).getDeclaredFields();
+		for(Field pathField: accountPathFields){
+			if(!Modifier.isPrivate(pathField.getModifiers())) {
+				Path path = (Path)pathField.get(null);
+				String key = path.format().replaceAll("\\.\\/", "");
+				if(!key.contains("DaqaMetaData") && !key.contains("MergedTargetRecord") && !key.contains("RelatedAddress") && !key.contains("RelatedBusinessPurpose")){
+					perefixedPaths.put(key,writer.getPrefixedPath(path).format());
+				}
+			}
+		}
+		return perefixedPaths;
 	}
 }

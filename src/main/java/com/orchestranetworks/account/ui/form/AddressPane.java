@@ -1,5 +1,6 @@
 package com.orchestranetworks.account.ui.form;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onwbp.adaptation.Adaptation;
 import com.onwbp.adaptation.AdaptationTable;
@@ -693,192 +694,30 @@ public class AddressPane implements UIFormPane {
 
 		writer.add("</table>");
 
+		writer.add("<div ");
+		writer.addSafeAttribute("id", "divLoading");
+		writer.add("></div>");
+
 		RestProperties restProperties = (RestProperties) SpringContext.getApplicationContext().getBean("restProperties");
 		String protocol = "true".equals(restProperties.getOrchestra().getSsl())?"https":"http";
 		String host = restProperties.getOrchestra().getHost();
 		String port = restProperties.getOrchestra().getPort();
 
-		writer.addJS("function calculatedFields(countryCode){");
-		writer.addJS("updateRelatedOptions(countryCode,null,null);");
-		writer.addJS("updateRelatedLocalOptions(countryCode,null,null);");
-		writer.addJS("var stateValue=ebx_form_getValue(\""+writer.getPrefixedPath(_AddressState).format()+"\");");
-		//writer.addJS("console.log('stateValue='+stateValue);");
-		//writer.addJS("console.log('stateValue json ='+JSON.stringify(stateValue));");
-		writer.addJS("var xhr = new XMLHttpRequest();");
-		writer.addJS("xhr.open('GET', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/calculatedFields/country/BReference/Account/'+countryCode);");
-		writer.addJS("xhr.setRequestHeader('Content-Type', 'application/json');");
-		writer.addJS("xhr.onload = function() {");
-		writer.addJS("if (xhr.status === 200) {");
-		writer.addJS("var calculatedFieldsJson = JSON.parse(xhr.responseText);");
-		/*writer.addJS("if (ebx_form_getValue('"+writer.getPrefixedPath(Paths._Address._OperatingUnit).format()+"') && ebx_form_getValue('"+writer.getPrefixedPath(Paths._Address._OperatingUnit).format()+"').key){");
-		writer.addJS("}");writer.addJS("else{");
-			writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('OperatingUnit')){");
-			writer.addJS("var value = {\"key\":calculatedFieldsJson.OperatingUnit,\"label\":calculatedFieldsJson.OperatingUnit};");
-			writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._OperatingUnit).format()).addJS("\", ").addJS(
-					"value").addJS(");document.getElementById('OperatingUnitCustom').value=calculatedFieldsJson.OperatingUnit;");
-			writer.addJS("}");writer.addJS("else{");
-			writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._OperatingUnit).format()).addJS("\", ").addJS(
-					"null").addJS(");document.getElementById('OperatingUnitCustom').value=\"\";");
-			writer.addJS("}");
-		writer.addJS("}");*/
-		writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('TaxRegimeCode')){");
-		writer.addJS("var valueTax = calculatedFieldsJson.TaxRegimeCode;");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._TaxRegimeCode).format()).addJS("\", ").addJS(
-				"valueTax").addJS(");");
-		writer.addJS("}");writer.addJS("else{");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(Paths._Address._TaxRegimeCode).format()).addJS("\", ").addJS(
-				"null").addJS(");");
-		writer.addJS("}");
-		/*writer.addJS("var value = {\"key\":null,\"label\":null};");
-		writer.addJS("var valueNd = {\"key\":\"[not defined]\",\"label\":\"[not defined]\"};");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_AddressState).format()).addJS("\", ").addJS(
-				"null").addJS(");");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_Province).format()).addJS("\", ").addJS(
-				"null").addJS(");");*/
-
-		writer.addJS("}");//if 200
-
-		writer.addJS("var valueOne = {\"key\":\"1\",\"label\":\"One copy\"};");
-		writer.addJS("var valueTwo = {\"key\":\"2\",\"label\":\"Two copies\"};");
-		writer.addJS("var valueThree = {\"key\":\"3\",\"label\":\"Three copies\"};");
-		writer.addJS("var valueFour = {\"key\":\"4\",\"label\":\"Four copies\"};");
-		writer.addJS("var valueFive = {\"key\":\"5\",\"label\":\"Five copies\"};");
-		writer.addJS("var sk = {\"key\":\"N\",\"label\":\"N\"};");
-		writer.addJS("var sky = {\"key\":\"Y\",\"label\":\"Y\"};");
-
-		writer.addJS("if(\"US\" === countryCode){");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
-				"valueTwo").addJS(");");
-		writer.addJS("}else{");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
-				"valueOne").addJS(");");
-		writer.addJS("}");
-
-		writer.addJS("if(\"KR\" === countryCode){");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
-				"valueThree").addJS(");");
-		writer.addJS("}");
-
-		writer.addJS("var valueIndia = {\"key\":\"0.3\",\"label\":\"Suppress because a Government Invoice number is required\"};");
-		writer.addJS("if(\"IN\" === countryCode){");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
-				"valueIndia").addJS(");");
-		writer.addJS("}");
-
-		writer.addJS("var ic = {\"key\":\"0.2\",\"label\":\"Suppress because of special format requirements\"};");
-		writer.addJS("if(\"JP\" === countryCode){");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_SendAcknowledgement).format()).addJS("\", ").addJS(
-				"sk").addJS(");");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
-				"ic").addJS(");");
-		writer.addJS("}else{");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_SendAcknowledgement).format()).addJS("\", ").addJS(
-				"sky").addJS(");");
-		writer.addJS("}");
-
-		writer.addJS("if(\"PL\" === countryCode){");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_SendAcknowledgement).format()).addJS("\", ").addJS(
-				"sk").addJS(");");
-		writer.addJS("}");
-
-		writer.addJS("if(\"GU\" === countryCode || \"VE\" === countryCode || \"PR\" === countryCode){");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
-				"valueTwo").addJS(");");
-		writer.addJS("}");
-
-		writer.addJS("if(\"PL\" === countryCode){");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
-				"valueThree").addJS(");");
-		writer.addJS("}");
-
-		writer.addJS("if(\"MX\" === countryCode){");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
-				"valueFour").addJS(");");
-		writer.addJS("}");
-
-		writer.addJS("if(\"AR\" === countryCode){");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_InvoiceCopies).format()).addJS("\", ").addJS(
-				"valueFive").addJS(");");
-		writer.addJS("}");
-
-		writer.addJS("};");//onload function
-		writer.addJS("xhr.send();");
-		writer.addJS("}");
-
-		writer.add("<div ");
-		writer.addSafeAttribute("id", "divLoading");
-		writer.add("></div>");
-
-		writer.addJS("function saveAssignment(dataSpace,newAssignment,table,primaryKey){");
-		writer.addJS("var xhr = new XMLHttpRequest();");
-		writer.addJS("xhr.open('POST', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/'+table+'/updateAssignment/'+dataSpace+'/'+primaryKey+'/'+newAssignment.key);");
-		writer.addJS("xhr.setRequestHeader('Content-Type', 'application/json');");
-		writer.addJS("xhr.onload = function() {");
-		writer.addJS("if (xhr.status === 200) {");
-//		writer.addJS("console.log('update assingment successful');");
-		writer.addJS_cr("    document.getElementById(\"divLoading\").classList.remove(\"show\");");
-		writer.addJS("}else{");
-		writer.addJS_cr("    document.getElementById(\"divLoading\").classList.remove(\"show\");");
-		writer.addJS("}");
-		writer.addJS("};");
-		writer.addJS("xhr.send();");
-		writer.addJS_cr("document.getElementById(\"divLoading\").classList.add(\"show\");");
-		writer.addJS("}");
-
-		writer.addJS("function toggleAdditionalInfo(contextValue) {");
-		writer.addJS("  var malaysia_fields = [\""+writer.getPrefixedPath(_AddressSiteCategory).format()+"\",\""+writer.getPrefixedPath(_ATS).format()+"\"];");
-		writer.addJS("  var korea_fields = [\""+writer.getPrefixedPath(_TaxablePerson).format()+"\",\""+
-				writer.getPrefixedPath(_TaxCertificateDate).format()+"\",\""+
-				writer.getPrefixedPath(_IndustryClassification).format()+"\",\""+writer.getPrefixedPath(_IndustrySubclassification).format()+"\",\""+
-				writer.getPrefixedPath(_BusinessNumber).format()+"\"];");
-		writer.addJS("  var brazil_fields = [\""+writer.getPrefixedPath(_InscriptionType).format()+"\",\""+writer.getPrefixedPath(_InsciptionNumber).format()+"\",\""+
-				writer.getPrefixedPath(_InscriptionBranch).format()+"\",\""+writer.getPrefixedPath(_InscriptionDigit).format()+"\",\""+
-				writer.getPrefixedPath(_StateInscription).format()+"\"];");
-		writer.addJS("  if (contextValue === \"Korean Additional Information\") {         clearInfo(malaysia_fields);     clearInfo(brazil_fields);     hideInfo(\"malaysia_info\");     hideInfo(\"brazil_info\");     showInfo(\"korea_info\");     } else if (contextValue === \"Malaysia Customer Information\") {         clearInfo(korea_fields);     clearInfo(brazil_fields);     hideInfo(\"korea_info\");     hideInfo(\"brazil_info\");     showInfo(\"malaysia_info\");     } else if (contextValue === \"Brazilian Additional Information\") {         clearInfo(korea_fields);     clearInfo(malaysia_fields);     hideInfo(\"korea_info\");     hideInfo(\"malaysia_info\");     showInfo(\"brazil_info\");     } else {         clearInfo(korea_fields);     clearInfo(malaysia_fields);     clearInfo(brazil_fields);     hideInfo(\"korea_info\");     hideInfo(\"malaysia_info\");     hideInfo(\"brazil_info\");     }");
-		writer.addJS("}");
-
-		writer.addJS("function appendToFormHeader(textToAppend) { var span = document.createElement(\"span\"); var t = document.createTextNode(textToAppend); span.appendChild(t); document.getElementById(\"ebx_WorkspaceHeader\").getElementsByTagName(\"h2\")[0].appendChild(span); }");
-		//writer.addJS("function toggleAdditionalInfo(contextValue) {     var koreaRows = document.getElementsByClassName(\"korea_info\");     var malaysiaRows = document.getElementsByClassName(\"malaysia_info\");     var i;     if (contextValue === \"Korean Additional Information\") {  clearMalaysiaInfo();       for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"table-row\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"none\";         }     } else if (contextValue === \"Malaysia Customer Information\") {    clearKoreaInfo();     for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"none\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"table-row\";         }     } else {    clearMalaysiaInfo();clearKoreaInfo();     for (i = 0; i < koreaRows.length; i++) {             koreaRows[i].style.display = \"none\";         }         for (i = 0; i < malaysiaRows.length; i++) {             malaysiaRows[i].style.display = \"none\";         }     } }");
-		//writer.addJS("function clearMalaysiaInfo(){ ebx_form_setValue(\""+writer.getPrefixedPath(_AddressSiteCategory).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_ATS).format()+"\",null); }");
-		//writer.addJS("function clearKoreaInfo(){ ebx_form_setValue(\""+writer.getPrefixedPath(_TaxablePerson).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_TaxCertificateDate).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_IndustryClassification).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_IndustrySubclassification).format()+"\",null); ebx_form_setValue(\""+writer.getPrefixedPath(_BusinessNumber).format()+"\",null); }");
-		writer.addJS("function changeDropDownValue(prefixedPath,selectedValue,selectedText){ ebx_form_setValue(prefixedPath,{'key':selectedValue,'label':selectedText});}");
-		writer.addJS("function hideInfo(className) {  var rows = document.getElementsByClassName(className);  for (var i = 0; i < rows.length; i++) {   rows[i].style.display = \"none\";  } }");
-		writer.addJS("function showInfo(className) {  var rows = document.getElementsByClassName(className);  for (var i = 0; i < rows.length; i++) {   rows[i].style.display = \"table-row\";  } }");
-		writer.addJS("function clearInfo(fields) {    for (var i = 0; i < fields.length; i++) {       ebx_form_setValue(fields[i], null);     }   }");
-
-		writer.addJS("function toggeleStandardFields(displayStandard) {if (displayStandard) {document.getElementById('stateCustomDiv').style.display = 'none';document.getElementById('provinceCustomDiv').style.display = 'none';document.getElementById('stateLocalCustomDiv').style.display = 'none';document.getElementById('provinceLocalCustomDiv').style.display = 'none';document.getElementById('stateStandardDiv').style.display = 'block';document.getElementById('provinceStandardDiv').style.display = 'block';document.getElementById('stateLocalStandardDiv').style.display = 'block';document.getElementById('provinceLocalStandardDiv').style.display = 'block';} else {document.getElementById('stateCustomDiv').style.display = 'block';document.getElementById('provinceCustomDiv').style.display = 'block';document.getElementById('stateLocalCustomDiv').style.display = 'block';document.getElementById('provinceLocalCustomDiv').style.display = 'block';document.getElementById('stateStandardDiv').style.display = 'none';document.getElementById('provinceStandardDiv').style.display = 'none';document.getElementById('stateLocalStandardDiv').style.display = 'none';document.getElementById('provinceLocalStandardDiv').style.display = 'none';}}");
-		writer.addJS("function updateRelatedOptions(countryCode,currentStateValue,currentProvinceValue) {");
-		//writer.addJS("console.log('countryCode='+countryCode+' currentStateValue='+currentStateValue+' currentProvinceValue='+currentProvinceValue);");
-		writer.addJS("if(!countryCode){return;}");
-		writer.addJS("var urlForOptions = \""+protocol+"://"+host+":"+port+"/mdmcustomapp/selectOptions/BReference/\";");
-		writer.addJS("var statePrefixedPath = \""+writer.getPrefixedPath(Paths._Address._AddressState).format()+"\";");
-		writer.addJS("var provincePrefixedPath = \""+writer.getPrefixedPath(Paths._Address._Province).format()+"\";");
+		//GLOBAL JS VARIABLES
+		try {
+			Map<String, String> prefixedPaths = applicationCacheUtil.getPrefixedPaths(Paths._Address.class.getName(),writer);
+			ObjectMapper mapper = new ObjectMapper();
+			writer.addJS("var addressPrefixedPaths = "+mapper.writeValueAsString(prefixedPaths)+";");
+		} catch (IllegalAccessException | ClassNotFoundException | JsonProcessingException e) {
+			throw new ApplicationRuntimeException("Error geting prefixed paths for address",e);
+		}
 		writer.addJS("var territoryTypeMap = "+territoryTypeMapJsonString+";");
-		writer.addJS("var stateSelect = document.getElementById(\"customStateSelect\"); var provinceSelect = document.getElementById(\"customProvinceSelect\"); var blankOption = new Option(\"[not defined]\", \"\"); if (territoryTypeMap[countryCode] === \"STATE\") { urlForOptions = urlForOptions + \"state/\" + countryCode; toggeleStandardFields(false); } else if (territoryTypeMap[countryCode] === \"PROVINCE\") { urlForOptions = urlForOptions + \"province/\" + countryCode; toggeleStandardFields(false); } else { while (provinceSelect.options.length > 1) { provinceSelect.remove(1); } while (stateSelect.options.length > 1) { stateSelect.remove(1); } ebx_form_setValue(statePrefixedPath, null); ebx_form_setValue(provincePrefixedPath, null); toggeleStandardFields(true); try { ebx_form_setValue(statePrefixedPath, currentStateValue); ebx_form_setValue(provincePrefixedPath, currentProvinceValue); } catch (err) {} return; } var xhr = new XMLHttpRequest(); xhr.open(\"GET\", urlForOptions); xhr.onload = function() { if (xhr.status === 200) { var obj = JSON.parse(xhr.responseText); var selectOptions = obj.options; if (territoryTypeMap[countryCode] === \"STATE\") { while (provinceSelect.options.length > 1) { provinceSelect.remove(1); } while (stateSelect.options.length > 1) { stateSelect.remove(1); } if (selectOptions) { var i; for (i = 0; i < selectOptions.length; i++) { var newOption = new Option(selectOptions[i].Option, selectOptions[i].OptionValue); stateSelect.options.add(newOption); } } ebx_form_setValue(statePrefixedPath, null); ebx_form_setValue(provincePrefixedPath, null); if (currentStateValue) { try { document.getElementById('customStateSelect').value = currentStateValue; ebx_form_setValue(statePrefixedPath, currentStateValue); } catch (err) {} } } else if (territoryTypeMap[countryCode] === \"PROVINCE\") { while (provinceSelect.options.length > 1) { provinceSelect.remove(1); } while (stateSelect.options.length > 1) { stateSelect.remove(1); } if (selectOptions) { var i; for (i = 0; i < selectOptions.length; i++) { var newOption = new Option(selectOptions[i].Option, selectOptions[i].OptionValue); provinceSelect.options.add(newOption); } } ebx_form_setValue(statePrefixedPath, null); ebx_form_setValue(provincePrefixedPath, null); if (currentProvinceValue) { try { document.getElementById('customProvinceSelect').value = currentProvinceValue; ebx_form_setValue(provincePrefixedPath, currentProvinceValue); } catch (err) {} } } else { while (provinceSelect.options.length > 1) { provinceSelect.remove(1); } while (stateSelect.options.length > 1) { stateSelect.remove(1); } ebx_form_setValue(statePrefixedPath, null); ebx_form_setValue(provincePrefixedPath, null); } } else { while (provinceSelect.options.length > 1) { provinceSelect.remove(1); } while (stateSelect.options.length > 1) { stateSelect.remove(1); } ebx_form_setValue(statePrefixedPath, null); ebx_form_setValue(provincePrefixedPath, null); try { ebx_form_setValue(statePrefixedPath, currentStateValue); ebx_form_setValue(provincePrefixedPath, currentProvinceValue); } catch (err) {} } }; xhr.send();");
-		writer.addJS("}");
+		writer.addJS("var mdmRestProtocol = "+protocol+";");
+		writer.addJS("var mdmRestHost = "+host+";");
+		writer.addJS("var mdmRestPort = "+port+";");
 
-		writer.addJS("function updateRelatedLocalOptions(countryCode,currentStateValue,currentProvinceValue) {");
-		//writer.addJS("console.log('countryCode='+countryCode+' currentStateValue='+currentStateValue+' currentProvinceValue='+currentProvinceValue);");
-		writer.addJS("if(!countryCode){return;}");
-		writer.addJS("var urlForOptions = \""+protocol+"://"+host+":"+port+"/mdmcustomapp/selectOptions/BReference/\";");
-		writer.addJS("var statePrefixedPath = \""+writer.getPrefixedPath(Paths._Address._StateLocalLanguage).format()+"\";");
-		writer.addJS("var provincePrefixedPath = \""+writer.getPrefixedPath(Paths._Address._ProvinceLocalLanguage).format()+"\";");
-		writer.addJS("var territoryTypeMap = "+territoryTypeMapJsonString+";");
-		writer.addJS("var stateSelect = document.getElementById(\"customStateLocalSelect\"); var provinceSelect = document.getElementById(\"customProvinceLocalSelect\"); var blankOption = new Option(\"[not defined]\", \"\"); if (territoryTypeMap[countryCode] === \"STATE\") { urlForOptions = urlForOptions + \"state/\" + countryCode; toggeleStandardFields(false); } else if (territoryTypeMap[countryCode] === \"PROVINCE\") { urlForOptions = urlForOptions + \"province/\" + countryCode; toggeleStandardFields(false); } else {   while (provinceSelect.options.length > 1) { provinceSelect.remove(1); } while (stateSelect.options.length > 1) { stateSelect.remove(1); } ebx_form_setValue(statePrefixedPath, null); ebx_form_setValue(provincePrefixedPath, null); toggeleStandardFields(true); try { ebx_form_setValue(statePrefixedPath, currentStateValue); ebx_form_setValue(provincePrefixedPath, currentProvinceValue); } catch (err) {} return; } var xhr = new XMLHttpRequest(); xhr.open(\"GET\", urlForOptions); xhr.onload = function() { if (xhr.status === 200) { var obj = JSON.parse(xhr.responseText); var selectOptions = obj.options; if (territoryTypeMap[countryCode] === \"STATE\") { while (provinceSelect.options.length > 1) { provinceSelect.remove(1); } while (stateSelect.options.length > 1) { stateSelect.remove(1); } if (selectOptions) { var i; for (i = 0; i < selectOptions.length; i++) { var newOption = new Option(selectOptions[i].Option, selectOptions[i].OptionValue); stateSelect.options.add(newOption); } } ebx_form_setValue(statePrefixedPath, null); ebx_form_setValue(provincePrefixedPath, null); if (currentStateValue) { try { document.getElementById('customStateLocalSelect').value = currentStateValue; ebx_form_setValue(statePrefixedPath, currentStateValue); } catch (err) {} } } else if (territoryTypeMap[countryCode] === \"PROVINCE\") { while (provinceSelect.options.length > 1) { provinceSelect.remove(1); } while (stateSelect.options.length > 1) { stateSelect.remove(1); } if (selectOptions) { var i; for (i = 0; i < selectOptions.length; i++) { var newOption = new Option(selectOptions[i].Option, selectOptions[i].OptionValue); provinceSelect.options.add(newOption); } } ebx_form_setValue(statePrefixedPath, null); ebx_form_setValue(provincePrefixedPath, null); if (currentProvinceValue) { try { document.getElementById('customProvinceLocalSelect').value = currentProvinceValue; ebx_form_setValue(provincePrefixedPath, currentProvinceValue); } catch (err) {} } } else { while (provinceSelect.options.length > 1) { provinceSelect.remove(1); } while (stateSelect.options.length > 1) { stateSelect.remove(1); } ebx_form_setValue(statePrefixedPath, null); ebx_form_setValue(provincePrefixedPath, null); } } else { while (provinceSelect.options.length > 1) { provinceSelect.remove(1); } while (stateSelect.options.length > 1) { stateSelect.remove(1); } ebx_form_setValue(statePrefixedPath, null); ebx_form_setValue(provincePrefixedPath, null); try { ebx_form_setValue(statePrefixedPath, currentStateValue); ebx_form_setValue(provincePrefixedPath, currentProvinceValue); } catch (err) {} } }; xhr.send();");
-		writer.addJS("}");
-
-		writer.addJS("function populateLovsOnLoad(){");
-		writer.addJS("var currentStateValue = ebx_form_getValue(\""+writer.getPrefixedPath(Paths._Address._AddressState).format()+"\");");
-		writer.addJS("var currentProvinceValue = ebx_form_getValue(\""+writer.getPrefixedPath(Paths._Address._Province).format()+"\");");
-		writer.addJS("var currentCountryValue = ebx_form_getValue(\""+writer.getPrefixedPath(Paths._Address._Country).format()+"\");");
-		writer.addJS("var currentStateLocalValue = ebx_form_getValue(\""+writer.getPrefixedPath(Paths._Address._StateLocalLanguage).format()+"\");");
-		writer.addJS("var currentProvinceLocalValue = ebx_form_getValue(\""+writer.getPrefixedPath(Paths._Address._ProvinceLocalLanguage).format()+"\");");
-		writer.addJS("if(currentCountryValue && currentStateValue && currentProvinceValue){ updateRelatedOptions(currentCountryValue,currentStateValue,currentProvinceValue); }else if(currentCountryValue && currentStateValue){ updateRelatedOptions(currentCountryValue,currentStateValue,null); }else if(currentCountryValue && currentProvinceValue){ updateRelatedOptions(currentCountryValue,null,currentProvinceValue); }else if(currentCountryValue){ updateRelatedOptions(currentCountryValue,null,null); }else{ updateRelatedOptions('AF',null,null); }");
-		writer.addJS("if(currentCountryValue && currentStateLocalValue && currentProvinceLocalValue){ updateRelatedLocalOptions(currentCountryValue,currentStateLocalValue,currentProvinceLocalValue); }else if(currentCountryValue && currentStateLocalValue){ updateRelatedLocalOptions(currentCountryValue,currentStateLocalValue,null); }else if(currentCountryValue && currentProvinceLocalValue){ updateRelatedLocalOptions(currentCountryValue,null,currentProvinceLocalValue); }else if(currentCountryValue){ updateRelatedLocalOptions(currentCountryValue,null,null); }else{ updateRelatedLocalOptions('AF',null,null); }");
-		writer.addJS("}");
+		//JS FUNCTION CALLS
 		writer.addJS("populateLovsOnLoad();");
-
-		writer.addJS("function hideCreate() { var createButtons = document.querySelectorAll('[title=\"Create a record\"]'); if(createButtons){ createButtons.forEach(function(domNode, index){ domNode.parentNode.style.display='none'; domNode.parentNode.nextSibling.style.display='none'; }); }  }");
 		if(!context.isCreatingRecord() && "MERGED".equalsIgnoreCase(context.getCurrentRecord().getString(Paths._Address._DaqaMetaData_State))){
 			writer.addJS("hideCreate();");
 		}

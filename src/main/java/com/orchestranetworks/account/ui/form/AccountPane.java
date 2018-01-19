@@ -1,5 +1,7 @@
 package com.orchestranetworks.account.ui.form;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onwbp.base.text.UserMessageString;
 import com.orchestranetworks.ui.UIButtonSpecJSAction;
 import com.orchestranetworks.ui.form.UIFormContext;
@@ -8,6 +10,7 @@ import com.orchestranetworks.ui.form.UIFormPaneWriter;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
+import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -168,69 +171,28 @@ public class AccountPane implements UIFormPane {
 
 		writer.add("</table>");
 
+		writer.add("<div ");
+		writer.addSafeAttribute("id", "divLoading");
+		writer.add("></div>");
+
 		RestProperties restProperties = (RestProperties) SpringContext.getApplicationContext().getBean("restProperties");
 		String protocol = "true".equals(restProperties.getOrchestra().getSsl())?"https":"http";
 		String host = restProperties.getOrchestra().getHost();
 		String port = restProperties.getOrchestra().getPort();
 
-/*		writer.addJS("function calculatedFields(countryCode){");
-		writer.addJS("console.log('calculatedFields called');");
-		writer.addJS("var countryFieldValue=ebx_form_getValue(\""+writer.getPrefixedPath(_Country).format()+"\");");
-		writer.addJS("console.log('countryFieldValue='+JSON.stringify(countryFieldValue));");
-		writer.addJS("console.log('countryCode passed ='+countryCode);");
-		writer.addJS("countryCode=countryFieldValue[0].key;");
-		writer.addJS("console.log('countryCode new ='+countryCode);");
-		writer.addJS("var xhr = new XMLHttpRequest();");
-		writer.addJS("xhr.open('GET', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/calculatedFields/country/BReference/Account/'+countryCode);");
-		writer.addJS("xhr.setRequestHeader('Content-Type', 'application/json');");
-		writer.addJS("xhr.onload = function() {");
-		writer.addJS("if (xhr.status === 200) {");
-		writer.addJS("var calculatedFieldsJson = JSON.parse(xhr.responseText);");
-		writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('Region')){");
-		writer.addJS("var value = calculatedFieldsJson.Region;");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_Region).format()).addJS("\", ").addJS(
-				"value").addJS(");");
-		writer.addJS("}");writer.addJS("else{");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_Region).format()).addJS("\", ").addJS(
-				"null").addJS(");");
-		writer.addJS("}");
-		writer.addJS("if(calculatedFieldsJson && calculatedFieldsJson.hasOwnProperty('ProfileClass')){");
-//		writer.addJS("var value = calculatedFieldsJson.ProfileClass;");
-		writer.addJS("var value = {\"key\":calculatedFieldsJson.ProfileClass,\"label\":calculatedFieldsJson.ProfileClass};");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_ProfileClass).format()).addJS("\", ").addJS(
-				"value").addJS(");");
-		writer.addJS("}");writer.addJS("else{");
-		writer.addJS("ebx_form_setValue(\"").addJS(writer.getPrefixedPath(_ProfileClass).format()).addJS("\", ").addJS(
-				"null").addJS(");");
-		writer.addJS("}");
-		writer.addJS("}");
-		writer.addJS("};");
-		writer.addJS("xhr.send();");
-		writer.addJS("}");*/
+		//GLOBAL JS VARIABLES
+		try {
+			Map<String, String> prefixedPaths = applicationCacheUtil.getPrefixedPaths(Paths._Account.class.getName(),writer);
+			ObjectMapper mapper = new ObjectMapper();
+			writer.addJS("var accountPrefixedPaths = "+mapper.writeValueAsString(prefixedPaths)+";");
+		} catch (IllegalAccessException | ClassNotFoundException | JsonProcessingException e) {
+			throw new ApplicationRuntimeException("Error geting prefixed paths for account",e);
+		}
+		writer.addJS("var mdmRestProtocol = "+protocol+";");
+		writer.addJS("var mdmRestHost = "+host+";");
+		writer.addJS("var mdmRestPort = "+port+";");
 
-		writer.add("<div ");
-		writer.addSafeAttribute("id", "divLoading");
-		writer.add("></div>");
-
-		writer.addJS("function saveAssignment(dataSpace,newAssignment,table,primaryKey){");
-		writer.addJS("var xhr = new XMLHttpRequest();");
-		writer.addJS("xhr.open('POST', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/'+table+'/updateAssignment/'+dataSpace+'/'+primaryKey+'/'+newAssignment.key);");
-		writer.addJS("xhr.setRequestHeader('Content-Type', 'application/json');");
-		writer.addJS("xhr.onload = function() {");
-		writer.addJS("if (xhr.status === 200) {");
-//		writer.addJS("console.log('update assingment successful');");
-		writer.addJS_cr("    document.getElementById(\"divLoading\").classList.remove(\"show\");");
-		writer.addJS("}else{");
-		writer.addJS_cr("    document.getElementById(\"divLoading\").classList.remove(\"show\");");
-		writer.addJS("}");
-		writer.addJS("};");
-		writer.addJS("xhr.send();");
-		writer.addJS_cr("document.getElementById(\"divLoading\").classList.add(\"show\");");
-		writer.addJS("}");
-
-		writer.addJS("function changeDropDownValue(prefixedPath,selectedValue,selectedText){ebx_form_setValue(prefixedPath,{'key':selectedValue,'label':selectedText});}");
-		writer.addJS("function toggleInternalInfo(accountType) {     \tvar internalRows = document.getElementsByClassName(\"internal_info\");       \tvar i;     \tif (accountType === \"I\") {  \t\tfor (i = 0; i < internalRows.length; i++) {             \t\t\tinternalRows[i].style.display = \"table-row\";         \t\t}          \t} else {   ebx_form_setValue(\""+writer.getPrefixedPath(_InternalAccountId).format()+"\",null);      \t\tfor (i = 0; i < internalRows.length; i++) {             \t\t\tinternalRows[i].style.display = \"none\";         \t\t}              \t} }");
-		writer.addJS("function hideCreate() { var createButtons = document.querySelectorAll('[title=\"Create a record\"]'); if(createButtons){ createButtons.forEach(function(domNode, index){ domNode.parentNode.style.display='none'; domNode.parentNode.nextSibling.style.display='none'; }); }  }");
+		//JS FUNCTION CALLS
 		if(!context.isCreatingRecord() && "MERGED".equalsIgnoreCase(context.getCurrentRecord().getString(Paths._Account._DaqaMetaData_State))){
 			writer.addJS("hideCreate();");
 		}
