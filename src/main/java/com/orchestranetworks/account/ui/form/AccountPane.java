@@ -198,7 +198,7 @@ public class AccountPane implements UIFormPane {
 		}
 
 		//JS FUNCTIONS
-		writer.addJS("function saveAssignment(dataSpace, newAssignment, table, primaryKey) { var xhr = new XMLHttpRequest(); xhr.open('POST', \"'\"+mdmRestProtocol+'://'+mdmRestHost+':'+mdmRestPort+'/mdmcustomapp/' + table + '/updateAssignment/' + dataSpace + '/' + primaryKey + '/' + newAssignment.key); xhr.setRequestHeader('Content-Type', 'application/json'); xhr.onload = function() { if (xhr.status === 200) { document.getElementById(\"divLoading\").classList.remove(\"show\"); } else { document.getElementById(\"divLoading\").classList.remove(\"show\"); } }; xhr.send(); document.getElementById(\"divLoading\").classList.add(\"show\"); }");
+		writer.addJS("function saveAssignment(dataSpace, newAssignment, table, primaryKey) { var xhr = new XMLHttpRequest(); xhr.open('POST', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/' + table + '/updateAssignment/' + dataSpace + '/' + primaryKey + '/' + newAssignment.key); xhr.setRequestHeader('Content-Type', 'application/json'); xhr.onload = function() { if (xhr.status === 200) { document.getElementById(\"divLoading\").classList.remove(\"show\"); } else { document.getElementById(\"divLoading\").classList.remove(\"show\"); } }; xhr.send(); document.getElementById(\"divLoading\").classList.add(\"show\"); }");
 
 	}
 }
