@@ -32,6 +32,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
@@ -239,7 +243,7 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                 LOGGER.debug("Getting adaptation for objectKey=" + objectKey.getName());
                 Adaptation adaptation = (Adaptation) aContext.getValueContext(objectKey).getValue();
                 //if("Golden".equalsIgnoreCase(adaptation.getString(daqaStateFieldPath))){
-                    selectedRecords.add(adaptation);
+                selectedRecords.add(adaptation);
               /*  }else{
                     throw new ApplicationRuntimeException("Only Golden records can be published. Please select Golden records and try again.");
                 }
@@ -285,6 +289,17 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
     }
 
     public String promoteAndPublish(List<Adaptation> selectedRecords,UserServicePaneContext aContext){
+        boolean publish = false;
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HHmmssSSS");
+        String id = LocalTime.now().format(dtf);
+        String mdmFileName = "MDM_"+objectName+"_"+ id +".json";
+        java.nio.file.Path mdmFilePath = null;
+        String jitterbitFileName = "JB_"+objectName+"_"+ id +".json";
+        java.nio.file.Path jitterbitFilePath = null;
+        RandomAccessFile mdmStream = null,jitterbitStream = null;
+        FileChannel mdmChannel = null,jitterbitChannel = null;
+        FileLock mdmLock = null,jitterbitLock = null;
+
         String message = null;
         String errorMessage = null;
         List<OrchestraObject> recordsToUpdateInReference = new ArrayList<>();
@@ -294,6 +309,8 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         try {
             // Set up requests
+            int total=0;
+            int batch=0;
             for (Adaptation adaptation : selectedRecords) {
                 if (checkParentIsPublished) {
                     if(adaptation.get(parentForeignKeyPath)==null){
@@ -328,51 +345,51 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                         for (Adaptation child; (child = childTableRequestResult.nextAdaptation()) != null; ) {
                             if (!"ADDRESS".equalsIgnoreCase(objectName)) {
 //                                if ("Golden".equalsIgnoreCase(child.getString(Paths._Address._DaqaMetaData_State))) {
-                                    children.add(child);
+                                children.add(child);
 //                                }
                             } else {
 //                                if ("Golden".equalsIgnoreCase(child.getString(Paths._BusinessPurpose._DaqaMetaData_State))) {
-                                    OrchestraObject orchestraChildToUpdateInJitterbit = new OrchestraObject();
-                                    Map<String, OrchestraContent> jsonFieldsMapForJitterbit = new HashMap<>();
-                                    for (String fieldName : fieldPathMap.keySet()) {
-                                        Object fieldValue = child.get(fieldPathMap.get(fieldName));
-                                        if (fieldValue instanceof List) {
-                                            List objArray = (List) fieldValue;
-                                            List<OrchestraContent> contentList = new ArrayList<>();
-                                            for (Object obj : objArray) {
-                                                contentList.add(new OrchestraContent(obj));
-                                            }
-                                            fieldValue = contentList;
+                                OrchestraObject orchestraChildToUpdateInJitterbit = new OrchestraObject();
+                                Map<String, OrchestraContent> jsonFieldsMapForJitterbit = new HashMap<>();
+                                for (String fieldName : fieldPathMap.keySet()) {
+                                    Object fieldValue = child.get(fieldPathMap.get(fieldName));
+                                    if (fieldValue instanceof List) {
+                                        List objArray = (List) fieldValue;
+                                        List<OrchestraContent> contentList = new ArrayList<>();
+                                        for (Object obj : objArray) {
+                                            contentList.add(new OrchestraContent(obj));
                                         }
-                                        jsonFieldsMapForJitterbit.put(fieldName, new OrchestraContent(fieldValue));
+                                        fieldValue = contentList;
                                     }
-                                    Path tempAddressKeyPath = objectPrimaryKeyPath;
-                                    Path tempTablePath = tablePathInSchema;
-                                    objectPrimaryKeyPath = Paths._BusinessPurpose._MDMPurposeId;
-                                    tablePathInSchema = Paths._BusinessPurpose.getPathInSchema();
-                                    List<OrchestraObject> suspects = new ArrayList<>();
-                                    List<OrchestraObject> suspectsFound = getSuspects(child);
-                                    OrchestraObject orchestraObject = new OrchestraObject();
-                                    Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
-                                    jsonFieldsMap.put(objectPrimaryKeyPath.format().replaceAll("\\.\\/", ""),new OrchestraContent(child.get(objectPrimaryKeyPath)));
-                                    jsonFieldsMap.put(systemIdPath.format().replaceAll("\\.\\/", ""),new OrchestraContent(child.get(systemIdPath)));
-                                    jsonFieldsMap.put(systemNamePath.format().replaceAll("\\.\\/", ""),new OrchestraContent(child.get(systemNamePath)));
-                                    jsonFieldsMap.put("DQState",new OrchestraContent(child.get(Path.parse("./DaqaMetaData/State"))));
-                                    orchestraObject.setContent(jsonFieldsMap);
-                                    suspects.add(orchestraObject);
-                                    if(suspectsFound!=null && !suspectsFound.isEmpty()){
-                                        suspects.addAll(suspectsFound);
-                                    }
-                                    objectPrimaryKeyPath = tempAddressKeyPath;
-                                    tablePathInSchema = tempTablePath;
-                                    if (suspects != null && !suspects.isEmpty()) {
-                                        jsonFieldsMapForJitterbit.put(CROSS_REFERENCES_LABEL, new OrchestraContent(suspects));
-                                    } else {
-                                        jsonFieldsMapForJitterbit.put(CROSS_REFERENCES_LABEL, new OrchestraContent(null));
-                                    }
-                                    orchestraChildToUpdateInJitterbit.setContent(jsonFieldsMapForJitterbit);
-                                    childrenToUpdateInJitterbit.add(orchestraChildToUpdateInJitterbit);
-                                    children.add(child);
+                                    jsonFieldsMapForJitterbit.put(fieldName, new OrchestraContent(fieldValue));
+                                }
+                                Path tempAddressKeyPath = objectPrimaryKeyPath;
+                                Path tempTablePath = tablePathInSchema;
+                                objectPrimaryKeyPath = Paths._BusinessPurpose._MDMPurposeId;
+                                tablePathInSchema = Paths._BusinessPurpose.getPathInSchema();
+                                List<OrchestraObject> suspects = new ArrayList<>();
+                                List<OrchestraObject> suspectsFound = getSuspects(child);
+                                OrchestraObject orchestraObject = new OrchestraObject();
+                                Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
+                                jsonFieldsMap.put(objectPrimaryKeyPath.format().replaceAll("\\.\\/", ""),new OrchestraContent(child.get(objectPrimaryKeyPath)));
+                                jsonFieldsMap.put(systemIdPath.format().replaceAll("\\.\\/", ""),new OrchestraContent(child.get(systemIdPath)));
+                                jsonFieldsMap.put(systemNamePath.format().replaceAll("\\.\\/", ""),new OrchestraContent(child.get(systemNamePath)));
+                                jsonFieldsMap.put("DQState",new OrchestraContent(child.get(Path.parse("./DaqaMetaData/State"))));
+                                orchestraObject.setContent(jsonFieldsMap);
+                                suspects.add(orchestraObject);
+                                if(suspectsFound!=null && !suspectsFound.isEmpty()){
+                                    suspects.addAll(suspectsFound);
+                                }
+                                objectPrimaryKeyPath = tempAddressKeyPath;
+                                tablePathInSchema = tempTablePath;
+                                if (suspects != null && !suspects.isEmpty()) {
+                                    jsonFieldsMapForJitterbit.put(CROSS_REFERENCES_LABEL, new OrchestraContent(suspects));
+                                } else {
+                                    jsonFieldsMapForJitterbit.put(CROSS_REFERENCES_LABEL, new OrchestraContent(null));
+                                }
+                                orchestraChildToUpdateInJitterbit.setContent(jsonFieldsMapForJitterbit);
+                                childrenToUpdateInJitterbit.add(orchestraChildToUpdateInJitterbit);
+                                children.add(child);
 //                                }
                             }
                         }
@@ -448,25 +465,63 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                         jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
                     }
                     orchestraObjectToUpdateInJitterbit.setContent(jsonFieldsMapForJitterbit);
+                    if(orchestraObjectToUpdateInJitterbit.getContent().get("Published").getContent()==null || StringUtils.isBlank(orchestraObjectToUpdateInJitterbit.getContent().get("Published").getContent().toString())){
+                        orchestraObjectToUpdateInJitterbit.getContent().put("Published",new OrchestraContent("I"));
+                    }else{
+                        orchestraObjectToUpdateInJitterbit.getContent().put("Published",new OrchestraContent("U"));
+                    }
+                    if(orchestraObjectToUpdateInJitterbit.getContent().get("AddressState")!=null && orchestraObjectToUpdateInJitterbit.getContent().get("AddressState").getContent()!=null
+                            && orchestraObjectToUpdateInJitterbit.getContent().get("AddressState").getContent().toString().contains("|")){
+                        orchestraObjectToUpdateInJitterbit.getContent().put("AddressState",new OrchestraContent(orchestraObjectToUpdateInJitterbit.getContent().get("AddressState").getContent().toString().split("\\|")[1]));
+                    }
                     recordsToUpdateInJitterbit.add(orchestraObjectToUpdateInJitterbit);
                 }
+
+                if(batch==999 || (total==selectedRecords.size()-1)){
+                    publish = true;
+                    if(mdmFilePath==null && jitterbitFilePath == null){
+                        mdmFilePath = java.nio.file.Paths.get(System.getProperty("ebx.home"),mdmFileName);
+                        jitterbitFilePath = java.nio.file.Paths.get(System.getProperty("ebx.home"),jitterbitFileName);
+                        try{mdmFilePath = Files.createFile(mdmFilePath);} catch(FileAlreadyExistsException ignored){}
+                        try{jitterbitFilePath = Files.createFile(jitterbitFilePath);} catch(FileAlreadyExistsException ignored){}
+                        mdmStream = new RandomAccessFile(mdmFilePath.toFile(), "rw");
+                        jitterbitStream = new RandomAccessFile(jitterbitFilePath.toFile(), "rw");
+                        mdmChannel = mdmStream.getChannel();
+                        jitterbitChannel = jitterbitStream.getChannel();
+                        mdmLock = mdmChannel.tryLock();
+                        jitterbitLock = jitterbitChannel.tryLock();
+                        writerToMdmFile(null,"{\"rows\":[",mdmChannel);
+                        writerToJbFile(null,"{\"rows\":[",jitterbitChannel);
+                    }
+                    if(total == selectedRecords.size()-1){
+                        writerToMdmFile(recordsToUpdateInReference,null,mdmChannel);
+                        writerToJbFile(recordsToUpdateInJitterbit,null,jitterbitChannel);
+                        writerToMdmFile(null,"]}",mdmChannel);
+                        writerToJbFile(null,"]}",jitterbitChannel);
+                    }else{
+                        writerToMdmFile(recordsToUpdateInReference,null,mdmChannel);
+                        writerToJbFile(recordsToUpdateInJitterbit,null,jitterbitChannel);
+                        writerToMdmFile(null,",",mdmChannel);
+                        writerToJbFile(null,",",jitterbitChannel);
+                    }
+                }
+                batch++;
+                total++;
             }
 
+            if(mdmLock!=null){mdmLock.release();mdmStream.close();}
+            if(jitterbitLock!=null){jitterbitLock.release();jitterbitStream.close();}
+            selectedRecords=null;
             //Execute updates
-            promoteToReference(recordsToUpdateInReference);
-            LOGGER.info("Promoted {} to reference",objectName);
-            if(recordsToUpdateInJitterbit!=null && !recordsToUpdateInJitterbit.isEmpty()) {
-                publishToJitterbit(recordsToUpdateInJitterbit);
-                recordsToUpdateInJitterbit.clear();
-                recordsToUpdateInJitterbit=null;
-                LOGGER.info("Published {} to Jitterbit",objectName);
+            if(publish) {
+                promoteToReference(mdmFileName);
+                LOGGER.info("Promoted {} to reference", objectName);
+                if(!objectName.equals("BUSINESSPURPOSE")) {
+                    publishToJitterbit(jitterbitFileName);
+                }
+                LOGGER.info("Published {} to Jitterbit", objectName);
             }
-            if(!"BUSINESSPURPOSE".equalsIgnoreCase(objectName)) {
-                //updateFlagToSuccess(aContext, selectedRecords, recordsToUpdateInReference);
-                recordsToUpdateInReference.clear();
-                recordsToUpdateInReference=null;
-                LOGGER.info("Updated {} flag",objectName);
-            }
+
             if(!children.isEmpty()){
                 try {
                     PublishServiceBulk childPublishService = null;
@@ -489,15 +544,55 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
             String rootCauseMessage = e.getRootCause()!=null?"\nRoot Cause: "+e.getRootCause().getMessage():"";
             message = "ERROR: "+e.getMessage()+rootCauseMessage;
             LOGGER.error("Error publishing records: \n",e);
+        } catch (IOException e) {
+            message = "ERROR: "+e.getMessage();
+            LOGGER.error("Error publishing records: \n",e);
+        }finally {
+            if(mdmStream!=null) {
+                try {
+                    mdmStream.close();
+                } catch (IOException e) {
+                    message = "ERROR: "+e.getMessage();
+                    LOGGER.error("Error publishing records: \n",e);
+                }
+            }
+            try {
+                jitterbitStream.close();
+            } catch (IOException e) {
+                message = "ERROR: "+e.getMessage();
+                LOGGER.error("Error publishing records: \n",e);
+            }
         }
         return message;
     }
 
-    public void promoteToReference(List<OrchestraObject> recordsToUpdateInReference){
+    private void writerToMdmFile(List<OrchestraObject> records, String str,FileChannel channel) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        mapper.setDateFormat(df);
+        byte[] strBytes = str!=null?str.getBytes():mapper.writeValueAsString(records).substring(1,mapper.writeValueAsString(records).length()-1).getBytes();
+        ByteBuffer buffer = ByteBuffer.allocate(strBytes.length);
+        buffer.put(strBytes);
+        buffer.flip();
+        channel.write(buffer);
+        if(records!=null) {
+            records.clear();
+        }
+    }
+    private void writerToJbFile(List<OrchestraObject> records,String str, FileChannel channel) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        byte[] strBytes = str!=null?str.getBytes():mapper.writeValueAsString(records).substring(1,mapper.writeValueAsString(records).length()-1).getBytes();
+        ByteBuffer buffer = ByteBuffer.allocate(strBytes.length);
+        buffer.put(strBytes);
+        buffer.flip();
+        channel.write(buffer);
+        if(records!=null) {
+            records.clear();
+        }
+    }
+    public void promoteToReference(String fileName){
         try{
-            ObjectMapper mapper = new ObjectMapper();
-            OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
-            orchestraObjectList.setRows(recordsToUpdateInReference);
             OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
             Map<String, String> parameters = new HashMap<String, String>();
             parameters.put("updateOrInsert", "true");
@@ -508,18 +603,14 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                 if(retryCount>0){
                     Thread.sleep(retryWaitMdm);
                 }
-                LOGGER.debug("Promoting to Reference: \n"+mapper.writeValueAsString(orchestraObjectList));
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HHmm");
-                java.nio.file.Path file = java.nio.file.Paths.get(System.getProperty("ebx.home"),"mdm_"+objectName+"_"+LocalTime.now().format(dtf)+".json");
-                try { file = Files.createFile(file); } catch(FileAlreadyExistsException ignored){}
-                Files.write(file,mapper.writeValueAsString(orchestraObjectList).getBytes());
-//                LOGGER.info("MDM {} Retry attempt:{} Status:{}",objectName,retryCount,response.getStatus());
-                response = orchestraRestClient.promote(referenceDataSpaceUrl, referenceDataSetUrl, tablePathUrl, orchestraObjectList, parameters);
+                LOGGER.debug("Bulk Promoting to Reference");
+                response = orchestraRestClient.promoteBulk(referenceDataSpaceUrl, referenceDataSetUrl, tablePathUrl, fileName, parameters);
 //                response = new RestResponse();
 //                response.setStatus(200);
                 retryCount++;
             }while(retryCount<maxRetryMdm && (response==null || response.getStatus()>=300));
             if(response.getStatus()!=200 && response.getStatus()!=201){
+                ObjectMapper mapper = new ObjectMapper();
                 throw new ApplicationRuntimeException("Error promoting to reference: "+String.valueOf(mapper.writeValueAsString(response.getResponseBody())));
             }
         }catch(InterruptedException | IOException e){
@@ -527,39 +618,16 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
         }
     }
 
-    private void publishToJitterbit(List<OrchestraObject> recordsToUpdateInJitterbit){
+    private void publishToJitterbit(String fileName){
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            mapper.setDateFormat(df);
-            for(OrchestraObject orchestraObject:recordsToUpdateInJitterbit){
-                if(orchestraObject.getContent().get("Published").getContent()==null || StringUtils.isBlank(orchestraObject.getContent().get("Published").getContent().toString())){
-                    orchestraObject.getContent().put("Published",new OrchestraContent("I"));
-                }else{
-                    orchestraObject.getContent().put("Published",new OrchestraContent("U"));
-                }
-                if(orchestraObject.getContent().get("AddressState")!=null && orchestraObject.getContent().get("AddressState").getContent()!=null
-                        && orchestraObject.getContent().get("AddressState").getContent().toString().contains("|")){
-                    orchestraObject.getContent().put("AddressState",new OrchestraContent(orchestraObject.getContent().get("AddressState").getContent().toString().split("\\|")[1]));
-                }
-            }
-            OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
-            orchestraObjectList.setRows(recordsToUpdateInJitterbit);
-
             RestResponse response = null;
             JitterbitRestClient jitterbitRestClient = (JitterbitRestClient)SpringContext.getApplicationContext().getBean("jitterbitRestClient");
-
             int retryCount = 0;
             do {
                 if (retryCount > 0) {
                     Thread.sleep(retryWaitJb);
                 }
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HHmm");
-                java.nio.file.Path file = java.nio.file.Paths.get(System.getProperty("ebx.home"),"jitterbit_"+objectName+"_"+LocalTime.now().format(dtf)+".json");
-                try { file = Files.createFile(file); } catch(FileAlreadyExistsException ignored){}
-                Files.write(file,mapper.writeValueAsString(orchestraObjectList).getBytes());
-                response = jitterbitRestClient.insertBulk(orchestraObjectList, null,objectName.toLowerCase());
+                response = jitterbitRestClient.insertBulk(fileName, null,objectName.toLowerCase());
 //                response = new RestResponse();
 //                response.setStatus(200);
                 LOGGER.info("JB {} Retry attempt:{} Status:{}",objectName,retryCount,response.getStatus());

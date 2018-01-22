@@ -18,6 +18,8 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -101,7 +103,7 @@ public class JitterbitRestClient {
         }
     }
 
-    public RestResponse insertBulk(OrchestraObjectList requestObject, final Map<String,String> parameters, String objectName) throws IOException {
+    public RestResponse insertBulk(String fileName, final Map<String,String> parameters, String objectName) throws IOException {
         Client client = ClientBuilder.newClient();
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -121,7 +123,7 @@ public class JitterbitRestClient {
 
             LOGGER.debug("TIME: {} Jitterbit REST begin", LocalTime.now());
 //            LOGGER.debug("jb request: "+jsonRequest);
-            Response response = request.post(Entity.json(requestObject));
+            Response response = request.post(Entity.json(Entity.json(new String(Files.readAllBytes(Paths.get(System.getProperty("ebx.home"),fileName))))));
             response.bufferEntity();
             RestResponse restResponse = new RestResponse();
             restResponse.setStatus(response.getStatus());
@@ -132,9 +134,7 @@ public class JitterbitRestClient {
             }
             LOGGER.info("jb response: "+response.readEntity(String.class));
             LOGGER.debug("TIME: {} Jitterbit REST end",LocalTime.now());
-
             return restResponse;
-
         }finally{
             client.close();
         }

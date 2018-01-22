@@ -20,6 +20,8 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.HashMap;
@@ -197,6 +199,38 @@ public class OrchestraRestClient {
             client.close();
         }
     }
+    public RestResponse promoteBulk(final String dataSpace, final String dataSet, final String path, String filename, final Map<String,String> parameters) throws IOException {
+        Client client = ClientBuilder.newClient();
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            client.register(feature);
+            WebTarget target = client.target(baseUrl).path(dataSpace).path(dataSet).path(path);
+            if (parameters != null)
+                for (Map.Entry<String, String> entry : parameters.entrySet())
+                    target = target.queryParam(entry.getKey(), entry.getValue());
+            Invocation.Builder request = target.request(MediaType.APPLICATION_JSON);
+            request.property(ClientProperties.CONNECT_TIMEOUT, restProperties.getOrchestra().getConnectTimeout()!=null?
+                    restProperties.getOrchestra().getConnectTimeout():5000);
+            request.property(ClientProperties.READ_TIMEOUT, restProperties.getOrchestra().getReadTimeout()!=null?
+                    restProperties.getOrchestra().getReadTimeout():70000);
+            LOGGER.debug("TIME: {} Orchestra promote begin", LocalTime.now());
+            Response response = request.post(Entity.json(new String(Files.readAllBytes(Paths.get(System.getProperty("ebx.home"),filename)))));
+            response.bufferEntity();
+            RestResponse restResponse = new RestResponse();
+            restResponse.setStatus(response.getStatus());
+            try {
+                restResponse.setResponseBody(response.readEntity(new GenericType<HashMap<String, Object>>(){}));
+            }catch(Exception e){
+                restResponse.setResponseBody(mapper.readValue(response.readEntity(String.class), new TypeReference<Map<String, String>>(){}));
+            }
+            LOGGER.debug("Orchestra promote response: "+response.readEntity(String.class));
+            LOGGER.debug("TIME: {} Orchestra promote end",LocalTime.now());
+            return restResponse;
+        }finally{
+            client.close();
+        }
+    }
+
     public RestResponse updateFlag(final String dataSpace, final String dataSet, final String path, OrchestraContent content, final Map<String,String> parameters) throws IOException {
         Client client = ClientBuilder.newClient();
         ObjectMapper mapper = new ObjectMapper();
