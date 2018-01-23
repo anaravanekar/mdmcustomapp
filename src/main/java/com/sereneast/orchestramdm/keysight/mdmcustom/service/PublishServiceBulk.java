@@ -603,12 +603,12 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
 
             if(!children.isEmpty()){
                 try {
-                    PublishService childPublishService = null;
+                    PublishServiceBulk childPublishService = null;
                     if("ACCOUNT".equalsIgnoreCase(objectName)){
-                        childPublishService = new AddressPublishService();
+                        childPublishService = new AddressPublishServiceBulk();
                         LOGGER.debug("publishing Account children");
                     }else if("ADDRESS".equalsIgnoreCase(objectName)){
-                        childPublishService = new BusinessPurposePublishService();
+                        childPublishService = new BusinessPurposePublishServiceBulk();
                         LOGGER.debug("publishing Address children");
                     }
                     childPublishService.setCheckParentIsPublished(false);
