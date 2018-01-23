@@ -523,18 +523,18 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                                             break;
                                         }
                                         if(!operatingUnits.contains(String.valueOf(bpOuContent.getContent())) && !removedBpOus.contains(String.valueOf(bpOuContent.getContent()))){
-                                            throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Operating unit "+String.valueOf(bpOuContent.getContent())+" found in Business Purpose "+mdmPurposeId+" does not exist for Address "+mdmAddressId+".");
+                                            //throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Operating unit "+String.valueOf(bpOuContent.getContent())+" found in Business Purpose "+mdmPurposeId+" does not exist for Address "+mdmAddressId+".");
                                         }
                                     }
                                 }
                                 if(!businessPurposesFinal.isEmpty()) {
                                     jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(businessPurposesFinal));
                                 }else if(!removedOperatingUnits.contains(operatingUnit)){
-                                    throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Business Purpose does not exist for Operating Unit "+operatingUnit+".");
+                                    //throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Business Purpose does not exist for Operating Unit "+operatingUnit+".");
                                     //jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
                                 }
                             } else {
-                                throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Business Purpose does not exist for Operating Unit "+operatingUnit+".");
+                                //throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Business Purpose does not exist for Operating Unit "+operatingUnit+".");
                                 //jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
                             }
                             Map<String, OrchestraContent> addressContent = new HashMap<>();
