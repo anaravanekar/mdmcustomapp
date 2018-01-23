@@ -597,8 +597,8 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                 LOGGER.info("Promoted {} to reference", objectName);
                 if(!objectName.equals("BUSINESSPURPOSE")) {
                     publishToJitterbit(jitterbitFileName);
+                    LOGGER.info("Published {} to Jitterbit", objectName);
                 }
-                LOGGER.info("Published {} to Jitterbit", objectName);
             }
 
             if(!children.isEmpty()){
