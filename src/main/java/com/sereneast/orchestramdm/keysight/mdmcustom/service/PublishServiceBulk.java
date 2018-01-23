@@ -351,11 +351,11 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                         }
                         for (Adaptation child; (child = childTableRequestResult.nextAdaptation()) != null; ) {
                             if (!"ADDRESS".equalsIgnoreCase(objectName)) {
-                                if ("Golden".equalsIgnoreCase(child.getString(Paths._Address._DaqaMetaData_State))) {
+//                                if ("Golden".equalsIgnoreCase(child.getString(Paths._Address._DaqaMetaData_State))) {
                                     children.add(child);
-                                }
+//                                }
                             } else {
-                                if ("Golden".equalsIgnoreCase(child.getString(Paths._BusinessPurpose._DaqaMetaData_State))) {
+//                                if ("Golden".equalsIgnoreCase(child.getString(Paths._BusinessPurpose._DaqaMetaData_State))) {
                                     OrchestraObject orchestraChildToUpdateInJitterbit = new OrchestraObject();
                                     Map<String, OrchestraContent> jsonFieldsMapForJitterbit = new HashMap<>();
                                     for (String fieldName : fieldPathMap.keySet()) {
@@ -397,7 +397,7 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                                     orchestraChildToUpdateInJitterbit.setContent(jsonFieldsMapForJitterbit);
                                     childrenToUpdateInJitterbit.add(orchestraChildToUpdateInJitterbit);
                                     children.add(child);
-                                }
+//                                }
                             }
                         }
                     }
