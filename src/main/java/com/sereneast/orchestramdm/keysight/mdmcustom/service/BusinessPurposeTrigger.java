@@ -38,6 +38,12 @@ public class BusinessPurposeTrigger extends TableTrigger {
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())) {
             boolean update = false;
             ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
+            List ous = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._OperatingUnit);
+            String firstOu = ous != null && !ous.isEmpty()? (String)ous.get(0) : null;
+            if(firstOu!=null){
+                valueContextForUpdate.setValue(firstOu,Paths._BusinessPurpose._FirstOperatingUnit);
+                update = true;
+            }
             if (aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId) != null) {
                 if (aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._Primary) == null ||
                         aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._Primary).isEmpty()) {
@@ -117,6 +123,11 @@ public class BusinessPurposeTrigger extends TableTrigger {
                 HashSet<String> oUsBeforeSet = oUsBefore != null ? new HashSet<>(oUsBefore) : new HashSet<>();
                 List<String> currentOus = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._OperatingUnit);
                 HashSet<String> currentOusSet = currentOus != null ? new HashSet<>(currentOus) : new HashSet<>();
+                String firstOu = currentOus != null && !currentOus.isEmpty()? currentOus.get(0) : null;
+                if(firstOu!=null){
+                    valueContextForUpdate.setValue(firstOu,Paths._BusinessPurpose._FirstOperatingUnit);
+                    update = true;
+                }
                 HashSet<String> oUsRemovedSet = new HashSet<>(oUsBeforeSet);
                 oUsRemovedSet.removeAll(new HashSet<>(currentOusSet));
                 List<String> existingOusRemoved = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._RemovedOperatingUnits);

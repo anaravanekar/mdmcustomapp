@@ -142,6 +142,10 @@ public class GenericTrigger extends TableTrigger {
                     valueContextForUpdate.setValue("N", Paths._Address._SendAcknowledgement);
                     valueContextForUpdate.setValue("Suppress because of special format requirements", Paths._Address._InvoiceCopies);
                 }*/
+                if(aContext.getOccurrenceContext().getValue(Paths._Address._OperatingUnit)!=null && !((List)aContext.getOccurrenceContext().getValue(Paths._Address._OperatingUnit)).isEmpty()){
+                    valueContextForUpdate.setValue(((List)aContext.getOccurrenceContext().getValue(Paths._Address._OperatingUnit)).get(0), Paths._Address._FirstOperatingUnit);
+                    update = true;
+                }
                 String countryCode = aContext.getAdaptationOccurrence().getString(Paths._Address._Country);
                 if(countryCode!=null){
                     boolean valid = validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState),
@@ -293,6 +297,7 @@ public class GenericTrigger extends TableTrigger {
                     ValueChange change = aContext.getChanges().getChange(Paths._Address._OperatingUnit);
                     List<String> before = change.getValueBefore()!=null?(List<String>)change.getValueBefore():new ArrayList<>();
                     List<String> now = change.getValueAfter()!=null?(List<String>)change.getValueAfter():new ArrayList<>();
+                    String firstOu = !now.isEmpty()?now.get(0):null;
                     List<String> removed = new ArrayList<>(before);
                     List<String> added = new ArrayList<>(now);
                     List<String> ousWithNoBp = new ArrayList<>();
@@ -302,10 +307,12 @@ public class GenericTrigger extends TableTrigger {
                     AdaptationTable table = aContext.getOccurrenceContext().getAdaptationInstance().getTable(Paths._BusinessPurpose.getPathInSchema());
                     RequestResult bpResult = table.createRequestResult(Paths._BusinessPurpose._MDMAddressId.format()+" = '"+aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId)+"'");
                     List<OrchestraObject> bpRowsToRemoveOu = new ArrayList<>();
+                    List<OrchestraObject> bpRowsToRollback = new ArrayList<>();
                     if(bpResult!=null && !bpResult.isEmpty()) {
                         for (Adaptation bpAdapatation; (bpAdapatation = bpResult.nextAdaptation()) != null; ) {
                             if (bpAdapatation.getList(Paths._BusinessPurpose._OperatingUnit) != null) {
                                 List<String> ous = bpAdapatation.getList(Paths._BusinessPurpose._OperatingUnit);
+                                List<String> ousRemovedRb = bpAdapatation.getList(Paths._BusinessPurpose._RemovedOperatingUnits);
                                 if (ous != null) {
                                     bpOus.addAll(ous);
                                     List<String> bpOusRemoved = new ArrayList<>();
@@ -318,11 +325,18 @@ public class GenericTrigger extends TableTrigger {
                                         List<String> ousNew = new ArrayList<>(ous);
                                         ousNew.removeAll(bpOusRemoved);
                                         OrchestraObject orchestraObject = new OrchestraObject();
+                                        OrchestraObject rbOrchestraObject = new OrchestraObject();
                                         Map<String, OrchestraContent> content = new HashMap<>();
+                                        Map<String, OrchestraContent> rollBackContent = new HashMap<>();
                                         List<OrchestraContent> ousNewContent = new ArrayList<>();
+                                        List<OrchestraContent> ousRbContent = new ArrayList<>();
                                         List<OrchestraContent> ousRemovedContent = new ArrayList<>();
+                                        List<OrchestraContent> ousRemovedRbContent = new ArrayList<>();
                                         for(String ounew:ousNew){
                                             ousNewContent.add(new OrchestraContent(ounew));
+                                        }
+                                        for(String ourb:ous){
+                                            ousRbContent.add(new OrchestraContent(ourb));
                                         }
                                         List<String> existingRemovedOus = bpAdapatation.getList(Paths._BusinessPurpose._RemovedOperatingUnits);
                                         existingRemovedOus=existingRemovedOus!=null?existingRemovedOus:new ArrayList<>();
@@ -332,12 +346,21 @@ public class GenericTrigger extends TableTrigger {
                                         for(String our:bpOusRemoved){
                                             ousRemovedContent.add(new OrchestraContent(our));
                                         }
+                                        for(String ouRemovedRb:existingRemovedOus){
+                                            ousRemovedRbContent.add(new OrchestraContent(ouRemovedRb));
+                                        }
                                         content.put("MDMPurposeId",new OrchestraContent(bpAdapatation.get(Paths._BusinessPurpose._MDMPurposeId)));
                                         content.put("OperatingUnit",new OrchestraContent(ousNewContent));
                                         content.put("RemovedOperatingUnits",new OrchestraContent(ousRemovedContent));
                                         content.put("Location",new OrchestraContent(bpAdapatation.getString(Paths._BusinessPurpose._Location)));
+                                        rollBackContent.put("MDMPurposeId",new OrchestraContent(bpAdapatation.get(Paths._BusinessPurpose._MDMPurposeId)));
+                                        rollBackContent.put("OperatingUnit",new OrchestraContent(ousRbContent));
+                                        rollBackContent.put("RemovedOperatingUnits",new OrchestraContent(ousRemovedRbContent));
+                                        rollBackContent.put("Location",new OrchestraContent(bpAdapatation.getString(Paths._BusinessPurpose._Location)));
+                                        rbOrchestraObject.setContent(rollBackContent);
                                         orchestraObject.setContent(content);
                                         bpRowsToRemoveOu.add(orchestraObject);
+                                        bpRowsToRollback.add(rbOrchestraObject);
                                     }
                                 }
                             }
@@ -352,6 +375,10 @@ public class GenericTrigger extends TableTrigger {
                         if(!ousWithNoBp.isEmpty()){
                             throw OperationException.createError("No Business Purpose exists for Operating Units "+StringUtils.join(ousWithNoBp, ',')+". Please add Business Purpose(s) first.");
                         }
+                    }
+                    if(firstOu!=null){
+                        valueContextForUpdate.setValue(firstOu, Paths._Address._FirstOperatingUnit);
+                        update = true;
                     }
                     if(removed!=null){
                         if(aContext.getAdaptationOccurrence().get(Paths._Address._Published)!=null) {
