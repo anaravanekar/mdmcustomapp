@@ -8,6 +8,7 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.model.RestResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.logging.LoggingFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +68,9 @@ public class JitterbitRestClient {
 
 
     public RestResponse insert(String jsonRequest, final Map<String,String> parameters, String objectName) throws IOException {
-        Client client = ClientBuilder.newClient();
+        Client client = ClientBuilder.newBuilder()
+                .property(LoggingFeature.LOGGING_FEATURE_VERBOSITY_CLIENT, LoggingFeature.Verbosity.PAYLOAD_ANY)
+                .property(LoggingFeature.LOGGING_FEATURE_LOGGER_LEVEL_CLIENT, "DEBUG").build();
         ObjectMapper mapper = new ObjectMapper();
         try {
             client.register(feature);
@@ -104,13 +107,15 @@ public class JitterbitRestClient {
     }
 
     public RestResponse insertBulk(String fileName, final Map<String,String> parameters, String objectName) throws IOException {
-        Client client = ClientBuilder.newClient();
+        Client client = ClientBuilder.newBuilder()
+                .property(LoggingFeature.LOGGING_FEATURE_VERBOSITY_CLIENT, LoggingFeature.Verbosity.PAYLOAD_ANY)
+                .property(LoggingFeature.LOGGING_FEATURE_LOGGER_LEVEL_CLIENT, "DEBUG").build();
         ObjectMapper mapper = new ObjectMapper();
         try {
-            this.baseUrl = "https://Keysight.jitterbit.net/Development/1.0";
-            this.feature = HttpAuthenticationFeature.basic("keysight", "keysight123");
-            client.register(feature);
-            String targetUrl = baseUrl+"/"+("account".equalsIgnoreCase(objectName)?"MDMAccounts":"MDMAddress");
+            //this.baseUrl = "https://Keysight.jitterbit.net/Development/1.0";
+            //this.feature = HttpAuthenticationFeature.basic("keysight", "keysight123");
+            client.register(HttpAuthenticationFeature.basic("keysight", "keysight123"));
+            String targetUrl = "https://Keysight.jitterbit.net/Development/1.0"+"/"+("account".equalsIgnoreCase(objectName)?"MDMAccounts":"MDMAddress");
             WebTarget target = client.target(targetUrl);
             if (parameters != null)
                 for (Map.Entry<String, String> entry : parameters.entrySet())
@@ -122,7 +127,7 @@ public class JitterbitRestClient {
                     restProperties.getJitterbit().getReadTimeout():70000);
 
             LOGGER.debug("TIME: {} Jitterbit REST begin", LocalTime.now());
-//            LOGGER.debug("jb request: "+jsonRequest);
+            LOGGER.debug("jb request: "+new String(Files.readAllBytes(Paths.get(System.getProperty("ebx.home"),fileName))));
             Response response = request.post(Entity.json(Entity.json(new String(Files.readAllBytes(Paths.get(System.getProperty("ebx.home"),fileName))))));
             response.bufferEntity();
             RestResponse restResponse = new RestResponse();
