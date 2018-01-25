@@ -70,7 +70,7 @@ public class JitterbitRestClient {
     public RestResponse insert(String jsonRequest, final Map<String,String> parameters, String objectName) throws IOException {
         Client client = ClientBuilder.newBuilder()
                 .property(LoggingFeature.LOGGING_FEATURE_VERBOSITY_CLIENT, LoggingFeature.Verbosity.PAYLOAD_ANY)
-                .property(LoggingFeature.LOGGING_FEATURE_LOGGER_LEVEL_CLIENT, "DEBUG").build();
+                .property(LoggingFeature.LOGGING_FEATURE_LOGGER_LEVEL_CLIENT, "FINE").build();
         ObjectMapper mapper = new ObjectMapper();
         try {
             client.register(feature);
@@ -109,7 +109,7 @@ public class JitterbitRestClient {
     public RestResponse insertBulk(String fileName, final Map<String,String> parameters, String objectName) throws IOException {
         Client client = ClientBuilder.newBuilder()
                 .property(LoggingFeature.LOGGING_FEATURE_VERBOSITY_CLIENT, LoggingFeature.Verbosity.PAYLOAD_ANY)
-                .property(LoggingFeature.LOGGING_FEATURE_LOGGER_LEVEL_CLIENT, "DEBUG").build();
+                .property(LoggingFeature.LOGGING_FEATURE_LOGGER_LEVEL_CLIENT, "FINE").build();
         ObjectMapper mapper = new ObjectMapper();
         try {
             //this.baseUrl = "https://Keysight.jitterbit.net/Development/1.0";
