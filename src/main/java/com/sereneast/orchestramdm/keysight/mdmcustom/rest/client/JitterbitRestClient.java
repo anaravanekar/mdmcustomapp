@@ -128,7 +128,7 @@ public class JitterbitRestClient {
 
             LOGGER.debug("TIME: {} Jitterbit REST begin", LocalTime.now());
             LOGGER.debug("jb request: "+new String(Files.readAllBytes(Paths.get(System.getProperty("ebx.home"),fileName))));
-            Response response = request.post(Entity.json(Entity.json(new String(Files.readAllBytes(Paths.get(System.getProperty("ebx.home"),fileName))))));
+            Response response = request.post(Entity.json(new String(Files.readAllBytes(Paths.get(System.getProperty("ebx.home"),fileName)))));
             response.bufferEntity();
             RestResponse restResponse = new RestResponse();
             restResponse.setStatus(response.getStatus());
