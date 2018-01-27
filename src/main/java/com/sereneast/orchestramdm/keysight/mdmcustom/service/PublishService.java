@@ -475,6 +475,9 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                                     String mdmAddressId = String.valueOf(businessPurposeObject.getContent().get("MDMAddressId").getContent());
                                     String bpStatus = String.valueOf(businessPurposeObject.getContent().get("Status").getContent());
                                     for(OrchestraContent bpOuContent:bpOus) {
+                                        if(!operatingUnits.contains(String.valueOf(bpOuContent.getContent())) && !removedBpOus.contains(String.valueOf(bpOuContent.getContent()))){
+                                            throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Operating unit "+String.valueOf(bpOuContent.getContent())+" found in Business Purpose "+mdmPurposeId+" does not exist for Address "+mdmAddressId+".");
+                                        }
                                         if (String.valueOf(bpOuContent.getContent()).equals(operatingUnit)) {
                                             OrchestraObject businessPurposeToJb = new OrchestraObject();
                                             Map<String, OrchestraContent> bpToJbContent = new HashMap<>();
@@ -503,9 +506,6 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                                             businessPurposeToJb.setContent(bpToJbContent);
                                             businessPurposesFinal.add(businessPurposeToJb);
                                             break;
-                                        }
-                                        if(!operatingUnits.contains(String.valueOf(bpOuContent.getContent())) && !removedBpOus.contains(String.valueOf(bpOuContent.getContent()))){
-                                            throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Operating unit "+String.valueOf(bpOuContent.getContent())+" found in Business Purpose "+mdmPurposeId+" does not exist for Address "+mdmAddressId+".");
                                         }
                                     }
                                 }
