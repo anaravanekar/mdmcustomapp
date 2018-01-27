@@ -455,6 +455,7 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                         operatingUnits.addAll(removedOperatingUnits);
                         for(String operatingUnit:operatingUnits){
                             List<OrchestraObject> businessPurposesFinal = new ArrayList<>();
+                            int activeBpOus = 0;
                             if (childrenToUpdateInJitterbit != null && !childrenToUpdateInJitterbit.isEmpty()) {
                                 for(OrchestraObject businessPurposeObject:childrenToUpdateInJitterbit) {
                                     if(businessPurposeObject.getContent().get("OperatingUnit").getContent()==null || ((List)businessPurposeObject.getContent().get("OperatingUnit").getContent()).isEmpty()){
@@ -496,6 +497,7 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                                                 bpToJbContent.put("Status",new OrchestraContent("I"));
                                             }else{
                                                 bpToJbContent.put("Status",new OrchestraContent("A"));
+                                                activeBpOus++;
                                             }
                                             bpToJbContent.remove("RemovedOperatingUnits");
                                             businessPurposeToJb.setContent(bpToJbContent);
@@ -512,6 +514,9 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                                 }else if(!removedOperatingUnits.contains(operatingUnit)){
                                     throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Business Purpose does not exist for Operating Unit "+operatingUnit+".");
                                     //jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
+                                }
+                                if(activeBpOus==0){
+                                    throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Business Purpose does not exist for Operating Unit "+operatingUnit+".");
                                 }
                             } else {
                                 throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Business Purpose does not exist for Operating Unit "+operatingUnit+".");

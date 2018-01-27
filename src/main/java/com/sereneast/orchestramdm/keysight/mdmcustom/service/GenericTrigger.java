@@ -148,11 +148,8 @@ public class GenericTrigger extends TableTrigger {
                 }
                 String countryCode = aContext.getAdaptationOccurrence().getString(Paths._Address._Country);
                 if(countryCode!=null){
-                    boolean valid = validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState),
+                    validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState),
                             aContext.getAdaptationOccurrence().getString(Paths._Address._Province));
-                    if(!valid){
-                        throw OperationException.createError("Invalid State/Province");
-                    }
                 }
                 if(aContext.getOccurrenceContext().getValue(Paths._Address._TaxRegimeCode)==null){
                     ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
@@ -263,11 +260,8 @@ public class GenericTrigger extends TableTrigger {
                             || aContext.getChanges().getChange(Paths._Address._Province)!=null)){
                 String countryCode = aContext.getAdaptationOccurrence().getString(Paths._Address._Country);
                 if(countryCode!=null){
-                    boolean valid = validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState),
+                    validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState),
                             aContext.getAdaptationOccurrence().getString(Paths._Address._Province));
-                    if(!valid){
-                        throw OperationException.createError("Invalid State/Province");
-                    }
                 }
             }
             if( "ADDRESS".equalsIgnoreCase(objectName)){
@@ -652,7 +646,7 @@ public class GenericTrigger extends TableTrigger {
         return detectedLanguage;
     }
 
-    private boolean validateStateAndProvince(String countryCode,String currentState,String currentProvince) throws OperationException {
+    private void validateStateAndProvince(String countryCode,String currentState,String currentProvince) throws OperationException {
         ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
         Map<String,String> territoryTypeMap = applicationCacheUtil.getTerritoryTypeMap("BReference");
         HashSet<String> options = new HashSet<>();
@@ -661,15 +655,17 @@ public class GenericTrigger extends TableTrigger {
             if(options==null){
                 throw OperationException.createError("Error getting state options");
             }
-            return options.contains(currentState);
+            if(!options.contains(currentState)){
+                throw OperationException.createError("State is mandatory");
+            }
         }else if("PROVINCE".equalsIgnoreCase(territoryTypeMap.get(countryCode))){
             options = applicationCacheUtil.getOptionsList("BReference",countryCode,"PROVINCE");
             if(options==null){
                 throw OperationException.createError("Error getting province options");
             }
-            return options.contains(currentProvince);
-        }else{
-            return true;
+            if(!options.contains(currentProvince)){
+                throw OperationException.createError("Province is mandatory");
+            }
         }
     }
 
