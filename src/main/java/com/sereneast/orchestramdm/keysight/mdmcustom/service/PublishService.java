@@ -505,7 +505,6 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                                             bpToJbContent.remove("RemovedOperatingUnits");
                                             businessPurposeToJb.setContent(bpToJbContent);
                                             businessPurposesFinal.add(businessPurposeToJb);
-                                            break;
                                         }
                                     }
                                 }
