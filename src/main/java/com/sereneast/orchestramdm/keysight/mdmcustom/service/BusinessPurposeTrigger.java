@@ -168,6 +168,15 @@ public class BusinessPurposeTrigger extends TableTrigger {
                         }
                     }
                 }
+                if(!oUsAddedSet.isEmpty() && !existingOusRemoved.isEmpty()){
+                    existingOusRemoved.removeAll(oUsAddedSet);
+                    if(!existingOusRemoved.isEmpty()) {
+                        valueContextForUpdate.setValue(existingOusRemoved, Paths._BusinessPurpose._RemovedOperatingUnits);
+                    }else{
+                        valueContextForUpdate.setValue(null, Paths._BusinessPurpose._RemovedOperatingUnits);
+                    }
+                    update = true;
+                }
                 if (!oUsRemovedSet.isEmpty()) {
                     oUsRemovedSet.addAll(existingOusRemoved);
                     valueContextForUpdate.setValue(new ArrayList<>(oUsRemovedSet), Paths._BusinessPurpose._RemovedOperatingUnits);

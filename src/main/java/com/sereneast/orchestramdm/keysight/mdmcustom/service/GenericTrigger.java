@@ -360,26 +360,41 @@ public class GenericTrigger extends TableTrigger {
                             }
                         }
                     }
-                    if(added!=null && aContext.getAdaptationOccurrence().getString(Paths._Address._Published)!=null){
-                        for(String addedOu:added){
-                            if(!bpOus.contains(addedOu)){
-                                ousWithNoBp.add(addedOu);
+                    if(added!=null && !added.isEmpty()){
+                        if(aContext.getAdaptationOccurrence().getList(Paths._Address._RemovedOperatingUnits)!=null){
+                            List<String> existingRemovedOus = aContext.getAdaptationOccurrence().getList(Paths._Address._RemovedOperatingUnits);
+                            existingRemovedOus.removeAll(added);
+                            if(!existingRemovedOus.isEmpty()) {
+                                valueContextForUpdate.setValue(existingRemovedOus, Paths._Address._RemovedOperatingUnits);
+                            }else{
+                                valueContextForUpdate.setValue(null, Paths._Address._RemovedOperatingUnits);
                             }
+                            update = true;
                         }
-                        if(!ousWithNoBp.isEmpty()){
-                            throw OperationException.createError("No Business Purpose exists for Operating Units "+StringUtils.join(ousWithNoBp, ',')+". Please add Business Purpose(s) first.");
+                        if(aContext.getAdaptationOccurrence().getString(Paths._Address._Published)!=null){
+                            for(String addedOu:added){
+                                if(!bpOus.contains(addedOu)){
+                                    ousWithNoBp.add(addedOu);
+                                }
+                            }
+                            if(!ousWithNoBp.isEmpty()){
+                                throw OperationException.createError("No Business Purpose exists for Operating Units "+StringUtils.join(ousWithNoBp, ',')+". Please add Business Purpose(s) first.");
+                            }
                         }
                     }
                     if(firstOu!=null){
                         valueContextForUpdate.setValue(firstOu, Paths._Address._FirstOperatingUnit);
                         update = true;
                     }
-                    if(removed!=null){
+                    if(removed!=null && !removed.isEmpty()){
                         if(aContext.getAdaptationOccurrence().get(Paths._Address._Published)!=null) {
                             if(aContext.getAdaptationOccurrence().getList(Paths._Address._RemovedOperatingUnits)!=null){
                                 List<String> existingRemovedOus = aContext.getAdaptationOccurrence().getList(Paths._Address._RemovedOperatingUnits);
                                 HashSet<String> removedOusSet = new HashSet<>(removed);
                                 removedOusSet.addAll(existingRemovedOus);
+                                if(added!=null && !added.isEmpty()){
+                                    removedOusSet.removeAll(added);
+                                }
                                 removed = new ArrayList<>(removedOusSet);
                             }
                             valueContextForUpdate.setValue(removed, Paths._Address._RemovedOperatingUnits);
