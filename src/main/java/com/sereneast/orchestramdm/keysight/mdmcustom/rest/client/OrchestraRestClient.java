@@ -224,6 +224,7 @@ public class OrchestraRestClient {
                 paths.forEach(path1 -> {
                     try {
 //                        LOGGER.debug("mdm request: "+new String(Files.readAllBytes(path1)));
+                        LOGGER.debug(path1.toString());
                         Response response = request.post(Entity.json(new String(Files.readAllBytes(path1))));
                         if(!(response.getStatus()>=200 && response.getStatus()<300)){
                             throw new ApplicationRuntimeException("Error promoting records. Status: "+response.getStatus()+" Response: "+
