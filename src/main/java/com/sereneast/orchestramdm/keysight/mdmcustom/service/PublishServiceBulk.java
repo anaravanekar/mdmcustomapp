@@ -114,9 +114,9 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
 
     private String fileId;
 
-    private static final int BATCH_COUNT = 2;
+    private static final int BATCH_COUNT = 1000;
 
-    private static final int FILE_COUNT_MAX = 4;
+    private static final int FILE_COUNT_MAX = 5000;
 
     public PublishServiceBulk() {
     }
