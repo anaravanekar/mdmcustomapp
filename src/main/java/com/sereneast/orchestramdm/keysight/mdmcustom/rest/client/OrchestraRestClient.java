@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
+import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectListResponse;
@@ -20,12 +21,15 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @Service
 public class OrchestraRestClient {
@@ -199,7 +203,7 @@ public class OrchestraRestClient {
             client.close();
         }
     }
-    public RestResponse promoteBulk(final String dataSpace, final String dataSet, final String path, String filename, final Map<String,String> parameters) throws IOException {
+    public void promoteBulk(final String dataSpace, final String dataSet, final String path, String dirName, final Map<String,String> parameters) throws IOException {
         Client client = ClientBuilder.newClient();
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -214,18 +218,25 @@ public class OrchestraRestClient {
             request.property(ClientProperties.READ_TIMEOUT, restProperties.getOrchestra().getReadTimeout()!=null?
                     restProperties.getOrchestra().getReadTimeout():70000);
             LOGGER.debug("TIME: {} Orchestra promote begin", LocalTime.now());
-            Response response = request.post(Entity.json(new String(Files.readAllBytes(Paths.get(System.getProperty("ebx.home"),filename)))));
-            response.bufferEntity();
+            DirectoryStream<Path> directoryStream = null;
             RestResponse restResponse = new RestResponse();
-            restResponse.setStatus(response.getStatus());
-            try {
-                restResponse.setResponseBody(response.readEntity(new GenericType<HashMap<String, Object>>(){}));
-            }catch(Exception e){
-                restResponse.setResponseBody(mapper.readValue(response.readEntity(String.class), new TypeReference<Map<String, String>>(){}));
+            try (Stream<Path> paths = Files.walk(Paths.get(System.getProperty("ebx.home"),dirName))) {
+                paths.forEach(path1 -> {
+                    try {
+//                        LOGGER.debug("mdm request: "+new String(Files.readAllBytes(path1)));
+                        Response response = request.post(Entity.json(new String(Files.readAllBytes(path1))));
+                        if(!(response.getStatus()>=200 && response.getStatus()<300)){
+                            throw new ApplicationRuntimeException("Error promoting records. Status: "+response.getStatus()+" Response: "+
+                                    response.readEntity(new GenericType<HashMap<String, Object>>() {}));
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            }catch (IOException e) {
+                e.printStackTrace();
             }
-            LOGGER.debug("Orchestra promote response: "+response.readEntity(String.class));
             LOGGER.debug("TIME: {} Orchestra promote end",LocalTime.now());
-            return restResponse;
         }finally{
             client.close();
         }
@@ -266,6 +277,16 @@ public class OrchestraRestClient {
 
         }finally{
             client.close();
+        }
+    }
+
+    public static void main(String[] args){
+        try (Stream<Path> paths = Files.walk(Paths.get("E:\\tomcat1\\jscripts"))) {
+            paths
+                    .filter(Files::isRegularFile)
+                    .forEach(System.out::println);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

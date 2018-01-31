@@ -36,8 +36,8 @@ public class AccountPublishServiceBulk extends PublishServiceBulk {
         Map<String, Path> pathFieldsMap = null;
         ApplicationCacheUtil applicationCacheUtil = new ApplicationCacheUtil();
         setFieldPathMap(applicationCacheUtil.getObjectDirectFields(Paths._Account.class.getName()));
-        setParentIdPathInChild(Paths._Address._MDMAccountId);
-        setChildPathInSchema(Paths._Address.getPathInSchema());
+//        setParentIdPathInChild(Paths._Address._MDMAccountId);
+//        setChildPathInSchema(Paths._Address.getPathInSchema());
     }
 
     @Override

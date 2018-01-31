@@ -122,6 +122,8 @@ public interface Paths
 		public static final Path _Locale = Path.parse("./Locale");
 		public static final Path _RelatedAddress = Path.parse("./RelatedAddress");
 		public static final Path _MergedTargetRecord = Path.parse("./MergedTargetRecord");
+		public static final Path _AccountLocked = Path.parse("./AccountLocked");
+		public static final Path _ErrorMessage = Path.parse("./ErrorMessage");
 	} 
 
 	// Table type path
@@ -263,6 +265,8 @@ public interface Paths
 		public static final Path _MergedTargetRecord = Path.parse("./MergedTargetRecord");
 		public static final Path _RemovedOperatingUnits = Path.parse("./RemovedOperatingUnits");
 		public static final Path _FirstOperatingUnit = Path.parse("./FirstOperatingUnit");
+		public static final Path _AddressLocked = Path.parse("./AddressLocked");
+		public static final Path _ErrorMessage = Path.parse("./ErrorMessage");
 	} 
 
 	// Table type path
