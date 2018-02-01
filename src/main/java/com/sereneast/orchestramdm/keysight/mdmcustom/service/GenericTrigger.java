@@ -670,7 +670,7 @@ public class GenericTrigger extends TableTrigger {
             if(options==null){
                 throw OperationException.createError("Error getting state options");
             }
-            if(!options.contains(currentState)){
+            if(!options.contains(currentState) && StringUtils.isNotBlank(currentState)){
                 throw OperationException.createError("State is mandatory");
             }
         }else if("PROVINCE".equalsIgnoreCase(territoryTypeMap.get(countryCode))){
@@ -678,7 +678,7 @@ public class GenericTrigger extends TableTrigger {
             if(options==null){
                 throw OperationException.createError("Error getting province options");
             }
-            if(!options.contains(currentProvince)){
+            if(!options.contains(currentProvince) && StringUtils.isNotBlank(currentProvince)){
                 throw OperationException.createError("Province is mandatory");
             }
         }

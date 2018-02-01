@@ -631,15 +631,15 @@ public class AddressPane implements UIFormPane {
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_Source);
 		writer.add("</td>");
-		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
+		writer.add("<td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
 		writer.addWidget(_Source);
 		writer.add("</td>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		/*writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_TaxRegistrationActive);
 		writer.add("</td>");
 		writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");
 		writer.addWidget(_TaxRegistrationActive);
-		writer.add("</td>");
+		writer.add("</td>");*/
 		writer.add("</tr>");
 
 		writer.add("<tr>");

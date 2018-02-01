@@ -24,11 +24,9 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.model.RestResponse;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.JitterbitRestClient;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.OrchestraRestClient;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -242,9 +240,9 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
         int fileCount = 0;
         int fileNo = 1;
         try {
-            /*if(!Files.exists(validationDirPath)){
+            if(!Files.exists(validationDirPath)){
                 Files.createDirectory(validationDirPath);
-            }*/
+            }
             EbxProperties ebxProperties = (EbxProperties) SpringContext.getApplicationContext().getBean("ebxProperties");
             if(ebxProperties.getRetryWaitJb()!=null){
                 setRetryWaitJb(ebxProperties.getRetryWaitJb());
@@ -267,27 +265,36 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                 if("ACCOUNT".equals(objectName)) {
                     errorObjContent.put("MDMAccountId",new OrchestraContent(adaptation.get(Paths._Account._MDMAccountId)));
                     if("Y".equals(adaptation.getString(Paths._Account._AccountLocked))){
-                        throw new ApplicationRuntimeException("Cannot publish records with locked status.");
+//                        throw new ApplicationRuntimeException("Cannot publish records with locked status.");
+                        errorObjContent.put("ErrorMessage",new OrchestraContent("Cannot publish record with locked status"));
+                        error = true;
                     }
                 }else if("ADDRESS".equals(objectName)){
                     errorObjContent.put("MDMAddressId",new OrchestraContent(adaptation.get(Paths._Address._MDMAddressId)));
                     if("Y".equals(adaptation.getString(Paths._Address._AddressLocked))){
-                        throw new ApplicationRuntimeException("Cannot publish records with locked status.");
+//                        throw new ApplicationRuntimeException("Cannot publish records with locked status.");
+                        errorObjContent.put("ErrorMessage",new OrchestraContent("Cannot publish record with locked status"));
+                        error = true;
                     }
+                }
+                if("Y".equals(adaptation.getString(Paths._Account._Published))){
+//                    throw new ApplicationRuntimeException("One or more selected records have been published already.");
+                    errorObjContent.put("ErrorMessage",new OrchestraContent("One or more selected records have been published already."));
+                    error = true;
                 }
                 if("Golden".equalsIgnoreCase(adaptation.getString(daqaStateFieldPath))){
                     selectedRecords.add(adaptation);
                 }else{
-                    throw new ApplicationRuntimeException("Only Golden records can be published. Please select Golden records and try again.");
-//                    errorObjContent.put("ErrorMessage",new OrchestraContent("Only Golden records can be published"));
-//                    error = true;
+//                    throw new ApplicationRuntimeException("Only Golden records can be published. Please select Golden records and try again.");
+                    errorObjContent.put("ErrorMessage",new OrchestraContent("Only Golden records can be published"));
+                    error = true;
                 }
                 if(!validateRecord(objectName,adaptation.getContainer(),adaptation)){
-                    throw new ApplicationRuntimeException("At least one golden state address and at least one golden state business purpose is mandatory for publish.");
-//                    errorObjContent.put("ErrorMessage",new OrchestraContent("At least one golden state address and at least one golden state business purpose is mandatory for publish."));
-//                    error = true;
+//                    throw new ApplicationRuntimeException("At least one golden state address and at least one golden state business purpose is mandatory for publish.");
+                    errorObjContent.put("ErrorMessage",new OrchestraContent("At least one golden state address and at least one golden state business purpose is mandatory for publish."));
+                    error = true;
                 }
-/*                if(error) {
+                if(error) {
                     validationErrorsExist = true;
                     object.setContent(errorObjContent);
                     validationErrorObjects.add(object);
@@ -320,15 +327,15 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                         writerToMdmFile(null,",",validationChannel);
                     }
                     validationErrorObjects = new ArrayList<>();
-                }*/
+                }
             }
             finalMessage = promoteAndPublish(selectedRecords, aContext);
-            /*if(validationErrorsExist){
+            if(validationErrorsExist){
                 updateStatusBulk(validationDir);
-            }*/
-        }catch(ApplicationRuntimeException e){
+            }
+        }catch(IOException | ApplicationRuntimeException e){
             finalMessage = e.getMessage();
-        }/*finally{
+        }finally{
             if(validationStream!=null){
                 try {
                     validationStream.close();
@@ -336,7 +343,7 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                     LOGGER.error("Error closing stream");
                 }
             }
-        }*/
+        }
         if(!"Selected records were promoted and published successfully.".equalsIgnoreCase(finalMessage)) {
             anAjaxResponse.getWriter().add("<div class=\"custom-error-image\"></div>");
             anAjaxResponse.getWriter().add("<div class=\"custom-error-header\">Oh No! Something went wrong.</div>");
@@ -389,11 +396,11 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
         List<Adaptation> children = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
-       /* String validationDir = "MDM_VALIDATION2_"+objectName+"_"+fileId;
+        String validationDir = "MDM_VALIDATION2_"+objectName+"_"+fileId;
         java.nio.file.Path validationDirPath = java.nio.file.Paths.get(System.getProperty("ebx.home"),validationDir);
         RandomAccessFile validationStream = null;
         FileChannel validationChannel = null;
-        FileLock validationLock = null;*/
+        FileLock validationLock = null;
 
         String mdmPromoteDir = "MDM_"+objectName+"_"+fileId;
         java.nio.file.Path mdmPromoteDirPath = java.nio.file.Paths.get(System.getProperty("ebx.home"),mdmPromoteDir);
@@ -436,7 +443,7 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                 // Set up requests
                 SELECTED_RECORDS:
                 for (Adaptation adaptation : selectedRecords) {
-                    /*if(validationBatchCount==BATCH_COUNT || (validationBatchCount>0 && totalCount==selectedRecords.size()-1)){
+                    if(validationBatchCount==BATCH_COUNT || (validationBatchCount>0 && totalCount==selectedRecords.size()-1)){
                         if(validationFileCount==0){
                             if(!Files.exists(validationDirPath)){
                                 Files.createDirectory(validationDirPath);
@@ -465,7 +472,7 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                             writerToMdmFile(null,",",validationChannel);
                         }
                         validationErrorObjects = new ArrayList<>();
-                    }*/
+                    }
 
                     totalCount++;
                     OrchestraObject errorObject = new OrchestraObject();
@@ -482,13 +489,13 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                     childrenToUpdateInJitterbit = new ArrayList<>();
                     if (checkParentIsPublished) {
                         if (adaptation.get(parentForeignKeyPath) == null) {
-                            throw new ApplicationRuntimeException(ERROR_MESSAGE_PARENT_NOT_FOUND);
-                            /*validationErrorsExist = true;
+//                            throw new ApplicationRuntimeException(ERROR_MESSAGE_PARENT_NOT_FOUND);
+                            validationErrorsExist = true;
                             errorObjContent.put("ErrorMessage",new OrchestraContent(ERROR_MESSAGE_PARENT_NOT_FOUND));
                             errorObject.setContent(errorObjContent);
                             validationErrorObjects.add(errorObject);
                             validationBatchCount++;
-                            continue;*/
+                            continue;
                         }
 //                        LOGGER.debug("Getting account.......");
                         final String condition = flagFieldPath.format() + " = 'Y' and (" + parentIdPath.format() + " = " + Integer.valueOf(adaptation.get(parentForeignKeyPath).toString()) + ")";
@@ -499,17 +506,23 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                         if (parentTableRequestResult != null && !parentTableRequestResult.isEmpty()) {
 //                            LOGGER.debug("Parent found");
                             if("Y".equals(parentTableRequestResult.nextAdaptation().getString(Paths._Account._AccountLocked))){
-                                throw new ApplicationRuntimeException("Cannot publish addresses. Account status is locked.");
+//                                throw new ApplicationRuntimeException("Cannot publish addresses. Account status is locked.");
+                                validationErrorsExist = true;
+                                errorObjContent.put("ErrorMessage",new OrchestraContent("Cannot publish address. Account status is locked."));
+                                errorObject.setContent(errorObjContent);
+                                validationErrorObjects.add(errorObject);
+                                validationBatchCount++;
+                                continue;
                             }
                         } else {
-                            errorMessage = ERROR_MESSAGE_PARENT_NOT_PUBLISHED;
-                            throw new ApplicationRuntimeException(ERROR_MESSAGE_PARENT_NOT_PUBLISHED);
-                            /*validationErrorsExist = true;
+//                            errorMessage = ERROR_MESSAGE_PARENT_NOT_PUBLISHED;
+//                            throw new ApplicationRuntimeException(ERROR_MESSAGE_PARENT_NOT_PUBLISHED);
+                            validationErrorsExist = true;
                             errorObjContent.put("ErrorMessage",new OrchestraContent(ERROR_MESSAGE_PARENT_NOT_PUBLISHED));
                             errorObject.setContent(errorObjContent);
                             validationErrorObjects.add(errorObject);
                             validationBatchCount++;
-                            continue;*/
+                            continue;
                         }
                     }
 
@@ -652,13 +665,13 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                         if ("ADDRESS".equalsIgnoreCase(objectName)) {
                             List<String> operatingUnits = adaptation.getList(Paths._Address._OperatingUnit);
                             if (operatingUnits == null || operatingUnits.isEmpty()) {
-                                throw new ApplicationRuntimeException("Operating Unit is required for address.");
-                                /*validationErrorsExist = true;
+//                                throw new ApplicationRuntimeException("Operating Unit is required for address.");
+                                validationErrorsExist = true;
                                 errorObjContent.put("ErrorMessage",new OrchestraContent("Operating Unit is required for address."));
                                 errorObject.setContent(errorObjContent);
                                 validationErrorObjects.add(errorObject);
                                 validationBatchCount++;
-                                continue SELECTED_RECORDS;*/
+                                continue SELECTED_RECORDS;
                             }
                             List<String> removedOperatingUnits = adaptation.getList(Paths._Address._RemovedOperatingUnits) != null ? adaptation.getList(Paths._Address._RemovedOperatingUnits) : new ArrayList<>();
                             operatingUnits.addAll(removedOperatingUnits);
@@ -685,13 +698,13 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                                         String bpStatus = String.valueOf(businessPurposeObject.getContent().get("Status").getContent());
                                         for (OrchestraContent bpOuContent : bpOus) {
                                             if (!operatingUnits.contains(String.valueOf(bpOuContent.getContent())) && !removedBpOus.contains(String.valueOf(bpOuContent.getContent()))) {
-                                                throw new ApplicationRuntimeException(ERROR_MDM_DATA + " Operating unit " + String.valueOf(bpOuContent.getContent()) + " found in Business Purpose " + mdmPurposeId + " does not exist for Address " + mdmAddressId + ".");
-                                                /*validationErrorsExist = true;
+//                                                throw new ApplicationRuntimeException(ERROR_MDM_DATA + " Operating unit " + String.valueOf(bpOuContent.getContent()) + " found in Business Purpose " + mdmPurposeId + " does not exist for Address " + mdmAddressId + ".");
+                                                validationErrorsExist = true;
                                                 errorObjContent.put("ErrorMessage",new OrchestraContent("Operating unit " + String.valueOf(bpOuContent.getContent()) + " found in Business Purpose " + mdmPurposeId + " does not exist for Address " + mdmAddressId + "."));
                                                 errorObject.setContent(errorObjContent);
                                                 validationErrorObjects.add(errorObject);
                                                 validationBatchCount++;
-                                                continue SELECTED_RECORDS;*/
+                                                continue SELECTED_RECORDS;
                                             }
                                             if (String.valueOf(bpOuContent.getContent()).equals(operatingUnit)) {
                                                 OrchestraObject businessPurposeToJb = new OrchestraObject();
@@ -726,33 +739,33 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                                     if (!businessPurposesFinal.isEmpty()) {
                                         jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(businessPurposesFinal));
                                     } else if (!removedOperatingUnits.contains(operatingUnit)) {
-                                        throw new ApplicationRuntimeException(ERROR_MDM_DATA + " Business Purpose does not exist for Operating Unit " + operatingUnit + ".");
+//                                        throw new ApplicationRuntimeException(ERROR_MDM_DATA + " Business Purpose does not exist for Operating Unit " + operatingUnit + ".");
                                         //jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
-                                        /*validationErrorsExist = true;
+                                        validationErrorsExist = true;
                                         errorObjContent.put("ErrorMessage",new OrchestraContent("Business Purpose does not exist for Operating Unit " + operatingUnit + "."));
                                         errorObject.setContent(errorObjContent);
                                         validationErrorObjects.add(errorObject);
                                         validationBatchCount++;
-                                        continue SELECTED_RECORDS;*/
+                                        continue SELECTED_RECORDS;
                                     }
                                     if (activeBpOus == 0) {
-                                        throw new ApplicationRuntimeException(ERROR_MDM_DATA + " Business Purpose does not exist for Operating Unit " + operatingUnit + ".");
-                                        /*validationErrorsExist = true;
+//                                        throw new ApplicationRuntimeException(ERROR_MDM_DATA + " Business Purpose does not exist for Operating Unit " + operatingUnit + ".");
+                                        validationErrorsExist = true;
                                         errorObjContent.put("ErrorMessage",new OrchestraContent("Business Purpose does not exist for Operating Unit " + operatingUnit + "."));
                                         errorObject.setContent(errorObjContent);
                                         validationErrorObjects.add(errorObject);
                                         validationBatchCount++;
-                                        continue SELECTED_RECORDS;*/
+                                        continue SELECTED_RECORDS;
                                     }
                                 } else {
-                                    throw new ApplicationRuntimeException(ERROR_MDM_DATA + " Business Purpose does not exist for Operating Unit " + operatingUnit + ".");
+//                                    throw new ApplicationRuntimeException(ERROR_MDM_DATA + " Business Purpose does not exist for Operating Unit " + operatingUnit + ".");
                                     //jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
-                                    /*validationErrorsExist = true;
+                                    validationErrorsExist = true;
                                     errorObjContent.put("ErrorMessage",new OrchestraContent(" Business Purpose does not exist for Operating Unit " + operatingUnit + "."));
                                     errorObject.setContent(errorObjContent);
                                     validationErrorObjects.add(errorObject);
                                     validationBatchCount++;
-                                    continue SELECTED_RECORDS;*/
+                                    continue SELECTED_RECORDS;
                                 }
                                 Map<String, OrchestraContent> addressContent = new HashMap<>();
                                 addressContent.putAll(jsonFieldsMapForJitterbit);
@@ -923,12 +936,12 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                     }
                 }
 
-                /*if(validationErrorsExist){
+                if(validationErrorsExist){
                     updateStatusBulk(validationDir);
                 }
                 if(!validationErrorObjects.isEmpty()){
                     updateInMdm(validationErrorObjects);
-                }*/
+                }
                 message = "Selected records were promoted and published successfully.";
 
             } catch (ApplicationRuntimeException e) {
@@ -955,9 +968,9 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                     if (mdmUpdateStream != null) {
                         mdmUpdateStream.close();
                     }
-                    /*if (validationStream != null) {
+                    if (validationStream != null) {
                         validationStream.close();
-                    }*/
+                    }
                 }catch (IOException e){
                     LOGGER.error("Error closing file streams. ",e);
                 }
