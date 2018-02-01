@@ -170,10 +170,15 @@ public class JitterbitRestClient {
                 paths.forEach(path1 -> {
                     try {
 //                        LOGGER.debug("jb request: "+new String(Files.readAllBytes(path1)));
-                        Response response = request.post(Entity.json(new String(Files.readAllBytes(path1))));
-                        if(!(response.getStatus()>=200 && response.getStatus()<300)){
-                            throw new ApplicationRuntimeException("Error bulk publishing to jitterbit. Status: "+response.getStatus()+" Response: "+
-                                    response.readEntity(new GenericType<HashMap<String, Object>>() {}));
+                        if(Files.isRegularFile(path1)) {
+                            LOGGER.debug("Regular file... "+path1.toString());
+                            Response response = request.post(Entity.json(new String(Files.readAllBytes(path1))));
+                            if(!(response.getStatus()>=200 && response.getStatus()<300)){
+                                throw new ApplicationRuntimeException("Error bulk publishing to jitterbit. Status: "+response.getStatus()+" Response: "+
+                                        response.readEntity(new GenericType<HashMap<String, Object>>() {}));
+                            }
+                        }else{
+                            LOGGER.debug("skipping... not a regular file "+path1.toString());
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
