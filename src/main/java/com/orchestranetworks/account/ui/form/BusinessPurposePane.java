@@ -34,13 +34,13 @@ public class BusinessPurposePane implements UIFormPane {
 		writer.addWidget(_MDMAddressId);
 		writer.add("</td></tr>");
 
-		if(!context.isCreatingRecord()) {
+		/*if(!context.isCreatingRecord()) {
 			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 			writer.addLabel(_SystemId);
 			writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
 			writer.addWidget(_SystemId);
 			writer.add("</td></tr>");
-		}
+		}*/
 
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_SystemName);
@@ -78,13 +78,13 @@ public class BusinessPurposePane implements UIFormPane {
 		writer.addWidget(_Location);
 		writer.add("</td></tr>");
 
-		if(!context.isCreatingRecord()) {
+		/*if(!context.isCreatingRecord()) {
 			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 			writer.addLabel(Path.parse("./BatchCode"));
 			writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
 			writer.addWidget(Path.parse("./BatchCode"));
 			writer.add("</td></tr>");
-		}
+		}*/
 
 		writer.add("</table>");
 
