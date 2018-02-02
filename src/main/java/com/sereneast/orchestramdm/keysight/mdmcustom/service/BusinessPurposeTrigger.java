@@ -98,6 +98,17 @@ public class BusinessPurposeTrigger extends TableTrigger {
                     update = true;
                 }
             }
+            if (aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._Primary) != null &&
+                    !aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._Primary).isEmpty()) {
+                List primaryOus = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._Primary);
+                List operatingUnits = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._OperatingUnit);
+                if(operatingUnits!=null && !operatingUnits.isEmpty()) {
+                    primaryOus.removeAll(operatingUnits);
+                }
+                if(primaryOus!=null && !primaryOus.isEmpty()){
+                    throw OperationException.createError("Primary in OU must contain Operating Units present in Operating Unit field");
+                }
+            }
             if (update) {
                 aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
             }
@@ -115,6 +126,17 @@ public class BusinessPurposeTrigger extends TableTrigger {
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())) {
             boolean update = false;
             ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
+            if (aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._Primary) != null &&
+                    !aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._Primary).isEmpty()) {
+                List primaryOus = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._Primary);
+                List operatingUnits = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._OperatingUnit);
+                if(operatingUnits!=null && !operatingUnits.isEmpty()) {
+                    primaryOus.removeAll(operatingUnits);
+                }
+                if(primaryOus!=null && !primaryOus.isEmpty()){
+                    throw OperationException.createError("Primary in OU must contain Operating Units present in Operating Unit field");
+                }
+            }
             if (aContext.getChanges() != null && aContext.getChanges().getChange(Paths._BusinessPurpose._OperatingUnit) != null) {
                 List<String> bpExistsOus = new ArrayList<>();
                 List<String> primaryForOus = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._Primary);

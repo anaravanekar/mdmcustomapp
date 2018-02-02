@@ -151,6 +151,14 @@ public class GenericTrigger extends TableTrigger {
                     validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState),
                             aContext.getAdaptationOccurrence().getString(Paths._Address._Province));
                 }
+                if("null".equals(aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState))){
+                    update = true;
+                    valueContextForUpdate.setValue(null,Paths._Address._AddressState);
+                }
+                if("null".equals(aContext.getAdaptationOccurrence().getString(Paths._Address._Province))){
+                    update = true;
+                    valueContextForUpdate.setValue(null,Paths._Address._Province);
+                }
                 if(aContext.getOccurrenceContext().getValue(Paths._Address._TaxRegimeCode)==null){
                     ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
                     Map<String,Map<String,String>> countryReferenceFieldsMap = applicationCacheUtil.CountryReferenceFieldsMap("BReference");
@@ -267,6 +275,14 @@ public class GenericTrigger extends TableTrigger {
             if( "ADDRESS".equalsIgnoreCase(objectName)){
                 boolean update = false;
                 ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
+                if("null".equals(aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState))){
+                    update = true;
+                    valueContextForUpdate.setValue(null,Paths._Address._AddressState);
+                }
+                if("null".equals(aContext.getAdaptationOccurrence().getString(Paths._Address._Province))){
+                    update = true;
+                    valueContextForUpdate.setValue(null,Paths._Address._Province);
+                }
                 if(aContext.getChanges().getChange(Paths._Address._MDMAccountId)!=null &&
                         aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null) {
                     Object internalAccountId = null;
