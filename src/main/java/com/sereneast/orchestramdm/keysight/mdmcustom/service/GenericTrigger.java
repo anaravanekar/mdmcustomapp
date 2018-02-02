@@ -159,6 +159,14 @@ public class GenericTrigger extends TableTrigger {
                     update = true;
                     valueContextForUpdate.setValue(null,Paths._Address._Province);
                 }
+                if("null".equals(aContext.getAdaptationOccurrence().getString(Paths._Address._StateLocalLanguage))){
+                    update = true;
+                    valueContextForUpdate.setValue(null,Paths._Address._StateLocalLanguage);
+                }
+                if("null".equals(aContext.getAdaptationOccurrence().getString(Paths._Address._ProvinceLocalLanguage))){
+                    update = true;
+                    valueContextForUpdate.setValue(null,Paths._Address._ProvinceLocalLanguage);
+                }
                 if(aContext.getOccurrenceContext().getValue(Paths._Address._TaxRegimeCode)==null){
                     ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
                     Map<String,Map<String,String>> countryReferenceFieldsMap = applicationCacheUtil.CountryReferenceFieldsMap("BReference");
@@ -282,6 +290,14 @@ public class GenericTrigger extends TableTrigger {
                 if("null".equals(aContext.getAdaptationOccurrence().getString(Paths._Address._Province))){
                     update = true;
                     valueContextForUpdate.setValue(null,Paths._Address._Province);
+                }
+                if("null".equals(aContext.getAdaptationOccurrence().getString(Paths._Address._StateLocalLanguage))){
+                    update = true;
+                    valueContextForUpdate.setValue(null,Paths._Address._StateLocalLanguage);
+                }
+                if("null".equals(aContext.getAdaptationOccurrence().getString(Paths._Address._ProvinceLocalLanguage))){
+                    update = true;
+                    valueContextForUpdate.setValue(null,Paths._Address._ProvinceLocalLanguage);
                 }
                 if(aContext.getChanges().getChange(Paths._Address._MDMAccountId)!=null &&
                         aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)!=null) {
