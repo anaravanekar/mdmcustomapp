@@ -117,7 +117,7 @@ public class JitterbitRestClient {
             //this.baseUrl = "https://Keysight.jitterbit.net/Development/1.0";
             //this.feature = HttpAuthenticationFeature.basic("keysight", "keysight123");
             client.register(HttpAuthenticationFeature.basic("keysight", "keysight123"));
-            String targetUrl = "https://Keysight.jitterbit.net/Development/1.0"+"/"+("account".equalsIgnoreCase(objectName)?"MDMAccounts":"MDMAddress");
+            String targetUrl = "https://Keysight.jitterbit.net/Test/1.0"+"/"+("account".equalsIgnoreCase(objectName)?"MDM_Bulk_Accounts_Inbound":"MDM_Bulk_Address_Inbound");
             WebTarget target = client.target(targetUrl);
             if (parameters != null)
                 for (Map.Entry<String, String> entry : parameters.entrySet())
@@ -154,7 +154,7 @@ public class JitterbitRestClient {
         ObjectMapper mapper = new ObjectMapper();
         try {
             client.register(HttpAuthenticationFeature.basic("keysight", "keysight123"));
-            String targetUrl = "https://Keysight.jitterbit.net/Development/1.0"+"/"+("account".equalsIgnoreCase(objectName)?"MDMAccounts":"MDMAddress");
+            String targetUrl = "https://Keysight.jitterbit.net/Test/1.0"+"/"+("account".equalsIgnoreCase(objectName)?"MDM_Bulk_Accounts_Inbound":"MDM_Bulk_Address_Inbound");
             WebTarget target = client.target(targetUrl);
             if (parameters != null)
                 for (Map.Entry<String, String> entry : parameters.entrySet())
