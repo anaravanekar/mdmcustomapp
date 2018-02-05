@@ -2,6 +2,7 @@ package com.sereneast.orchestramdm.keysight.mdmcustom.rest.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.RestResponse;
@@ -118,7 +119,7 @@ public class JitterbitRestClient {
             //this.feature = HttpAuthenticationFeature.basic("keysight", "keysight123");
             client.register(HttpAuthenticationFeature.basic("keysight", "keysight123"));
             String targetUrl = "https://Keysight.jitterbit.net/Development/1.0"+"/"+("account".equalsIgnoreCase(objectName)?"MDMAccounts":"MDMAddress");
-            if(this.restProperties.getJitterbit().getBaseURI().contains("Test")){
+            if(this.restProperties.getJitterbit().getBaseURI().contains("/Test/")){
                 targetUrl = "https://Keysight.jitterbit.net/Test/1.0"+"/"+("account".equalsIgnoreCase(objectName)?"MDM_Bulk_Accounts_Inbound":"MDM_Bulk_Address_Inbound");
             }
             WebTarget target = client.target(targetUrl);
@@ -158,8 +159,10 @@ public class JitterbitRestClient {
         try {
             client.register(HttpAuthenticationFeature.basic("keysight", "keysight123"));
             String targetUrl = "https://Keysight.jitterbit.net/Development/1.0"+"/"+("account".equalsIgnoreCase(objectName)?"MDMAccounts":"MDMAddress");
-            if(this.restProperties.getJitterbit().getBaseURI().contains("Test")){
+            RestProperties props = (RestProperties)SpringContext.getApplicationContext().getBean("restProperties");
+            if(props.getJitterbit().getBaseURI().equals("/Test/")){
                 targetUrl = "https://Keysight.jitterbit.net/Test/1.0"+"/"+("account".equalsIgnoreCase(objectName)?"MDM_Bulk_Accounts_Inbound":"MDM_Bulk_Address_Inbound");
+                LOGGER.info("is test. targeturl: "+targetUrl);
             }
             WebTarget target = client.target(targetUrl);
             if (parameters != null)
