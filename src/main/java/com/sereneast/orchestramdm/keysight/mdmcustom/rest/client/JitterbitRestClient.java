@@ -160,7 +160,7 @@ public class JitterbitRestClient {
             client.register(HttpAuthenticationFeature.basic("keysight", "keysight123"));
             String targetUrl = "https://Keysight.jitterbit.net/Development/1.0"+"/"+("account".equalsIgnoreCase(objectName)?"MDMAccounts":"MDMAddress");
             RestProperties props = (RestProperties)SpringContext.getApplicationContext().getBean("restProperties");
-            if(props.getJitterbit().getBaseURI().equals("/Test/")){
+            if(props.getJitterbit().getBaseURI().equalsIgnoreCase("/Test/")){
                 targetUrl = "https://Keysight.jitterbit.net/Test/1.0"+"/"+("account".equalsIgnoreCase(objectName)?"MDM_Bulk_Accounts_Inbound":"MDM_Bulk_Address_Inbound");
                 LOGGER.info("is test. targeturl: "+targetUrl);
             }
