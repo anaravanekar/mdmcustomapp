@@ -112,6 +112,12 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
 
     private String fileId;
 
+    private int totalPublished;
+
+    private int totalFailed;
+
+    private int totalSkipped;
+
     private static final int BATCH_COUNT = 1000;
 
     private static final int FILE_COUNT_MAX = 5000;
@@ -239,6 +245,9 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
         int totalCount = 0;
         int fileCount = 0;
         int fileNo = 1;
+        totalFailed=0;
+        totalSkipped=0;
+        totalPublished=0;
         try {
             if(!Files.exists(validationDirPath)){
                 Files.createDirectory(validationDirPath);
@@ -277,22 +286,25 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                         error = true;
                     }
                 }
-                if("Y".equals(adaptation.getString(Paths._Account._Published))){
+                if(error){
+                    totalFailed++;
+                }else if("Y".equals(adaptation.getString(Paths._Account._Published))){
 //                    throw new ApplicationRuntimeException("One or more selected records have been published already.");
-                    errorObjContent.put("ErrorMessage",new OrchestraContent("One or more selected records have been published already."));
-                    error = true;
-                }
-                if("Golden".equalsIgnoreCase(adaptation.getString(daqaStateFieldPath))){
-                    selectedRecords.add(adaptation);
-                }else{
-//                    throw new ApplicationRuntimeException("Only Golden records can be published. Please select Golden records and try again.");
+                    /*errorObjContent.put("ErrorMessage",new OrchestraContent("One or more selected records have been published already."));
+                    error = true;*/
+                    totalSkipped++;
+                }else if(!"Golden".equalsIgnoreCase(adaptation.getString(daqaStateFieldPath))){
+                    //                    throw new ApplicationRuntimeException("Only Golden records can be published. Please select Golden records and try again.");
                     errorObjContent.put("ErrorMessage",new OrchestraContent("Only Golden records can be published"));
                     error = true;
-                }
-                if(!validateRecord(objectName,adaptation.getContainer(),adaptation)){
+                    totalFailed++;
+                }else if(!validateRecord(objectName,adaptation.getContainer(),adaptation)){
 //                    throw new ApplicationRuntimeException("At least one golden state address and at least one golden state business purpose is mandatory for publish.");
                     errorObjContent.put("ErrorMessage",new OrchestraContent("At least one golden state address and at least one golden state business purpose is mandatory for publish."));
                     error = true;
+                    totalFailed++;
+                }else if("Golden".equalsIgnoreCase(adaptation.getString(daqaStateFieldPath))){
+                    selectedRecords.add(adaptation);
                 }
                 if(error) {
                     validationErrorsExist = true;
@@ -352,8 +364,10 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
         }else{
             anAjaxResponse.getWriter().add("<div class=\"custom-success-image\"></div>");
             anAjaxResponse.getWriter().add("<div class=\"custom-success-header\">Success!</div>");
-            anAjaxResponse.getWriter().add("<div class=\"custom-success-message\">" + finalMessage);
-            anAjaxResponse.getWriter().add("</div>");
+            anAjaxResponse.getWriter().add("<div class=\"custom-success-message\"></div>");
+            anAjaxResponse.getWriter().add("<div class=\"custom-success-message\">Published : "+totalPublished+"</div>");
+            anAjaxResponse.getWriter().add("<div class=\"custom-success-message\">Failed : "+totalFailed+"</div>");
+            anAjaxResponse.getWriter().add("<div class=\"custom-success-message\">Skipped : "+totalSkipped+"</div>");
         }
     }
 
@@ -456,6 +470,7 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                             writerToMdmFile(null,"{\"rows\":[",validationChannel);
                         }
                         validationFileCount=validationFileCount+validationBatchCount;
+                        totalFailed = totalFailed+validationBatchCount;
                         validationBatchCount=0;
                         if(totalCount == selectedRecords.size()-1 || validationFileCount == FILE_COUNT_MAX){
                             writerToMdmFile(validationErrorObjects,null,validationChannel);
@@ -867,6 +882,7 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                             writerToMdmFile(null,"{\"rows\":[",mdmUpdateChannel);
                         }
                         fileCount=fileCount+batchCount;
+                        totalPublished = totalPublished + batchCount;
                         batchCount=0;
                         if(totalCount == selectedRecords.size() || fileCount == FILE_COUNT_MAX){
                             writerToMdmFile(recordsToUpdateInReference,null,mdmPromoteChannel);
@@ -940,6 +956,7 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                     updateStatusBulk(validationDir);
                 }
                 if(!validationErrorObjects.isEmpty()){
+                    totalFailed=totalFailed+validationErrorObjects.size();
                     updateInMdm(validationErrorObjects);
                 }
                 message = "Selected records were promoted and published successfully.";
