@@ -411,6 +411,12 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                 if (!"BUSINESSPURPOSE".equalsIgnoreCase(objectName)) {
                     for (String fieldName : fieldPathMap.keySet()) {
                         Object fieldValue = adaptation.get(fieldPathMap.get(fieldName));
+                        if("ACCOUNT".equals(objectName)) {
+                            String published = adaptation.getString(Paths._Account._Published);
+                            if(published!=null && StringUtils.isNotBlank(published) && "ProfileClass".equals(fieldName)){
+                                continue;
+                            }
+                        }
                         if (fieldValue instanceof List) {
                             List objArray = (List) fieldValue;
                             List<OrchestraContent> contentList = new ArrayList<>();
