@@ -137,11 +137,81 @@ public class GenericTrigger extends TableTrigger {
                 boolean update = false;
                 ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                 ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
-                /*if("JP".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
-                    update=true;
-                    valueContextForUpdate.setValue("N", Paths._Address._SendAcknowledgement);
-                    valueContextForUpdate.setValue("Suppress because of special format requirements", Paths._Address._InvoiceCopies);
-                }*/
+                if("JP".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._SendAcknowledgement)==null) {
+                        update=true;
+                        valueContextForUpdate.setValue("N", Paths._Address._SendAcknowledgement);
+                    }
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._InvoiceCopies)==null) {
+                        update=true;
+                        valueContextForUpdate.setValue("0.2", Paths._Address._InvoiceCopies);
+                    }
+                }else if("PL".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._SendAcknowledgement)==null) {
+                        update=true;
+                        valueContextForUpdate.setValue("N", Paths._Address._SendAcknowledgement);
+                    }
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._InvoiceCopies)==null) {
+                        update=true;
+                        valueContextForUpdate.setValue("3", Paths._Address._InvoiceCopies);
+                    }
+                }else if("GU".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country)) ||
+                        "PR".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country)) ||
+                        "VE".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._SendAcknowledgement)==null) {
+                        update=true;
+                        valueContextForUpdate.setValue("Y", Paths._Address._SendAcknowledgement);
+                    }
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._InvoiceCopies)==null) {
+                        update=true;
+                        valueContextForUpdate.setValue("2", Paths._Address._InvoiceCopies);
+                    }
+                }else if("IN".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._SendAcknowledgement)==null) {
+                        update=true;
+                        valueContextForUpdate.setValue("Y", Paths._Address._SendAcknowledgement);
+                    }
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._InvoiceCopies)==null) {
+                        update=true;
+                        valueContextForUpdate.setValue("0.3", Paths._Address._InvoiceCopies);
+                    }
+                }else if("KR".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._SendAcknowledgement)==null) {
+                        update=true;
+                        valueContextForUpdate.setValue("Y", Paths._Address._SendAcknowledgement);
+                    }
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._InvoiceCopies)==null) {
+                        update=true;
+                        valueContextForUpdate.setValue("3", Paths._Address._InvoiceCopies);
+                    }
+                }else if("MX".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._SendAcknowledgement)==null) {
+                        update=true;
+                        valueContextForUpdate.setValue("Y", Paths._Address._SendAcknowledgement);
+                    }
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._InvoiceCopies)==null) {
+                        update=true;
+                        valueContextForUpdate.setValue("4", Paths._Address._InvoiceCopies);
+                    }
+                }else if("AR".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._SendAcknowledgement)==null) {
+                        update=true;
+                        valueContextForUpdate.setValue("Y", Paths._Address._SendAcknowledgement);
+                    }
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._InvoiceCopies)==null) {
+                        update=true;
+                        valueContextForUpdate.setValue("5", Paths._Address._InvoiceCopies);
+                    }
+                }else{
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._SendAcknowledgement)==null) {
+                        update=true;
+                        valueContextForUpdate.setValue("Y", Paths._Address._SendAcknowledgement);
+                    }
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._InvoiceCopies)==null) {
+                        update=true;
+                        valueContextForUpdate.setValue("1", Paths._Address._InvoiceCopies);
+                    }
+                }
                 if(aContext.getOccurrenceContext().getValue(Paths._Address._OperatingUnit)!=null && !((List)aContext.getOccurrenceContext().getValue(Paths._Address._OperatingUnit)).isEmpty()){
                     valueContextForUpdate.setValue(((List)aContext.getOccurrenceContext().getValue(Paths._Address._OperatingUnit)).get(0), Paths._Address._FirstOperatingUnit);
                     update = true;
