@@ -993,7 +993,7 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                 }
             }
         }else{
-            message = "None of the selected records are valid for promote and publish.";
+            message = "None of the selected records are valid for promote and publish. Please check 'Publish Error Message' on selected records.";
         }
         return message;
     }
