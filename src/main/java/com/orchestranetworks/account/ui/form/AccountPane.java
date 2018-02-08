@@ -107,11 +107,14 @@ public class AccountPane implements UIFormPane {
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 		Date lastPublishedDate = !context.isCreatingRecord() && context.getCurrentRecord()!=null?context.getCurrentRecord().getDate(_LastPublished):null;
 		String profileclass = !context.isCreatingRecord() && context.getCurrentRecord()!=null?context.getCurrentRecord().getString(_ProfileClass):null;
+		String publishedFlag = !context.isCreatingRecord() && context.getCurrentRecord()!=null?context.getCurrentRecord().getString(_Published):null;
 		if(!context.isCreatingRecord()){
 			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_ProfileClass);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"padding-left:5px;" + CELL_STYLE_LEFT + "\">");writer.add(profileclass+"</td>");
 			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_LastPublished);writer.add("</td>");writer.add("<td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");if(lastPublishedDate!=null){writer.add(sdf.format(lastPublishedDate));}writer.add("</td>");writer.add("</tr>");
-		}else{
+		}else if(StringUtils.isBlank(publishedFlag)){
 			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_ProfileClass);writer.add("</td>");writer.add("<td colspan=\"3\" style=\"padding-left:5px;" + CELL_STYLE_LEFT + "\">");writer.add(profileClassSelectBox.toString());writer.add("<div style=\"display:none;\">");writer.addWidget(_ProfileClass);writer.add("</div>");writer.add("</td></tr>");
+		}else{
+			writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_ProfileClass);writer.add("</td>");writer.add("<td colspan=\"3\" style=\"padding-left:5px;" + CELL_STYLE_LEFT + "\">");writer.add(profileclass+"</td></tr>");
 		}
 		writer.add("<tr><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_Classification);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_Classification);writer.add("</td>");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");writer.addLabel(_ISGClassification);writer.add("</td>");writer.add("<td colspan=\"1\" style=\"" + CELL_STYLE_LEFT + "\">");writer.addWidget(_ISGClassification);writer.add("</td>");writer.add("</tr>");
