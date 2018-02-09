@@ -157,7 +157,8 @@ public class GenericTrigger extends TableTrigger {
                     }
                 }else if("GU".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country)) ||
                         "PR".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country)) ||
-                        "VE".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
+                        "VE".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country)) ||
+                                "US".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
                     if(aContext.getOccurrenceContext().getValue(Paths._Address._SendAcknowledgement)==null) {
                         update=true;
                         valueContextForUpdate.setValue("Y", Paths._Address._SendAcknowledgement);
