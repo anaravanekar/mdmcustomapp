@@ -153,6 +153,15 @@ public class GenericTrigger extends TableTrigger {
                     }
                     if(aContext.getOccurrenceContext().getValue(Paths._Address._InvoiceCopies)==null) {
                         update=true;
+                        valueContextForUpdate.setValue("1", Paths._Address._InvoiceCopies);
+                    }
+                }else if("PH".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._SendAcknowledgement)==null) {
+                        update=true;
+                        valueContextForUpdate.setValue("Y", Paths._Address._SendAcknowledgement);
+                    }
+                    if(aContext.getOccurrenceContext().getValue(Paths._Address._InvoiceCopies)==null) {
+                        update=true;
                         valueContextForUpdate.setValue("3", Paths._Address._InvoiceCopies);
                     }
                 }else if("GU".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country)) ||
