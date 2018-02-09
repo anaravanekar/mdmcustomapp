@@ -61,7 +61,7 @@ public class ApplicationCacheUtil {
 		do{
 			retryCount++;
 			try {
-				orchestraObjectListResponse = orchestraRestClient.get("BReference", "Account", "root/"+tableName, parameters);
+				orchestraObjectListResponse = orchestraRestClient.get("BReference", "ReferenceData", "root/"+tableName, parameters);
 				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
 					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
 						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
@@ -94,7 +94,7 @@ public class ApplicationCacheUtil {
 		do{
 			retryCount++;
 			try {
-				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "Account", "root/CountryReferenceFields", parameters);
+				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "ReferenceData", "root/CountryReferenceFields", parameters);
 				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
 					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
 						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
@@ -132,7 +132,7 @@ public class ApplicationCacheUtil {
 			retryCount++;
 			try {
 				//state
-				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "Account", "root/State", parameters);
+				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "ReferenceData", "root/State", parameters);
 				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
 					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
 						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
@@ -141,7 +141,7 @@ public class ApplicationCacheUtil {
 					}
 				}
 				//province
-				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "Account", "root/Province", parameters);
+				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "ReferenceData", "root/Province", parameters);
 				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
 					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
 						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
@@ -173,7 +173,7 @@ public class ApplicationCacheUtil {
 		do{
 			retryCount++;
 			try {
-				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "Account", "root/State", parameters);
+				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "ReferenceData", "root/State", parameters);
 				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
 					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
 						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
@@ -210,7 +210,7 @@ public class ApplicationCacheUtil {
 		do{
 			retryCount++;
 			try {
-				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "Account", "root/Province", parameters);
+				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "ReferenceData", "root/Province", parameters);
 				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
 					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
 						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
@@ -248,9 +248,9 @@ public class ApplicationCacheUtil {
 			retryCount++;
 			try {
 				if("STATE".equalsIgnoreCase(territoryType)) {
-					orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "Account", "root/State", parameters);
+					orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "ReferenceData", "root/State", parameters);
 				}else if("PROVINCE".equalsIgnoreCase(territoryType)){
-					orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "Account", "root/Province", parameters);
+					orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "ReferenceData", "root/Province", parameters);
 				}
 				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
 					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {

@@ -237,9 +237,4 @@ public class RestController {
         return resultList;
     }
 
-    @RequestMapping(value = "/crossReferences/{mdmId}", method = RequestMethod.GET)
-    public String testRest(@PathVariable("mdmId") String mdmId) throws JsonProcessingException {
-        LOGGER.debug("mdmid=" + mdmId);
-        return "";
-    }
 }
