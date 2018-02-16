@@ -159,7 +159,7 @@ public class JitterbitRestClient {
         ObjectMapper mapper = new ObjectMapper();
         try {
             client.register(feature);
-            String targetUrl = baseUrl+"/"+restProperties.getJitterbit().getPaths().get(StringUtils.lowerCase(objectName+"Bulk"));
+            String targetUrl = baseUrl+"/"+restProperties.getJitterbit().getPaths().get(StringUtils.lowerCase(objectName)+"Bulk");
             LOGGER.debug("targetUrl="+targetUrl);
             WebTarget target = client.target(targetUrl);
             if (parameters != null)
