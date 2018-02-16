@@ -157,15 +157,8 @@ public class JitterbitRestClient {
                 .property(LoggingFeature.LOGGING_FEATURE_LOGGER_LEVEL_CLIENT, "FINE").build();
         ObjectMapper mapper = new ObjectMapper();
         try {
-            String targetUrl = "https://Keysight.jitterbit.net/Development/1.0"+"/"+("account".equalsIgnoreCase(objectName)?"MDMAccounts":"MDMAddress");
-            RestProperties props = (RestProperties)SpringContext.getApplicationContext().getBean("restProperties");
-            if(props.getJitterbit().getBaseURI().equalsIgnoreCase("/Test/")){
-                targetUrl = "https://Keysight.jitterbit.net/Test/1.0"+"/"+("account".equalsIgnoreCase(objectName)?"MDM_Bulk_Accounts_Outbound":"MDM_Bulk_Address_Outbound");
-                client.register(HttpAuthenticationFeature.basic("mdm_user", "Keysight@123"));
-                LOGGER.info("is test. targeturl: "+targetUrl);
-            }else{
-                client.register(feature);
-            }
+            client.register(feature);
+            String targetUrl = baseUrl+"/"+restProperties.getJitterbit().getPaths().get(StringUtils.lowerCase(objectName+"Bulk"));
             WebTarget target = client.target(targetUrl);
             if (parameters != null)
                 for (Map.Entry<String, String> entry : parameters.entrySet())
