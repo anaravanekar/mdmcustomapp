@@ -78,6 +78,7 @@ public class JitterbitRestClient {
         try {
             client.register(feature);
             String targetUrl = baseUrl+"/"+restProperties.getJitterbit().getPaths().get(StringUtils.lowerCase(objectName));
+            LOGGER.debug("targetUrl="+targetUrl);
             WebTarget target = client.target(targetUrl);
             if (parameters != null)
                 for (Map.Entry<String, String> entry : parameters.entrySet())
