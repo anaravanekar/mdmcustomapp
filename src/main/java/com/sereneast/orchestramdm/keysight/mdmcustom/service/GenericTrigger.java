@@ -74,7 +74,7 @@ public class GenericTrigger extends TableTrigger {
     public void handleAfterCreate(AfterCreateOccurrenceContext aContext) throws OperationException{
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())) {
             initialize();
-            if(aContext.getOccurrenceContext().getValue(Paths._Address._Published)!=null) {
+            if(aContext.getOccurrenceContext().getValue(Paths._Account._Published)!=null) {
                 ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                 valueContextForUpdate.setValue(null, Paths._Account._Published);
                 aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
