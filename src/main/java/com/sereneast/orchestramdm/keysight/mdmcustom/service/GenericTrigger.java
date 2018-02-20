@@ -542,6 +542,14 @@ public class GenericTrigger extends TableTrigger {
             LOGGER.debug("Record Id:" + adaptation.get(objectPrimaryKeyPath) + " timestamp" + LocalDateTime.now());
             ValueChanges changes = aContext.getChanges();
             int numberOfChanges = changes.getNumberOfChanges();
+            int numberOfNonDaqaChanges = 0;
+            Iterator changeIterator = changes.getChangesIterator();
+            while(changeIterator.hasNext()){
+                ValueChange change = (ValueChange) changeIterator.next();
+                if(!change.getModifiedNode().getPathInSchema().format().contains("DaqaMetaData")){
+                    numberOfNonDaqaChanges++;
+                }
+            }
             ValueChange daqaStateChanges = changes.getChange(stateFieldPath);
             ValueChange daqaTargetChanges = changes.getChange(daqaTargetFieldPath);
             ValueChange daqaMergeOriginChanges = changes.getChange(mergeOriginPath);
@@ -631,7 +639,7 @@ public class GenericTrigger extends TableTrigger {
                     procedureContext.doModifyContent(resultRecord, valueContextForUpdate);
                 }
 
-                if (!(numberOfChanges<=2 && assignedToValueChange!=null) && publishedFieldValueChange == null && publishedValue != null && "Y".equalsIgnoreCase(publishedValue)) {
+                if (!(numberOfChanges<=2 && assignedToValueChange!=null) && publishedFieldValueChange == null && publishedValue != null && "Y".equalsIgnoreCase(publishedValue) && numberOfNonDaqaChanges>0) {
                     LOGGER.debug("Updating published flag");
                     ValueContextForUpdate valueContextForUpdate = procedureContext.getContext(adaptation.getAdaptationName());
                     valueContextForUpdate.setValue("U", publishedFieldPath);
