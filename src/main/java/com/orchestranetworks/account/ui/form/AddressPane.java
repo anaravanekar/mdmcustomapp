@@ -540,7 +540,7 @@ public class AddressPane implements UIFormPane {
 		writer.add("</td></tr>");
 
 		String contextValue = !context.isCreatingRecord() && context.getCurrentRecord()!=null?context.getCurrentRecord().getString(_ContextValue):null;
-		writer.add("<tr class=\"korea_info\" style=\"display:"+("Korean Additional Information".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
+		writer.add("<tr class=\"korea_info\" style=\"display:"+("JA.KR.ARXCUDCI.VAT".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_TaxablePerson);
 		writer.add("</td>");
@@ -555,7 +555,7 @@ public class AddressPane implements UIFormPane {
 		writer.add("</td>");
 		writer.add("</tr>");
 
-		writer.add("<tr class=\"korea_info\" style=\"display:"+("Korean Additional Information".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
+		writer.add("<tr class=\"korea_info\" style=\"display:"+("JA.KR.ARXCUDCI.VAT".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_IndustryClassification);
 		writer.add("</td>");
@@ -570,13 +570,13 @@ public class AddressPane implements UIFormPane {
 		writer.add("</td>");
 		writer.add("</tr>");
 
-		writer.add("<tr class=\"korea_info\" style=\"display:"+("Korean Additional Information".equalsIgnoreCase(contextValue)?"table-row":"none")+";\"><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.add("<tr class=\"korea_info\" style=\"display:"+("JA.KR.ARXCUDCI.VAT".equalsIgnoreCase(contextValue)?"table-row":"none")+";\"><td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_BusinessNumber);
 		writer.add("</td><td colspan=\"3\" style=\"" + CELL_STYLE_LEFT + "\">");
 		writer.addWidget(_BusinessNumber);
 		writer.add("</td></tr>");
 
-		writer.add("<tr class=\"malaysia_info\" style=\"display:"+("Malaysia Customer Information".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
+		writer.add("<tr class=\"malaysia_info\" style=\"display:"+("XXAT.MYM.CUST.SITE.INFO".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_AddressSiteCategory);
 		writer.add("</td>");
@@ -592,7 +592,7 @@ public class AddressPane implements UIFormPane {
 		writer.add("</tr>");
 
 		//brazil
-		writer.add("<tr class=\"brazil_info\" style=\"display:"+("Brazilian Additional Information".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
+		writer.add("<tr class=\"brazil_info\" style=\"display:"+("JL.BR.ARXCUDCI.Additional".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_InscriptionType);
 		writer.add("</td>");
@@ -608,7 +608,7 @@ public class AddressPane implements UIFormPane {
 		writer.add("</tr>");
 
 		//brazil
-		writer.add("<tr class=\"brazil_info\" style=\"display:"+("Brazilian Additional Information".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
+		writer.add("<tr class=\"brazil_info\" style=\"display:"+("JL.BR.ARXCUDCI.Additional".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_InscriptionBranch);
 		writer.add("</td>");
@@ -624,7 +624,7 @@ public class AddressPane implements UIFormPane {
 		writer.add("</tr>");
 
 		//brazil
-		writer.add("<tr class=\"brazil_info\" style=\"display:"+("Brazilian Additional Information".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
+		writer.add("<tr class=\"brazil_info\" style=\"display:"+("JL.BR.ARXCUDCI.Additional".equalsIgnoreCase(contextValue)?"table-row":"none")+";\">");
 		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_StateInscription);
 		writer.add("</td>");

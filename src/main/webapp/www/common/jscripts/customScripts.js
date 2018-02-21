@@ -356,19 +356,19 @@ function toggleAdditionalInfo(contextValue) {
     var malaysia_fields = [addressPrefixedPaths.AddressSiteCategory, addressPrefixedPaths.ATS];
     var korea_fields = [addressPrefixedPaths.TaxablePerson, addressPrefixedPaths.TaxCertificateDate, addressPrefixedPaths.IndustryClassification, addressPrefixedPaths.IndustrySubclassification, addressPrefixedPaths.BusinessNumber];
     var brazil_fields = [addressPrefixedPaths.InscriptionType, addressPrefixedPaths.InsciptionNumber, addressPrefixedPaths.InscriptionBranch, addressPrefixedPaths.InscriptionDigit, addressPrefixedPaths.StateInscription];
-    if (contextValue === "Korean Additional Information") {
+    if (contextValue === "JA.KR.ARXCUDCI.VAT") {
         clearInfo(malaysia_fields);
         clearInfo(brazil_fields);
         hideInfo("malaysia_info");
         hideInfo("brazil_info");
         showInfo("korea_info");
-    } else if (contextValue === "Malaysia Customer Information") {
+    } else if (contextValue === "XXAT.MYM.CUST.SITE.INFO") {
         clearInfo(korea_fields);
         clearInfo(brazil_fields);
         hideInfo("korea_info");
         hideInfo("brazil_info");
         showInfo("malaysia_info");
-    } else if (contextValue === "Brazilian Additional Information") {
+    } else if (contextValue === "JL.BR.ARXCUDCI.Additional") {
         clearInfo(korea_fields);
         clearInfo(malaysia_fields);
         hideInfo("korea_info");
