@@ -404,6 +404,39 @@ public class GenericTrigger extends TableTrigger {
                         LOGGER.error("Parent account not found");
                     }
                 }
+                if(aContext.getChanges().getChange(Paths._Address._Status)!=null){
+                    String status = aContext.getAdaptationOccurrence().getString(Paths._Address._Status);
+                    AdaptationTable table = aContext.getOccurrenceContext().getAdaptationInstance().getTable(Paths._BusinessPurpose.getPathInSchema());
+                    RequestResult bpResult = table.createRequestResult(Paths._BusinessPurpose._MDMAddressId.format()+" = '"+aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId)+"'");
+                    if(bpResult!=null && !bpResult.isEmpty()) {
+                        List<OrchestraObject> bpRowsToUpdateStatus = new ArrayList<>();
+                        for (Adaptation bpAdapatation; (bpAdapatation = bpResult.nextAdaptation()) != null; ) {
+                            OrchestraObject orchestraObject = new OrchestraObject();
+                            Map<String, OrchestraContent> content = new HashMap<>();
+                            content.put("Status",new OrchestraContent(status));
+                            content.put("MDMPurposeId",new OrchestraContent(bpAdapatation.get(Paths._BusinessPurpose._MDMPurposeId)));
+                            orchestraObject.setContent(content);
+                            bpRowsToUpdateStatus.add(orchestraObject);
+                        }
+                        Runnable updateStatusInBp = () -> {
+                            String dataSpace = aContext.getAdaptationHome().getKey().format();
+                            OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
+                            orchestraObjectList.setRows(bpRowsToUpdateStatus);
+                            OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+                            Map<String, String> parameters = new HashMap<String, String>();
+                            parameters.put("updateOrInsert", "true");
+                            try {
+                                RestResponse response = orchestraRestClient.promote(dataSpace, "Account", "root/BusinessPurpose", orchestraObjectList, parameters);
+                                if(response.getStatus()>=300){
+                                    LOGGER.error("Error updating status on BusinessPurpose. response: "+response.getResponseBody());
+                                }
+                            } catch (IOException e) {
+                                LOGGER.error("Error updating status on BusinessPurpose. ",e);
+                            }
+                        };
+                        new Thread(updateStatusInBp).start();
+                    }
+                }
                 if(aContext.getChanges().getChange(Paths._Address._OperatingUnit)!=null){
                     ValueChange change = aContext.getChanges().getChange(Paths._Address._OperatingUnit);
                     List<String> before = change.getValueBefore()!=null?(List<String>)change.getValueBefore():new ArrayList<>();
