@@ -415,6 +415,7 @@ public class GenericTrigger extends TableTrigger {
                             Map<String, OrchestraContent> content = new HashMap<>();
                             content.put("Status",new OrchestraContent(status));
                             content.put("MDMPurposeId",new OrchestraContent(bpAdapatation.get(Paths._BusinessPurpose._MDMPurposeId)));
+                            content.put("Location",new OrchestraContent(bpAdapatation.get(Paths._BusinessPurpose._Location)));
                             orchestraObject.setContent(content);
                             bpRowsToUpdateStatus.add(orchestraObject);
                         }
