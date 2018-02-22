@@ -126,7 +126,8 @@ public class BusinessPurposeTrigger extends TableTrigger {
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())) {
             boolean update = false;
             ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
-            if (aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._Primary) != null &&
+            if (aContext.getChanges().getChange(Paths._BusinessPurpose._Primary) != null &&
+                    aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._Primary) != null &&
                     !aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._Primary).isEmpty()) {
                 List primaryOus = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._Primary);
                 List operatingUnits = aContext.getAdaptationOccurrence().getList(Paths._BusinessPurpose._OperatingUnit);
