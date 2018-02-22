@@ -157,7 +157,9 @@ public class BusinessPurposeTrigger extends TableTrigger {
                 existingOusRemoved = existingOusRemoved != null ? existingOusRemoved : new ArrayList<>();
                 HashSet<String> oUsAddedSet = new HashSet<>(currentOusSet);
                 oUsAddedSet.removeAll(new HashSet<>(oUsBeforeSet));
+                int sizeBefore = primaryForOusSet.size();
                 primaryForOusSet.removeAll(oUsRemovedSet);
+                int sizeAfter = primaryForOusSet.size();
                 List<String> thisOus = new ArrayList<>(oUsAddedSet);
                 Object addressId = aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMAddressId);
                 String purposeId = String.valueOf(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._MDMPurposeId));
@@ -210,7 +212,7 @@ public class BusinessPurposeTrigger extends TableTrigger {
                         primaryForOusSet.add(String.valueOf(ou));
                     }
                 }
-                if (!primaryForOusSet.isEmpty()) {
+                if (sizeAfter!=sizeBefore) {
                     primaryForOus = new ArrayList<>(primaryForOusSet);
                     valueContextForUpdate.setValue(primaryForOus, Paths._BusinessPurpose._Primary);
                     update = true;
