@@ -520,9 +520,9 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                                     throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Business Purpose does not exist for Operating Unit "+operatingUnit+".");
                                     //jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
                                 }
-                                if(activeBpOus==0 && !removedOperatingUnits.contains(operatingUnit)){
+                               /* if(activeBpOus==0 && !removedOperatingUnits.contains(operatingUnit)){
                                     throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Business Purpose does not exist for Operating Unit "+operatingUnit+".");
-                                }
+                                }*/
                             } else {
                                 throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Business Purpose does not exist for Operating Unit "+operatingUnit+".");
                                 //jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));

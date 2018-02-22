@@ -763,7 +763,7 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                                         validationBatchCount++;
                                         continue SELECTED_RECORDS;
                                     }
-                                    if (activeBpOus == 0) {
+                                    /*if (activeBpOus == 0) {
 //                                        throw new ApplicationRuntimeException(ERROR_MDM_DATA + " Business Purpose does not exist for Operating Unit " + operatingUnit + ".");
                                         validationErrorsExist = true;
                                         errorObjContent.put("ErrorMessage",new OrchestraContent("Business Purpose does not exist for Operating Unit " + operatingUnit + "."));
@@ -771,7 +771,7 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                                         validationErrorObjects.add(errorObject);
                                         validationBatchCount++;
                                         continue SELECTED_RECORDS;
-                                    }
+                                    }*/
                                 } else {
 //                                    throw new ApplicationRuntimeException(ERROR_MDM_DATA + " Business Purpose does not exist for Operating Unit " + operatingUnit + ".");
                                     //jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(null));
