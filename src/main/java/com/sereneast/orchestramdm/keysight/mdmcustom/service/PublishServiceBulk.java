@@ -27,6 +27,7 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -353,6 +354,40 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                     validationStream.close();
                 } catch (IOException e) {
                     LOGGER.error("Error closing stream");
+                }
+            }
+            if(!LOGGER.isDebugEnabled()) {
+                try {
+                    String validationDirTwo = "MDM_VALIDATION2_" + objectName + "_" + fileId;
+                    java.nio.file.Path validationDirTwoPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), validationDir);
+                    String mdmPromoteDir = "MDM_" + objectName + "_" + fileId;
+                    java.nio.file.Path mdmPromoteDirPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), mdmPromoteDir);
+                    String mdmPromoteChildDir = "MDM_CHILD_" + objectName + "_" + fileId;
+                    java.nio.file.Path mdmPromoteChildDirPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), mdmPromoteChildDir);
+                    String jbDir = "JITTERBIT_" + objectName + "_" + fileId;
+                    java.nio.file.Path jbDirPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), jbDir);
+                    String mdmUpdateDir = "MDM_UPDATE_" + objectName + "_" + fileId;
+                    java.nio.file.Path mdmUpdateDirPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), mdmUpdateDir);
+                    if (Files.exists(validationDirPath)) {
+                        Files.walk(validationDirPath).sorted(Comparator.reverseOrder()).map(java.nio.file.Path::toFile).forEach(File::delete);
+                    }
+                    if (Files.exists(validationDirTwoPath)) {
+                        Files.walk(validationDirTwoPath).sorted(Comparator.reverseOrder()).map(java.nio.file.Path::toFile).forEach(File::delete);
+                    }
+                    if (Files.exists(mdmPromoteDirPath)) {
+                        Files.walk(mdmPromoteDirPath).sorted(Comparator.reverseOrder()).map(java.nio.file.Path::toFile).forEach(File::delete);
+                    }
+                    if (Files.exists(mdmPromoteChildDirPath)) {
+                        Files.walk(mdmPromoteChildDirPath).sorted(Comparator.reverseOrder()).map(java.nio.file.Path::toFile).forEach(File::delete);
+                    }
+                    if (Files.exists(jbDirPath)) {
+                        Files.walk(jbDirPath).sorted(Comparator.reverseOrder()).map(java.nio.file.Path::toFile).forEach(File::delete);
+                    }
+                    if (Files.exists(mdmUpdateDirPath)) {
+                        Files.walk(mdmUpdateDirPath).sorted(Comparator.reverseOrder()).map(java.nio.file.Path::toFile).forEach(File::delete);
+                    }
+                } catch (IOException e) {
+                    LOGGER.error("Error deleting file");
                 }
             }
         }
