@@ -359,7 +359,7 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
             if(!LOGGER.isDebugEnabled()) {
                 try {
                     String validationDirTwo = "MDM_VALIDATION2_" + objectName + "_" + fileId;
-                    java.nio.file.Path validationDirTwoPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), validationDir);
+                    java.nio.file.Path validationDirTwoPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), validationDirTwo);
                     String mdmPromoteDir = "MDM_" + objectName + "_" + fileId;
                     java.nio.file.Path mdmPromoteDirPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), mdmPromoteDir);
                     String mdmPromoteChildDir = "MDM_CHILD_" + objectName + "_" + fileId;
