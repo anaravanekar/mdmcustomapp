@@ -447,7 +447,7 @@ public class GenericTrigger extends TableTrigger {
                     List<String> added = new ArrayList<>(now);
                     List<String> ousWithNoBp = new ArrayList<>();
                     HashSet<String> bpOus = new HashSet<>();
-                    removed = removed.removeAll(now)?removed:null;
+                    removed = removed.removeAll(now)?removed:new ArrayList<>();
                     added = added.removeAll(before)?added:null;
                     AdaptationTable table = aContext.getOccurrenceContext().getAdaptationInstance().getTable(Paths._BusinessPurpose.getPathInSchema());
                     RequestResult bpResult = table.createRequestResult(Paths._BusinessPurpose._MDMAddressId.format()+" = '"+aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId)+"'");
