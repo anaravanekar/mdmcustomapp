@@ -624,6 +624,14 @@ public class GenericTrigger extends TableTrigger {
                         ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                         valueContextForUpdate.setValue(profileClass, Paths._Account._ProfileClass);
                         valueContextForUpdate.setValue(region, Paths._Account._Region);
+                        if("BR".equals(countryCode)){
+                            valueContextForUpdate.setValue("Brazil Bank Collection", Paths._Account._PaymentReceiptMethod);
+                        }else if("US".equals(countryCode) || "CA".equals(countryCode) || "GU".equals(countryCode) || "SG".equals(countryCode) ||
+                                "JP".equals(countryCode) || "TH".equals(countryCode)){
+                            valueContextForUpdate.setValue("Lockbox", Paths._Account._PaymentReceiptMethod);
+                        }else{
+                            valueContextForUpdate.setValue("Manual Payment", Paths._Account._PaymentReceiptMethod);
+                        }
                         aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
                     }
                 }
