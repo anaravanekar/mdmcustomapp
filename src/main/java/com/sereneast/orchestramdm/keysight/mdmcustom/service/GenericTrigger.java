@@ -277,10 +277,10 @@ public class GenericTrigger extends TableTrigger {
                         LOGGER.debug("Parent found");
                         Adaptation adaptation = parentTableRequestResult.nextAdaptation();
                         internalAccountId = adaptation.get(Paths._Account._InternalAccountId);
-                        valueContextForUpdate.setValue(internalAccountId, Paths._Address._InternalAccountId);
+//                        valueContextForUpdate.setValue(internalAccountId, Paths._Address._InternalAccountId);
                         valueContextForUpdate.setValue(adaptation.get(Paths._Account._RMTId), Paths._Address._RMTId);
-                        valueContextForUpdate.setValue(adaptation.getString(Paths._Account._AccountName), Path.parse("./AccountName"));
-                        valueContextForUpdate.setValue(adaptation.getString(Paths._Account._NameLocalLanguage), Path.parse("./AccountNameLocalLanguage"));
+//                        valueContextForUpdate.setValue(adaptation.getString(Paths._Account._AccountName), Path.parse("./AccountName"));
+//                        valueContextForUpdate.setValue(adaptation.getString(Paths._Account._NameLocalLanguage), Path.parse("./AccountNameLocalLanguage"));
                     } else {
                         LOGGER.error("Parent account not found");
                     }
@@ -396,9 +396,10 @@ public class GenericTrigger extends TableTrigger {
                         LOGGER.debug("Parent found");
                         Adaptation adaptation = parentTableRequestResult.nextAdaptation();
                         internalAccountId = adaptation.get(Paths._Account._InternalAccountId);
-                        valueContextForUpdate.setValue(internalAccountId, Paths._Address._InternalAccountId);
-                        valueContextForUpdate.setValue(adaptation.getString(Paths._Account._AccountName), Path.parse("./AccountName"));
-                        valueContextForUpdate.setValue(adaptation.getString(Paths._Account._NameLocalLanguage), Path.parse("./AccountNameLocalLanguage"));
+//                        valueContextForUpdate.setValue(internalAccountId, Paths._Address._InternalAccountId);
+                        valueContextForUpdate.setValue(adaptation.get(Paths._Account._RMTId), Paths._Address._RMTId);
+//                        valueContextForUpdate.setValue(adaptation.getString(Paths._Account._AccountName), Path.parse("./AccountName"));
+//                        valueContextForUpdate.setValue(adaptation.getString(Paths._Account._NameLocalLanguage), Path.parse("./AccountNameLocalLanguage"));
                         update = true;
                     } else {
                         LOGGER.error("Parent account not found");
