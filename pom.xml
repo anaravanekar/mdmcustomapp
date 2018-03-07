@@ -57,10 +57,34 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>org.springframework.boot</groupId>-->
+			<!--<artifactId>spring-boot-starter-security</artifactId>-->
+		<!--</dependency>-->
 		<dependency>
 			<groupId>com.github.ulisesbocchio</groupId>
 			<artifactId>jasypt-spring-boot-starter</artifactId>
 			<version>1.17</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.ws</groupId>
+			<artifactId>spring-ws-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ws.security</groupId>
+			<artifactId>wss4j</artifactId>
+			<version>1.6.19</version>
+			<!--<type>pom</type>-->
+		</dependency>
+		<dependency>
+			<groupId>org.apache.santuario</groupId>
+			<artifactId>xmlsec</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.opensaml</groupId>
+			<artifactId>opensaml</artifactId>
+			<version>2.6.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hsqldb</groupId>
@@ -152,6 +176,35 @@
 					<excludeArtifactIds>aopalliance-repackaged,hk2-api,hk2-locator,hk2-utils,jackson-annotations,jackson-core,jackson-databind,jackson-jaxrs-base,jackson-jaxrs-json-provider,jackson-module-jaxb-annotations,javassist,javax.annotation-api,javax.inject,javax.ws.rs-api,jersey-client,jersey-common,jersey-entity-filtering,jersey-guava,jersey-media-json-jackson,osgi-resource-locator,jasypt</excludeArtifactIds>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.jvnet.jaxb2.maven2</groupId>
+				<artifactId>maven-jaxb2-plugin</artifactId>
+				<version>0.13.2</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<generatePackage>com.sereneast.orchestramdm.keysight.mdmcustom.ws</generatePackage>
+					<generateDirectory>src/main/java</generateDirectory>
+					<schemaDirectory>src/main/resources/wsdl</schemaDirectory>
+					<schemaIncludes>
+						<include>*.wsdl</include>
+					</schemaIncludes>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
+	<repositories>
+		<repository>
+			<id>central</id>
+			<url>http://central.maven.org/maven2/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+	</repositories>
 </project>
