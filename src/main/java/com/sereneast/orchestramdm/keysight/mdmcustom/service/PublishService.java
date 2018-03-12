@@ -335,6 +335,9 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                                     children.add(child);
                                 }
                             } else {
+                                if("Y".equalsIgnoreCase(child.getString(Paths._Address._Published))){
+                                    continue;
+                                }
                                 if ("Golden".equalsIgnoreCase(child.getString(Paths._BusinessPurpose._DaqaMetaData_State))) {
                                     OrchestraObject orchestraChildToUpdateInJitterbit = new OrchestraObject();
                                     Map<String, OrchestraContent> jsonFieldsMapForJitterbit = new HashMap<>();
