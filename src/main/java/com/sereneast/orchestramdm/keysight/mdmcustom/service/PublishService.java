@@ -332,12 +332,12 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                         for (Adaptation child; (child = childTableRequestResult.nextAdaptation()) != null; ) {
                             if (!"ADDRESS".equalsIgnoreCase(objectName)) {
                                 if ("Golden".equalsIgnoreCase(child.getString(Paths._Address._DaqaMetaData_State))) {
+                                    if("ACCOUNT".equalsIgnoreCase(objectName) && "Y".equalsIgnoreCase(child.getString(Paths._Address._Published))){
+                                        continue;
+                                    }
                                     children.add(child);
                                 }
                             } else {
-                                if("Y".equalsIgnoreCase(child.getString(Paths._Address._Published))){
-                                    continue;
-                                }
                                 if ("Golden".equalsIgnoreCase(child.getString(Paths._BusinessPurpose._DaqaMetaData_State))) {
                                     OrchestraObject orchestraChildToUpdateInJitterbit = new OrchestraObject();
                                     Map<String, OrchestraContent> jsonFieldsMapForJitterbit = new HashMap<>();
