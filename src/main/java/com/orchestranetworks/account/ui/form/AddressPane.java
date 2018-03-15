@@ -16,6 +16,7 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,8 @@ public class AddressPane implements UIFormPane {
 			}*/
 
 			if(StringUtils.isNotBlank(textToAppend.toString())) {
-				writer.addJS("appendToFormHeader(\"" + textToAppend + "\");");
+				writer.addJS("var textToAppendToHeader=\"" + StringEscapeUtils.escapeEcmaScript(textToAppend.toString()) + "\";");
+				writer.addJS("appendToFormHeader(textToAppendToHeader);");
 			}
 		}
 
