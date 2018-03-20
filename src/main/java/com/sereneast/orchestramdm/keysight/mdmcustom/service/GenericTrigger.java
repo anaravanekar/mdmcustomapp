@@ -353,7 +353,7 @@ public class GenericTrigger extends TableTrigger {
             initialize();
             ValueChanges changes = aContext.getChanges();
             int numberOfChanges = changes.getNumberOfChanges();
-            LOGGER.debug(objectName+" Number of changes="+numberOfChanges+"\nModified Fields:\n");
+            LOGGER.debug(objectPrimaryKeyPath+" = "+aContext.getAdaptationOccurrence().get(objectPrimaryKeyPath)+" Number of changes="+numberOfChanges+"\nModified Fields:\n");
             Iterator changeIterator = changes.getChangesIterator();
             while(changeIterator.hasNext()){
                 ValueChange change = (ValueChange) changeIterator.next();
