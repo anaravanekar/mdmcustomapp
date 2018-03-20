@@ -348,9 +348,17 @@ public class GenericTrigger extends TableTrigger {
     }
 
     public void handleAfterModify(AfterModifyOccurrenceContext aContext) throws OperationException {
-        LOGGER.debug("GenericTrigger handleAfterModify called...");
+        LOGGER.debug(objectName+" GenericTrigger handleAfterModify called...");
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())) {
             initialize();
+            ValueChanges changes = aContext.getChanges();
+            int numberOfChanges = changes.getNumberOfChanges();
+            LOGGER.debug(objectName+" Number of changes="+numberOfChanges+"\nModified Fields:\n");
+            Iterator changeIterator = changes.getChangesIterator();
+            while(changeIterator.hasNext()){
+                ValueChange change = (ValueChange) changeIterator.next();
+                LOGGER.debug(change.getModifiedNode().getPathInSchema().format());
+            }
             if(aContext.getOccurrenceContext().getValue(Paths._Address._AssignedTo)==null){
                 String userId = aContext.getSession().getUserReference().getUserId();
                 EbxProperties ebxProperties = (EbxProperties)SpringContext.getApplicationContext().getBean("ebxProperties");
@@ -606,10 +614,8 @@ public class GenericTrigger extends TableTrigger {
             ProcedureContext procedureContext = aContext.getProcedureContext();
             Adaptation adaptation = aContext.getAdaptationOccurrence();
             LOGGER.debug("Record Id:" + adaptation.get(objectPrimaryKeyPath) + " timestamp" + LocalDateTime.now());
-            ValueChanges changes = aContext.getChanges();
-            int numberOfChanges = changes.getNumberOfChanges();
             int numberOfNonDaqaChanges = 0;
-            Iterator changeIterator = changes.getChangesIterator();
+            changeIterator = changes.getChangesIterator();
             while(changeIterator.hasNext()){
                 ValueChange change = (ValueChange) changeIterator.next();
                 if(!change.getModifiedNode().getPathInSchema().format().contains("DaqaMetaData")){
