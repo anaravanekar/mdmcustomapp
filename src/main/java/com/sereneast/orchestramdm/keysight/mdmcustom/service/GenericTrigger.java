@@ -357,7 +357,7 @@ public class GenericTrigger extends TableTrigger {
             Iterator changeIterator = changes.getChangesIterator();
             while(changeIterator.hasNext()){
                 ValueChange change = (ValueChange) changeIterator.next();
-                LOGGER.debug(change.getModifiedNode().getPathInSchema().format());
+                LOGGER.debug(change.getModifiedNode().getPathInSchema().format()+" before:"+change.getValueBefore()+" | after:"+change.getValueAfter());
             }
             if(aContext.getOccurrenceContext().getValue(Paths._Address._AssignedTo)==null){
                 String userId = aContext.getSession().getUserReference().getUserId();
