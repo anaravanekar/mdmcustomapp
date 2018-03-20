@@ -629,6 +629,7 @@ public class GenericTrigger extends TableTrigger {
             ValueChange countryChanges = changes.getChange(countryPath);
             ValueChange publishedFieldValueChange = changes.getChange(publishedFieldPath);
             ValueChange assignedToValueChange = changes.getChange(Paths._Account._AssignedTo);
+            ValueChange lastPublishedValueChange = changes.getChange(Paths._Account._LastPublished);
             if ("ACCOUNT".equalsIgnoreCase(objectName) && countryChanges != null) {
                 List countryList = (List) aContext.getOccurrenceContext().getValue(Paths._Account._Country);
                 if (countryList != null && !countryList.isEmpty()) {
@@ -719,7 +720,7 @@ public class GenericTrigger extends TableTrigger {
                     procedureContext.doModifyContent(resultRecord, valueContextForUpdate);
                 }
 
-                if (!(numberOfChanges<=2 && assignedToValueChange!=null) && publishedFieldValueChange == null && publishedValue != null && "Y".equalsIgnoreCase(publishedValue) && numberOfNonDaqaChanges>0) {
+                if (!(numberOfChanges<=2 && assignedToValueChange!=null) && publishedFieldValueChange == null && lastPublishedValueChange==null && publishedValue != null && "Y".equalsIgnoreCase(publishedValue) && numberOfNonDaqaChanges>0) {
                     LOGGER.debug("Updating published flag");
                     ValueContextForUpdate valueContextForUpdate = procedureContext.getContext(adaptation.getAdaptationName());
                     valueContextForUpdate.setValue("U", publishedFieldPath);
