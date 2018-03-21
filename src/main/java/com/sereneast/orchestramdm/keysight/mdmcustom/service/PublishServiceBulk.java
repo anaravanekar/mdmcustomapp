@@ -607,6 +607,9 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                                                 }
                                                 fieldValue = contentList;
                                             }
+                                            if("MDMInternalAccountId".equals(fieldName)){
+                                                fieldName="InternalAccountId";
+                                            }
                                             jsonFieldsMapForJitterbit.put(fieldName, new OrchestraContent(fieldValue));
                                         }
                                         Path tempAddressKeyPath = objectPrimaryKeyPath;
@@ -689,6 +692,9 @@ public class PublishServiceBulk implements UserService<TableViewEntitySelection>
                             if(fieldValue!=null)
                                 fieldValue = sdf.format(adaptation.getDate(fieldPathMap.get(fieldName)));
                         }*/
+                            if("MDMInternalAccountId".equals(fieldName)){
+                                fieldName="InternalAccountId";
+                            }
                             jsonFieldsMapForJitterbit.put(fieldName, new OrchestraContent(fieldValue));
                         }
                         //Find cross references for the object

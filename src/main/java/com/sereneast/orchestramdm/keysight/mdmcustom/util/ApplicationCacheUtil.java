@@ -42,9 +42,6 @@ public class ApplicationCacheUtil {
 						&& !key.contains("AccountLocked") && !key.contains("AddressLocked") && !key.contains("ErrorMessage")) {
 //					LOGGER.debug(String.valueOf(path));
 //					LOGGER.debug(key);
-					if("MDMInternalAccountId".equals(key)){
-						key="InternalAccountId";
-					}
 					fields.put(key,path);
 				}
 			}

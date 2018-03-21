@@ -432,6 +432,9 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                             if(fieldValue!=null)
                                 fieldValue = sdf.format(adaptation.getDate(fieldPathMap.get(fieldName)));
                         }*/
+                        if("MDMInternalAccountId".equals(fieldName)){
+                            fieldName="InternalAccountId";
+                        }
                         jsonFieldsMapForJitterbit.put(fieldName, new OrchestraContent(fieldValue));
                     }
                     //Find cross references for the object
