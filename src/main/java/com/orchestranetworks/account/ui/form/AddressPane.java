@@ -44,8 +44,8 @@ public class AddressPane implements UIFormPane {
 				final RequestResult requestResult = accountTable.createRequestResult(Paths._Account._MDMAccountId.format() + " = " + context.getCurrentRecord().getString(_MDMAccountId));
 				if (requestResult != null && !requestResult.isEmpty()) {
 					Adaptation record = requestResult.nextAdaptation();*/
-					accountName = context.getCurrentRecord().getString(Path.parse("./AccountName"));//record.getString(Paths._Account._AccountName);
-					accountLocalName = context.getCurrentRecord().getString(Path.parse("./AccountNameLocalLanguage"))!=null?context.getCurrentRecord().getString(Path.parse("./AccountNameLocalLanguage")):"";//record.getString(Paths._Account._NameLocalLanguage)!=null?record.getString(Paths._Account._NameLocalLanguage):"";
+					accountName = context.getCurrentRecord().getString(Path.parse("./MDMAccountName"));//record.getString(Paths._Account._AccountName);
+					accountLocalName = context.getCurrentRecord().getString(Path.parse("./MDMNameLocalLanguage"))!=null?context.getCurrentRecord().getString(Path.parse("./MDMNameLocalLanguage")):"";//record.getString(Paths._Account._NameLocalLanguage)!=null?record.getString(Paths._Account._NameLocalLanguage):"";
 					textToAppend.append(" of ").append(accountName);
 //				}
 			}
