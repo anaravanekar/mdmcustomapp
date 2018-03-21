@@ -38,7 +38,7 @@ public class ApplicationCacheUtil {
 				if(!key.contains("DaqaMetaData") && !key.contains("MergedTargetRecord") && !key.contains("RelatedAddress") && !key.contains("RelatedBusinessPurpose")
 						&& !key.contains("Notes") && !key.contains("AssignedTo") && !key.contains("BatchCode")
 						&& !key.contains("Source") && !key.contains("Locale") && !key.contains("LastPublished") && !key.contains("RegistryId") && !key.contains("FirstOperatingUnit")
-						&& !(Paths._Address.class.getName().equals(className) && key.contains("AccountName")) && !key.contains("DefaultTaxRegistration")
+						&& !(Paths._Address.class.getName().equals(className) && (key.contains("MDMAccountName") || key.contains("MDMNameLocalLanguage"))) && !key.contains("DefaultTaxRegistration")
 						&& !key.contains("AccountLocked") && !key.contains("AddressLocked") && !key.contains("ErrorMessage")) {
 //					LOGGER.debug(String.valueOf(path));
 //					LOGGER.debug(key);

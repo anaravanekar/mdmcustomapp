@@ -188,9 +188,9 @@ public interface Paths
 		public static final Path _DaqaMetaData_FieldMergedLogging_SurvivorshipFunctionCode = Path.parse("./DaqaMetaData/fieldMergedLogging/survivorshipFunctionCode");
 		public static final Path _DaqaMetaData_FieldMergedLogging_PrimaryKeyMergedRecord = Path.parse("./DaqaMetaData/fieldMergedLogging/primaryKeyMergedRecord");
 		public static final Path _MDMAccountId = Path.parse("./MDMAccountId");
-		public static final Path _AccountName = Path.parse("./AccountName");
-		public static final Path _AccountNameLocalLanguage = Path.parse("./AccountNameLocalLanguage");
-		public static final Path _InternalAccountId = Path.parse("./InternalAccountId");
+		public static final Path _AccountName = Path.parse("./MDMAccountName");
+		public static final Path _AccountNameLocalLanguage = Path.parse("./MDMNameLocalLanguage");
+		public static final Path _InternalAccountId = Path.parse("./MDMInternalAccountId");
 		public static final Path _InternalAddressId = Path.parse("./InternalAddressId");
 		public static final Path _ParentSystemId = Path.parse("./ParentSystemId");
 		public static final Path _SystemId = Path.parse("./SystemId");
