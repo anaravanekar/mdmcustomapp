@@ -286,7 +286,7 @@ public class GenericTrigger extends TableTrigger {
                     Map<String, String> parameters = new HashMap<>();
                     String ds=aContext.getAdaptationOccurrence().getHome().getKey().format();
                     parameters.put("filter", "IdentifyingAddress='Y'andMDMAccountId='"+String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"'");
-                    LOGGER.DEBUG("filter="+"IdentifyingAddress='Y'andMDMAccountId='"+String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"'");
+                    LOGGER.debug("filter="+"IdentifyingAddress='Y'andMDMAccountId='"+String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"'");
                     OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
                     OrchestraObjectListResponse orchestraObjectListResponse = null;
                     try {
