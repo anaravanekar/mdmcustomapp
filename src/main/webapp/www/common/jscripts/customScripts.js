@@ -481,15 +481,16 @@ function showWarningChar(fieldValue,args){
     }catch(err){
         error=true;
     }
-    var limitChar = args.split(/\s*,\s*/)[0];
-    var limitByte = args.split(/\s*,\s*/)[1];
+    var limitChar = args.split(",")[0];
+    var limitByte = args.split(",")[1];
+    var fname = args.split(",")[2];
     if(!error){
         if(byteString && byteString.length>limitByte){
-            alert("Warning - Field length exceeds "+limitChar+" characters and may exceed the "+limitByte+" byte integration limit");
+            alert("Warning - "+fname+" length exceeds "+limitChar+" characters and may exceed the "+limitByte+" byte integration limit");
         }
     }else{
         if(fieldValue && fieldValue.length>limitChar){
-            alert("Warning - Field length exceeds "+limitChar+" characters and may exceed the "+limitByte+" byte integration limit");
+            alert("Warning - "+fname+" length exceeds "+limitChar+" characters and may exceed the "+limitByte+" byte integration limit");
         }
     }
     //console.log("byteString.length"+byteString.length);
@@ -503,15 +504,16 @@ function showWarningByte(fieldValue,args){
     }catch(err){
         error=true;
     }
-    var limitChar = args.split(/\s*,\s*/)[0];
-    var limitByte = args.split(/\s*,\s*/)[1];
+    var limitChar = args.split(",")[0];
+    var limitByte = args.split(",")[1];
+    var fname = args.split(",")[2];
     if(!error){
         if(byteString && byteString.length>limitByte){
-            alert("Warning - Field length exceeding "+limitByte+" will exceed Oracle limits");
+            alert("Warning - "+fname+" length exceeding "+limitByte+" bytes will exceed Oracle limits");
         }
     }else{
         if(fieldValue && fieldValue.length>limitChar){
-            alert("Warning - Field length exceeding "+limitByte+" will exceed Oracle limits");
+            alert("Warning - "+fname+" length exceeding "+limitByte+" bytes will exceed Oracle limits");
         }
     }
     //console.log("byteString.length"+byteString.length);
