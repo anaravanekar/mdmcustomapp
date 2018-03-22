@@ -285,7 +285,8 @@ public class GenericTrigger extends TableTrigger {
                     String currentIdentifyingAddress = aContext.getAdaptationOccurrence().getString(Paths._Address._IdentifyingAddress);
                     Map<String, String> parameters = new HashMap<>();
                     String ds=aContext.getAdaptationOccurrence().getHome().getKey().format();
-                    parameters.put("filter", "IdentifyingAddress='Y'andMDMAccountId="+String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)));
+                    parameters.put("filter", "IdentifyingAddress='Y'andMDMAccountId='"+String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"'");
+                    LOGGER.DEBUG("filter="+"IdentifyingAddress='Y'andMDMAccountId='"+String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"'");
                     OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
                     OrchestraObjectListResponse orchestraObjectListResponse = null;
                     try {
@@ -298,12 +299,12 @@ public class GenericTrigger extends TableTrigger {
                     Map<String, String> resultObject = new HashMap<>();
                     if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null
                             && !orchestraObjectListResponse.getRows().isEmpty() && "Y".equals(currentIdentifyingAddress)) {
-                        for(OrchestraObjectResponse objectResponse:orchestraObjectListResponse.getRows()) {
+                        /*for(OrchestraObjectResponse objectResponse:orchestraObjectListResponse.getRows()) {
                             Map<String, OrchestraContent> content = objectResponse.getContent();
                             if (!aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId).equals(content.get("MDMAddressId"))) {
                                 throw OperationException.createError("Cannot mark address as identifying address. Address with MDMAddressId " + content.get("MDMAddressId") + " is already marked as identifying address.");
                             }
-                        }
+                        }*/
                     }else if(orchestraObjectListResponse == null || orchestraObjectListResponse.getRows() == null
                             || orchestraObjectListResponse.getRows().isEmpty()){
                         valueContextForUpdate.setValue("Y", Paths._Address._IdentifyingAddress);
@@ -600,11 +601,12 @@ public class GenericTrigger extends TableTrigger {
                         }
                     }
                 }
-                if(aContext.getChanges().getChange(Paths._Address._IdentifyingAddress)!=null){
+                /*if(aContext.getChanges().getChange(Paths._Address._IdentifyingAddress)!=null){
                     String currentIdentifyingAddress = aContext.getAdaptationOccurrence().getString(Paths._Address._IdentifyingAddress);
                     Map<String, String> parameters = new HashMap<>();
                     String ds=aContext.getAdaptationOccurrence().getHome().getKey().format();
-                    parameters.put("filter", "IdentifyingAddress='Y'andMDMAccountId="+String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)));
+                    parameters.put("filter", "IdentifyingAddress='Y'andMDMAccountId='"+String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"'");
+                    LOGGER.DEBUG("filter="+"IdentifyingAddress='Y'andMDMAccountId='"+String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"'");
                     OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
                     OrchestraObjectListResponse orchestraObjectListResponse = null;
                     try {
@@ -624,7 +626,7 @@ public class GenericTrigger extends TableTrigger {
                             }
                         }
                     }
-                }
+                }*/
                 if(update){
                     aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
                 }
