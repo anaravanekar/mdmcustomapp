@@ -282,7 +282,25 @@ public class GenericTrigger extends TableTrigger {
                     } else {
                         LOGGER.error("Parent account not found");
                     }
-                    String currentIdentifyingAddress = aContext.getAdaptationOccurrence().getString(Paths._Address._IdentifyingAddress);
+                    AdaptationTable table = aContext.getTable();//getAdaptationOccurrence().getContainer().getTable(Paths._Address.getPathInSchema());
+                    RequestResult tableRequestResult = table.createRequestResult(Paths._Address._MDMAccountId.format() + " = '" + String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"'");
+                    /*String currentIdentifyingAddress = aContext.getAdaptationOccurrence().getString(Paths._Address._IdentifyingAddress);
+                    if(tableRequestResult!=null && tableRequestResult.getSize()>1 && "Y".equals(currentIdentifyingAddress)){
+                        Object id = null;
+                        for(Adaptation tableRequestResultRecord; (tableRequestResultRecord = tableRequestResult.nextAdaptation()) != null; ){
+                            if(!tableRequestResultRecord.get(Paths._Address._MDMAddressId).equals(aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId))){
+                                id=tableRequestResultRecord.get(Paths._Address._MDMAddressId);
+                                break;
+                            }
+                        }
+                        throw OperationException.createError("Cannot mark address as identifying address. Address with MDMAddressId "+id+" is already marked as identifying address.");
+                    }*/
+                    if(tableRequestResult==null || tableRequestResult.isEmpty() || tableRequestResult.getSize()==1){
+                        valueContextForUpdate.setValue("Y", Paths._Address._IdentifyingAddress);
+                    }else if(aContext.getOccurrenceContext().getValue(Paths._Address._IdentifyingAddress)==null){
+                        valueContextForUpdate.setValue("N", Paths._Address._IdentifyingAddress);
+                    }
+/*                    String currentIdentifyingAddress = aContext.getAdaptationOccurrence().getString(Paths._Address._IdentifyingAddress);
                     Map<String, String> parameters = new HashMap<>();
                     String ds=aContext.getAdaptationOccurrence().getHome().getKey().format();
                     parameters.put("filter", "IdentifyingAddress='Y'andMDMAccountId='"+String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"'");
@@ -290,27 +308,27 @@ public class GenericTrigger extends TableTrigger {
                     OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
                     OrchestraObjectListResponse orchestraObjectListResponse = null;
                     try {
-//                        if("Y".equals(currentIdentifyingAddress)) {
+                        if("Y".equals(currentIdentifyingAddress)) {
                             orchestraObjectListResponse = orchestraRestClient.get(ds, "Account", "root/Address", parameters);
-//                        }
+                        }
                     } catch (IOException e) {
                         LOGGER.error("ERROR MDMAddressId="+aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId)+". Error finding addresses for account",e);
                     }
                     Map<String, String> resultObject = new HashMap<>();
                     if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null
                             && !orchestraObjectListResponse.getRows().isEmpty() && "Y".equals(currentIdentifyingAddress)) {
-                        /*for(OrchestraObjectResponse objectResponse:orchestraObjectListResponse.getRows()) {
+                        for(OrchestraObjectResponse objectResponse:orchestraObjectListResponse.getRows()) {
                             Map<String, OrchestraContent> content = objectResponse.getContent();
                             if (!aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId).equals(content.get("MDMAddressId"))) {
                                 throw OperationException.createError("Cannot mark address as identifying address. Address with MDMAddressId " + content.get("MDMAddressId") + " is already marked as identifying address.");
                             }
-                        }*/
+                        }
                     }else if(orchestraObjectListResponse == null || orchestraObjectListResponse.getRows() == null
                             || orchestraObjectListResponse.getRows().isEmpty()){
                         valueContextForUpdate.setValue("Y", Paths._Address._IdentifyingAddress);
                     }else{
                         valueContextForUpdate.setValue("N", Paths._Address._IdentifyingAddress);
-                    }
+                    }*/
                 }
                 if(update){
                     aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
