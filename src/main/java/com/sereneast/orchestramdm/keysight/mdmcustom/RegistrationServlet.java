@@ -24,6 +24,7 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 		aContext.addPackagedStyleSheetResource("loading.css");
 		aContext.addPackagedStyleSheetResource("custom.css");
 		aContext.addPackagedJavaScriptResource("customScripts.js");
+		aContext.addPackagedJavaScriptResource("utf8.js");
 	}
 
 	@Override
@@ -93,6 +94,12 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				RefreshCacheService.class,
 				"Refresh Cache",
 				"Refresh Cache",
+				""));
+		aContext.registerUserService(new DatasetViewUserServiceDeclaration(
+				ServiceKey.forModuleServiceName("mdmcustomapp",SnapshotService.class.getSimpleName()),
+				SnapshotService.class,
+				"Snapshot Service",
+				"Snapshot Service",
 				""));
 	}
 

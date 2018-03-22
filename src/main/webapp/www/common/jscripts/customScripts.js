@@ -474,17 +474,45 @@ function toggleInternalInfo(accountType) {
 }
 
 function showWarningChar(fieldValue,args){
+    boolean error = false;
+    var byteString = '';
+    try{
+        byteString=utf8.encode(fieldValue);
+    }catch(err){
+        error=true;
+    }
     var limitChar = args.split(/\s*,\s*/)[0];
     var limitByte = args.split(/\s*,\s*/)[1];
-    if(fieldValue && fieldValue.length>limitChar){
-        alert("Warning - Field length exceeds "+limitChar+" characters and may exceed the "+limitByte+" byte integration limit");
+    if(!error){
+        if(byteString && byteString.length>limitByte){
+            alert("Warning - Field length exceeds "+limitChar+" characters and may exceed the "+limitByte+" byte integration limit");
+        }
+    }else{
+        if(fieldValue && fieldValue.length>limitChar){
+            alert("Warning - Field length exceeds "+limitChar+" characters and may exceed the "+limitByte+" byte integration limit");
+        }
     }
+    console.log("byteString.length"+byteString.length);
 }
 
 function showWarningByte(fieldValue,args){
+    boolean error = false;
+    var byteString = '';
+    try{
+        byteString=utf8.encode(fieldValue);
+    }catch(err){
+        error=true;
+    }
     var limitChar = args.split(/\s*,\s*/)[0];
     var limitByte = args.split(/\s*,\s*/)[1];
-    if(fieldValue && fieldValue.length>limitChar){
-        alert("Warning - Field length exceeding "+limitByte+" will exceed Oracle limits");
+    if(!error){
+        if(byteString && byteString.length>limitByte){
+            alert("Warning - Field length exceeding "+limitByte+" will exceed Oracle limits");
+        }
+    }else{
+        if(fieldValue && fieldValue.length>limitChar){
+            alert("Warning - Field length exceeding "+limitByte+" will exceed Oracle limits");
+        }
     }
+    console.log("byteString.length"+byteString.length);
 }
