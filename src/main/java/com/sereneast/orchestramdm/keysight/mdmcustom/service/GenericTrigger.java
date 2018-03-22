@@ -290,9 +290,9 @@ public class GenericTrigger extends TableTrigger {
                     OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
                     OrchestraObjectListResponse orchestraObjectListResponse = null;
                     try {
-                        if("Y".equals(currentIdentifyingAddress)) {
+//                        if("Y".equals(currentIdentifyingAddress)) {
                             orchestraObjectListResponse = orchestraRestClient.get(ds, "Account", "root/Address", parameters);
-                        }
+//                        }
                     } catch (IOException e) {
                         LOGGER.error("ERROR MDMAddressId="+aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId)+". Error finding addresses for account",e);
                     }
