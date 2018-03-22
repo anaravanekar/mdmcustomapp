@@ -850,7 +850,7 @@ public class GenericTrigger extends TableTrigger {
             LdLocale ldLocale = lang.get();
             detectedLanguage = ldLocale.getLanguage();
             if("ja".equalsIgnoreCase(detectedLanguage)||"ko".equalsIgnoreCase(detectedLanguage) || "zh".equalsIgnoreCase(detectedLanguage)
-                    || "zh-CN".equalsIgnoreCase(detectedLanguage) || "zh-KW".equalsIgnoreCase(detectedLanguage)){
+                    || "zh-CN".equalsIgnoreCase(detectedLanguage) || "zh-TW".equalsIgnoreCase(detectedLanguage)){
                 detectedLanguage="ja";
             }else{
                 detectedLanguage=null;

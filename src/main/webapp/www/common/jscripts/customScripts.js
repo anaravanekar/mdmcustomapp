@@ -473,13 +473,17 @@ function toggleInternalInfo(accountType) {
     }
 }
 
-function showWarningChar(fieldValue,limitChar,limitByte){
+function showWarningChar(fieldValue,args){
+    var limitChar = args.split(/\s*,\s*/)[0];
+    var limitByte = args.split(/\s*,\s*/)[1];
     if(fieldValue && fieldValue.length>limitChar){
         alert("Warning - Field length exceeds "+limitChar+" characters and may exceed the "+limitByte+" byte integration limit");
     }
 }
 
-function showWarningByte(fieldValue,limitChar,limitByte){
+function showWarningByte(fieldValue,args){
+    var limitChar = args.split(/\s*,\s*/)[0];
+    var limitByte = args.split(/\s*,\s*/)[1];
     if(fieldValue && fieldValue.length>limitChar){
         alert("Warning - Field length exceeding "+limitByte+" will exceed Oracle limits");
     }
