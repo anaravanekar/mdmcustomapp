@@ -492,7 +492,7 @@ function showWarningChar(fieldValue,args){
             alert("Warning - Field length exceeds "+limitChar+" characters and may exceed the "+limitByte+" byte integration limit");
         }
     }
-    console.log("byteString.length"+byteString.length);
+    //console.log("byteString.length"+byteString.length);
 }
 
 function showWarningByte(fieldValue,args){
@@ -514,5 +514,5 @@ function showWarningByte(fieldValue,args){
             alert("Warning - Field length exceeding "+limitByte+" will exceed Oracle limits");
         }
     }
-    console.log("byteString.length"+byteString.length);
+    //console.log("byteString.length"+byteString.length);
 }
