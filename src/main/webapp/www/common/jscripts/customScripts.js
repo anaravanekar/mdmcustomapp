@@ -472,3 +472,15 @@ function toggleInternalInfo(accountType) {
         }
     }
 }
+
+function showWarningChar(fieldValue,limitChar,limitByte){
+    if(fieldValue && fieldValue.length>limitChar){
+        alert("Warning - Field length exceeds "+limitChar+" characters and may exceed the "+limitByte+" byte integration limit");
+    }
+}
+
+function showWarningByte(fieldValue,limitChar,limitByte){
+    if(fieldValue && fieldValue.length>limitChar){
+        alert("Warning - Field length exceeding "+limitByte+" will exceed Oracle limits");
+    }
+}
