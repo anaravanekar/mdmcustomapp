@@ -474,7 +474,7 @@ function toggleInternalInfo(accountType) {
 }
 
 function showWarningChar(fieldValue,args){
-    boolean error = false;
+    var error = false;
     var byteString = '';
     try{
         byteString=utf8.encode(fieldValue);
@@ -496,7 +496,7 @@ function showWarningChar(fieldValue,args){
 }
 
 function showWarningByte(fieldValue,args){
-    boolean error = false;
+    var error = false;
     var byteString = '';
     try{
         byteString=utf8.encode(fieldValue);
