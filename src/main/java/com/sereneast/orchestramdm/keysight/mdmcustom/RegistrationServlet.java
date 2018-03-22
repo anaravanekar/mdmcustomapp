@@ -95,12 +95,12 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Refresh Cache",
 				"Refresh Cache",
 				""));
-		aContext.registerUserService(new DatasetViewUserServiceDeclaration(
+		/*aContext.registerUserService(new DatasetViewUserServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",SnapshotService.class.getSimpleName()),
 				SnapshotService.class,
 				"Snapshot Service",
 				"Snapshot Service",
-				""));
+				""));*/
 	}
 
 	private static Path[] toPath(String... paths)
