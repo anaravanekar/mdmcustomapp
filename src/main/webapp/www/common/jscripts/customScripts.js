@@ -485,7 +485,7 @@ function showWarningChar(fieldValue,args){
     var limitByte = args.split(",")[1];
     var fname = args.split(",")[2];
     if(!error){
-        if(byteString && countUtf8Bytes(byteString)>limitByte){
+        if(byteString && byteString.length>limitByte){
             alert("Warning - "+fname+" length exceeds "+limitChar+" characters and may exceed the "+limitByte+" byte integration limit");
         }
     }else{
@@ -508,7 +508,7 @@ function showWarningByte(fieldValue,args){
     var limitByte = args.split(",")[1];
     var fname = args.split(",")[2];
     if(!error){
-        if(byteString && countUtf8Bytes(byteString)>limitByte){
+        if(byteString && byteString.length>limitByte){
             alert("Warning - "+fname+" length exceeding "+limitByte+" bytes will exceed Oracle limits");
         }
     }else{
@@ -517,10 +517,4 @@ function showWarningByte(fieldValue,args){
         }
     }
     //console.log("byteString.length"+byteString.length);
-}
-
-function countUtf8Bytes(s){
-    var b = 0, i = 0, c
-    for(;c=s.charCodeAt(i++);b+=c>>11?3:c>>7?2:1);
-    return b
 }
