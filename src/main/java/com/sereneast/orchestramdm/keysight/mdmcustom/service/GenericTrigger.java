@@ -294,20 +294,23 @@ public class GenericTrigger extends TableTrigger {
                         LOGGER.error("Parent account not found");
                     }
                     AdaptationTable table = aContext.getTable();//getAdaptationOccurrence().getContainer().getTable(Paths._Address.getPathInSchema());
-                    RequestResult tableRequestResult = table.createRequestResult(Paths._Address._MDMAccountId.format() + " = '" + String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"'");
+                    RequestResult tableRequestResult = table.createRequestResult(Paths._Address._MDMAccountId.format() + " = '" + String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"' and ("+Paths._Address._IdentifyingAddress.format()+" = 'Y')");
                     String currentIdentifyingAddress = aContext.getAdaptationOccurrence().getString(Paths._Address._IdentifyingAddress);
                     boolean otherRecordIsIdentifying = false;
-                    Object otherRecordId = null;
-                    if(tableRequestResult!=null && tableRequestResult.getSize()>0){
-                        for(Adaptation tableRequestResultRecord; (tableRequestResultRecord = tableRequestResult.nextAdaptation()) != null; ){
-                            LOGGER.debug("create mdmaddressid="+tableRequestResultRecord.get(Paths._Address._MDMAddressId)+" identifying address="+tableRequestResultRecord.get(Paths._Address._IdentifyingAddress));
+                    Integer otherRecordId = null;
+                    if(LOGGER.isDebugEnabled()) {
+                        if (tableRequestResult != null && tableRequestResult.getSize() > 0) {
+                            for (Adaptation tableRequestResultRecord; (tableRequestResultRecord = tableRequestResult.nextAdaptation()) != null; ) {
+                                LOGGER.debug("create mdmaddressid=" + tableRequestResultRecord.get(Paths._Address._MDMAddressId) + " identifying address=" + tableRequestResultRecord.get(Paths._Address._IdentifyingAddress));
+                            }
                         }
                     }
                     if(tableRequestResult!=null && tableRequestResult.getSize()>0){
                         for(Adaptation tableRequestResultRecord; (tableRequestResultRecord = tableRequestResult.nextAdaptation()) != null; ){
-                            if(!tableRequestResultRecord.get(Paths._Address._MDMAddressId).equals(aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId))){
-                                otherRecordId=tableRequestResultRecord.get(Paths._Address._MDMAddressId);
+                            if(tableRequestResultRecord.get_int(Paths._Address._MDMAddressId)!=aContext.getAdaptationOccurrence().get_int(Paths._Address._MDMAddressId)){
+                                otherRecordId=tableRequestResultRecord.get_int(Paths._Address._MDMAddressId);
                                 otherRecordIsIdentifying=true;
+                                LOGGER.debug("otherRecordIsIdentifying="+otherRecordIsIdentifying);
                                 break;
                             }
                         }
@@ -317,6 +320,7 @@ public class GenericTrigger extends TableTrigger {
                     }
                     if(!otherRecordIsIdentifying && !"Y".equals(currentIdentifyingAddress)){
                         valueContextForUpdate.setValue("Y", Paths._Address._IdentifyingAddress);
+                        LOGGER.debug("setting identifying flag to Y");
                     }else if(aContext.getOccurrenceContext().getValue(Paths._Address._IdentifyingAddress)==null){
                         valueContextForUpdate.setValue("N", Paths._Address._IdentifyingAddress);
                     }
@@ -611,21 +615,24 @@ public class GenericTrigger extends TableTrigger {
                     }
                 }
                 if(changes.getChange(Paths._Address._IdentifyingAddress)!=null) {
-                    AdaptationTable table = aContext.getTable();
-                    RequestResult tableRequestResult = table.createRequestResult(Paths._Address._MDMAccountId.format() + " = '" + String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"'");
+                    AdaptationTable table = aContext.getTable();//getAdaptationOccurrence().getContainer().getTable(Paths._Address.getPathInSchema());
+                    RequestResult tableRequestResult = table.createRequestResult(Paths._Address._MDMAccountId.format() + " = '" + String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"' and ("+Paths._Address._IdentifyingAddress.format()+" = 'Y')");
                     String currentIdentifyingAddress = aContext.getAdaptationOccurrence().getString(Paths._Address._IdentifyingAddress);
                     boolean otherRecordIsIdentifying = false;
-                    Object otherRecordId = null;
-                    if(tableRequestResult!=null && tableRequestResult.getSize()>0){
-                        for(Adaptation tableRequestResultRecord; (tableRequestResultRecord = tableRequestResult.nextAdaptation()) != null; ){
-                            LOGGER.debug("update mdmaddressid="+tableRequestResultRecord.get(Paths._Address._MDMAddressId)+" identifying address="+tableRequestResultRecord.get(Paths._Address._IdentifyingAddress));
+                    Integer otherRecordId = null;
+                    if(LOGGER.isDebugEnabled()) {
+                        if (tableRequestResult != null && tableRequestResult.getSize() > 0) {
+                            for (Adaptation tableRequestResultRecord; (tableRequestResultRecord = tableRequestResult.nextAdaptation()) != null; ) {
+                                LOGGER.debug("update mdmaddressid=" + tableRequestResultRecord.get(Paths._Address._MDMAddressId) + " identifying address=" + tableRequestResultRecord.get(Paths._Address._IdentifyingAddress));
+                            }
                         }
                     }
                     if(tableRequestResult!=null && tableRequestResult.getSize()>0){
                         for(Adaptation tableRequestResultRecord; (tableRequestResultRecord = tableRequestResult.nextAdaptation()) != null; ){
-                            if(!tableRequestResultRecord.get(Paths._Address._MDMAddressId).equals(aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId))){
-                                otherRecordId=tableRequestResultRecord.get(Paths._Address._MDMAddressId);
+                            if(tableRequestResultRecord.get_int(Paths._Address._MDMAddressId)!=aContext.getAdaptationOccurrence().get_int(Paths._Address._MDMAddressId)){
+                                otherRecordId=tableRequestResultRecord.get_int(Paths._Address._MDMAddressId);
                                 otherRecordIsIdentifying=true;
+                                LOGGER.debug("otherRecordIsIdentifying="+otherRecordIsIdentifying);
                                 break;
                             }
                         }
