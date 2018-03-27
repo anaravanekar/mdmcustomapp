@@ -299,17 +299,9 @@ public class GenericTrigger extends TableTrigger {
                     Object currentMdmAddressId = aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId);
                     boolean otherRecordIsIdentifying = false;
                     Integer otherRecordId = null;
-                    if(LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("currentMdmAddressId="+currentMdmAddressId+" currentIdentifyingAddress="+currentIdentifyingAddress);
-                        if (tableRequestResult != null && tableRequestResult.getSize() > 0) {
-                            for (Adaptation tableRequestResultRecord; (tableRequestResultRecord = tableRequestResult.nextAdaptation()) != null; ) {
-                                LOGGER.debug("create mdmaddressid=" + tableRequestResultRecord.get(Paths._Address._MDMAddressId) + " identifying address=" + tableRequestResultRecord.get(Paths._Address._IdentifyingAddress));
-                            }
-                        }
-                    }
                     if(tableRequestResult!=null && tableRequestResult.getSize()>0){
                         for(Adaptation tableRequestResultRecord; (tableRequestResultRecord = tableRequestResult.nextAdaptation()) != null; ){
-                            if(!tableRequestResultRecord.get(Paths._Address._MDMAddressId).equals(currentMdmAddressId)){
+                            if(!String.valueOf(tableRequestResultRecord.get(Paths._Address._MDMAddressId)).equals(String.valueOf(currentMdmAddressId))){
                                 otherRecordId=tableRequestResultRecord.get_int(Paths._Address._MDMAddressId);
                                 otherRecordIsIdentifying=true;
                                 LOGGER.debug("otherRecordIsIdentifying="+otherRecordIsIdentifying);
@@ -623,14 +615,9 @@ public class GenericTrigger extends TableTrigger {
                     Object currentMdmAddressId = aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId);
                     boolean otherRecordIsIdentifying = false;
                     Integer otherRecordId = null;
-                    if(LOGGER.isDebugEnabled() && tableRequestResult != null && tableRequestResult.getSize() > 0) {
-                            for (Adaptation tableRequestResultRecord; (tableRequestResultRecord = tableRequestResult.nextAdaptation()) != null; ) {
-                                LOGGER.debug("update mdmaddressid=" + tableRequestResultRecord.get(Paths._Address._MDMAddressId) + " identifying address=" + tableRequestResultRecord.get(Paths._Address._IdentifyingAddress));
-                            }
-                    }
                     if(tableRequestResult!=null && tableRequestResult.getSize()>0){
                         for(Adaptation tableRequestResultRecord; (tableRequestResultRecord = tableRequestResult.nextAdaptation()) != null; ){
-                            if(!tableRequestResultRecord.get(Paths._Address._MDMAddressId).equals(currentMdmAddressId)){
+                            if(!String.valueOf(tableRequestResultRecord.get(Paths._Address._MDMAddressId)).equals(String.valueOf(currentMdmAddressId))){
                                 otherRecordId=tableRequestResultRecord.get_int(Paths._Address._MDMAddressId);
                                 otherRecordIsIdentifying=true;
                                 LOGGER.debug("otherRecordIsIdentifying="+otherRecordIsIdentifying);
