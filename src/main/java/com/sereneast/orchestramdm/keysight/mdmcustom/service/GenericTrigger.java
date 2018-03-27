@@ -72,6 +72,7 @@ public class GenericTrigger extends TableTrigger {
     public void handleAfterCreate(AfterCreateOccurrenceContext aContext) throws OperationException{
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())) {
             initialize();
+            ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
             if(aContext.getOccurrenceContext().getValue(Paths._Account._Published)!=null) {
                 ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                 valueContextForUpdate.setValue(null, Paths._Account._Published);
@@ -88,6 +89,8 @@ public class GenericTrigger extends TableTrigger {
                 }
             }
             if ("ACCOUNT".equalsIgnoreCase(objectName)) {
+                boolean update = false;
+                ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                 List countryList = (List) aContext.getOccurrenceContext().getValue(Paths._Account._Country);
                 if (countryList != null && !countryList.isEmpty()) {
                     String countryCode = (String) countryList.get(0);
@@ -102,14 +105,16 @@ public class GenericTrigger extends TableTrigger {
                         throw new ApplicationOperationException("Error getting Profile Class and Region for country");
                     }
                     Map<String, String> resultObject = new HashMap<>();*/
-                    ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                     if("BR".equals(countryCode)){
                         valueContextForUpdate.setValue("Brazil Bank Collection", Paths._Account._PaymentReceiptMethod);
+                        update=true;
                     }else if("US".equals(countryCode) || "CA".equals(countryCode) || "GU".equals(countryCode) || "SG".equals(countryCode) ||
                             "JP".equals(countryCode) || "TH".equals(countryCode)){
                         valueContextForUpdate.setValue("Lockbox", Paths._Account._PaymentReceiptMethod);
+                        update=true;
                     }else{
                         valueContextForUpdate.setValue("Manual Payment", Paths._Account._PaymentReceiptMethod);
+                        update=true;
                     }
 
                     ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
@@ -118,6 +123,7 @@ public class GenericTrigger extends TableTrigger {
                     if(resultItem!=null){
                         valueContextForUpdate.setValue(resultItem.get("ProfileClass"), Paths._Account._ProfileClass);
                         valueContextForUpdate.setValue(resultItem.get("Region"), Paths._Account._Region);
+                        update=true;
                     }
 
                    /* AdaptationTable countryReferenceFieldsTable = aContext.getTable().getContainerAdaptation().getTable(Paths._CountryReferenceFields.getPathInSchema());
@@ -132,6 +138,12 @@ public class GenericTrigger extends TableTrigger {
                         valueContextForUpdate.setValue(profileClass, Paths._Account._ProfileClass);
                         valueContextForUpdate.setValue(region, Paths._Account._Region);
                     }*/
+                }
+                if(aContext.getOccurrenceContext().getValue(Paths._Account._PaymentStartDate)==null){
+                    valueContextForUpdate.setValue(Date.from(utc.toInstant()),Paths._Account._PaymentStartDate);
+                    update=true;
+                }
+                if(update){
                     aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
                 }
             }
@@ -139,7 +151,6 @@ public class GenericTrigger extends TableTrigger {
             if("ADDRESS".equalsIgnoreCase(objectName)) {
                 boolean update = false;
                 ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
-                ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
                 if("JP".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
                     if(aContext.getOccurrenceContext().getValue(Paths._Address._SendAcknowledgement)==null) {
                         update=true;
@@ -284,7 +295,7 @@ public class GenericTrigger extends TableTrigger {
                     }
                     AdaptationTable table = aContext.getTable();//getAdaptationOccurrence().getContainer().getTable(Paths._Address.getPathInSchema());
                     RequestResult tableRequestResult = table.createRequestResult(Paths._Address._MDMAccountId.format() + " = '" + String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"'");
-                    /*String currentIdentifyingAddress = aContext.getAdaptationOccurrence().getString(Paths._Address._IdentifyingAddress);
+                    String currentIdentifyingAddress = aContext.getAdaptationOccurrence().getString(Paths._Address._IdentifyingAddress);
                     if(tableRequestResult!=null && tableRequestResult.getSize()>1 && "Y".equals(currentIdentifyingAddress)){
                         Object id = null;
                         for(Adaptation tableRequestResultRecord; (tableRequestResultRecord = tableRequestResult.nextAdaptation()) != null; ){
@@ -294,8 +305,8 @@ public class GenericTrigger extends TableTrigger {
                             }
                         }
                         throw OperationException.createError("Cannot mark address as identifying address. Address with MDMAddressId "+id+" is already marked as identifying address.");
-                    }*/
-                    if(tableRequestResult==null || tableRequestResult.isEmpty() || tableRequestResult.getSize()==1){
+                    }
+                    if(tableRequestResult==null || tableRequestResult.isEmpty() || tableRequestResult.getSize()>=1){
                         valueContextForUpdate.setValue("Y", Paths._Address._IdentifyingAddress);
                     }else if(aContext.getOccurrenceContext().getValue(Paths._Address._IdentifyingAddress)==null){
                         valueContextForUpdate.setValue("N", Paths._Address._IdentifyingAddress);
@@ -619,32 +630,21 @@ public class GenericTrigger extends TableTrigger {
                         }
                     }
                 }
-                /*if(aContext.getChanges().getChange(Paths._Address._IdentifyingAddress)!=null){
+                if(changes.getChange(Paths._Address._IdentifyingAddress)!=null) {
+                    AdaptationTable table = aContext.getTable();//getAdaptationOccurrence().getContainer().getTable(Paths._Address.getPathInSchema());
+                    RequestResult tableRequestResult = table.createRequestResult(Paths._Address._MDMAccountId.format() + " = '" + String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId)) + "'");
                     String currentIdentifyingAddress = aContext.getAdaptationOccurrence().getString(Paths._Address._IdentifyingAddress);
-                    Map<String, String> parameters = new HashMap<>();
-                    String ds=aContext.getAdaptationOccurrence().getHome().getKey().format();
-                    parameters.put("filter", "IdentifyingAddress='Y'andMDMAccountId='"+String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"'");
-                    LOGGER.DEBUG("filter="+"IdentifyingAddress='Y'andMDMAccountId='"+String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"'");
-                    OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
-                    OrchestraObjectListResponse orchestraObjectListResponse = null;
-                    try {
-                        if("Y".equals(currentIdentifyingAddress)) {
-                            orchestraObjectListResponse = orchestraRestClient.get(ds, "Account", "root/Address", parameters);
-                        }
-                    } catch (IOException e) {
-                        LOGGER.error("ERROR MDMAddressId="+aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId)+". Error finding addresses for account",e);
-                    }
-                    Map<String, String> resultObject = new HashMap<>();
-                    if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null
-                            && !orchestraObjectListResponse.getRows().isEmpty() && "Y".equals(currentIdentifyingAddress)) {
-                        for(OrchestraObjectResponse objectResponse:orchestraObjectListResponse.getRows()) {
-                            Map<String, OrchestraContent> content = objectResponse.getContent();
-                            if (!aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId).equals(content.get("MDMAddressId"))) {
-                                throw OperationException.createError("Cannot mark address as identifying address. Address with MDMAddressId " + content.get("MDMAddressId") + " is already marked as identifying address.");
+                    if (tableRequestResult != null && tableRequestResult.getSize() > 1 && "Y".equals(currentIdentifyingAddress)) {
+                        Object id = null;
+                        for (Adaptation tableRequestResultRecord; (tableRequestResultRecord = tableRequestResult.nextAdaptation()) != null; ) {
+                            if (!tableRequestResultRecord.get(Paths._Address._MDMAddressId).equals(aContext.getAdaptationOccurrence().get(Paths._Address._MDMAddressId))) {
+                                id = tableRequestResultRecord.get(Paths._Address._MDMAddressId);
+                                break;
                             }
                         }
+                        throw OperationException.createError("Cannot mark address as identifying address. Address with MDMAddressId " + id + " is already marked as identifying address.");
                     }
-                }*/
+                }
                 if(update){
                     aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
                 }
