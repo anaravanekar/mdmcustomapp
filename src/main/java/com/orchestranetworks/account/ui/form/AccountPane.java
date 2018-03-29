@@ -197,7 +197,6 @@ public class AccountPane implements UIFormPane {
 		writer.addJS("var mdmRestPort = '"+port+"';");
 
 		//JS FUNCTION CALLS
-		writer.addJS("console.log(ebx_form_getValue(accountPrefixedPaths.PaymentStartDate));");
 		if(!context.isCreatingRecord() && "MERGED".equalsIgnoreCase(context.getCurrentRecord().getString(Paths._Account._DaqaMetaData_State))){
 			writer.addJS("hideCreate();");
 		}
