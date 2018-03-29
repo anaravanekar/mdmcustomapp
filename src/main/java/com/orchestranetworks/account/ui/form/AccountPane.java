@@ -197,10 +197,13 @@ public class AccountPane implements UIFormPane {
 		writer.addJS("var mdmRestPort = '"+port+"';");
 
 		//JS FUNCTION CALLS
+		writer.addJS("console.log(ebx_form_getValue(accountPrefixedPaths.PaymentStartDate));");
 		if(!context.isCreatingRecord() && "MERGED".equalsIgnoreCase(context.getCurrentRecord().getString(Paths._Account._DaqaMetaData_State))){
 			writer.addJS("hideCreate();");
 		}
-
+		if(context.isCreatingRecord()){
+			//writer.addJS("ebx_form_setValue(accountPrefixedPaths., null);");
+		}
 		//JS FUNCTIONS
 		writer.addJS("function saveAssignment(dataSpace, newAssignment, table, primaryKey) { var xhr = new XMLHttpRequest(); xhr.open('POST', '"+protocol+"://"+host+":"+port+"/mdmcustomapp/' + table + '/updateAssignment/' + dataSpace + '/' + primaryKey + '/' + newAssignment.key); xhr.setRequestHeader('Content-Type', 'application/json'); xhr.onload = function() { if (xhr.status === 200) { document.getElementById(\"divLoading\").classList.remove(\"show\"); } else { document.getElementById(\"divLoading\").classList.remove(\"show\"); } }; xhr.send(); document.getElementById(\"divLoading\").classList.add(\"show\"); }");
 
