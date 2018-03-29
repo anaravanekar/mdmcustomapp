@@ -62,6 +62,8 @@ public class PublishService implements UserService<TableViewEntitySelection> {
 
     private Path flagFieldPath;
 
+    private Path lockedFieldPath;
+
     private ApplicationCacheUtil applicationCacheUtil;
 
     private List<ObjectKey> objectKeys = new ArrayList<>();
@@ -669,7 +671,8 @@ public class PublishService implements UserService<TableViewEntitySelection> {
             if(!"Y".equals(record.get(Paths._Account._Published))) {
                 Procedure procedure = procedureContext -> {
                     ValueContextForUpdate valueContextForUpdate = procedureContext.getContext(record.getAdaptationName());
-                    valueContextForUpdate.setValue("Y", flagFieldPath);//TODO change
+                    valueContextForUpdate.setValue("Y", flagFieldPath);
+                    valueContextForUpdate.setValue("N", lockedFieldPath);
                     valueContextForUpdate.setValue(currentTime, Paths._Address._LastPublished);
                     procedureContext.doModifyContent(record, valueContextForUpdate);
                 };
@@ -942,5 +945,13 @@ public class PublishService implements UserService<TableViewEntitySelection> {
 
     public void setMaxRetryJb(int maxRetryJb) {
         this.maxRetryJb = maxRetryJb;
+    }
+
+    public Path getLockedFieldPath() {
+        return lockedFieldPath;
+    }
+
+    public void setLockedFieldPath(Path lockedFieldPath) {
+        this.lockedFieldPath = lockedFieldPath;
     }
 }

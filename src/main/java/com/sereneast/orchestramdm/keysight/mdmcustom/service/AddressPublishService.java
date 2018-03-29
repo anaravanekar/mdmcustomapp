@@ -25,6 +25,7 @@ public class AddressPublishService extends PublishService {
         setDaqaTargetFieldPath(Paths._Address._DaqaMetaData_TargetRecord);
         setDaqaStateFieldPath(Paths._Address._DaqaMetaData_State);
         setFlagFieldPath(Paths._Address._Published);
+        setLockedFieldPath(Paths._Address._AddressLocked);
         setReferenceDataSpaceUrl("BReference");
         setReferenceDataSetUrl("Account");
         setTablePathUrl("root/Address");

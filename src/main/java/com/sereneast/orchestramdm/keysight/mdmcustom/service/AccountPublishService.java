@@ -25,6 +25,7 @@ public class AccountPublishService extends PublishService {
         setDaqaTargetFieldPath(Paths._Account._DaqaMetaData_TargetRecord);
         setDaqaStateFieldPath(Paths._Account._DaqaMetaData_State);
         setFlagFieldPath(Paths._Account._Published);
+        setLockedFieldPath(Paths._Account._AccountLocked);
         setReferenceDataSpaceUrl("BReference");
         setReferenceDataSetUrl("Account");
         setTablePathUrl("root/Account");
