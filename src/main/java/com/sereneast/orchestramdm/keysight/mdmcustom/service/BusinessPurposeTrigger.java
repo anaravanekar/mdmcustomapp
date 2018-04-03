@@ -10,6 +10,7 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -109,6 +110,7 @@ public class BusinessPurposeTrigger extends TableTrigger {
                     throw OperationException.createError("Primary in OU must contain Operating Units present in Operating Unit field");
                 }
             }
+            validateByteLength("Location",String.valueOf(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._Location)),40);
             if (update) {
                 aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
             }
@@ -218,6 +220,7 @@ public class BusinessPurposeTrigger extends TableTrigger {
                     update = true;
                 }
             }
+            validateByteLength("Location",String.valueOf(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._Location)),40);
             if (update) {
                 aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
             }
@@ -255,5 +258,19 @@ public class BusinessPurposeTrigger extends TableTrigger {
     @Override
     public void handleBeforeTransactionCancel(BeforeTransactionCancelContext var1) {
         LOGGER.debug("handleBeforeTransactionCancel called");
+    }
+
+    protected boolean validateByteLength(String fieldName,String value,int bytes) throws OperationException {
+        if(value!=null){
+            try {
+                final byte[] utf8Bytes = value.getBytes("UTF-8");
+                if(utf8Bytes.length>bytes){
+                    throw OperationException.createError(fieldName+" length exceeds "+bytes+" byte limit");
+                }
+            } catch (UnsupportedEncodingException e) {
+                LOGGER.error("Error while getting byte length of string",e);
+            }
+        }
+        return true;
     }
 }

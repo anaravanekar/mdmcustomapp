@@ -1,10 +1,5 @@
 
 
-	// Path to arrow images
-	var arrowImage = 'select_arrow.gif';	// Regular arrow
-	var arrowImageOver = 'select_arrow_over.gif';	// Mouse over
-	var arrowImageDown = 'select_arrow_down.gif';	// Mouse down
-
 
 	var selectBoxIds = 0;
 	var currentlyOpenedOptionBox = false;

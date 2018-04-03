@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -149,6 +150,9 @@ public class GenericTrigger extends TableTrigger {
             }
             //get application context
             if("ADDRESS".equalsIgnoreCase(objectName)) {
+                for(int i=1;i<=4;i++) {
+                    validateByteLength("Address Line "+i, String.valueOf(aContext.getOccurrenceContext().getValue(Path.parse("./AddressLine"+i))), 150);
+                }
                 boolean update = false;
                 ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                 if("JP".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
@@ -401,6 +405,9 @@ public class GenericTrigger extends TableTrigger {
                 }
             }
             if( "ADDRESS".equalsIgnoreCase(objectName)){
+                for(int i=1;i<=4;i++) {
+                    validateByteLength("Address Line "+i, String.valueOf(aContext.getOccurrenceContext().getValue(Path.parse("./AddressLine"+i))), 150);
+                }
                 boolean update = false;
                 ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                 if("null".equals(aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState))){
@@ -977,5 +984,19 @@ public class GenericTrigger extends TableTrigger {
 
     public void setLocaleFieldPath(Path localeFieldPath) {
         this.localeFieldPath = localeFieldPath;
+    }
+
+    protected boolean validateByteLength(String fieldName,String value,int bytes) throws OperationException {
+        if(value!=null){
+            try {
+                final byte[] utf8Bytes = value.getBytes("UTF-8");
+                if(utf8Bytes.length>bytes){
+                    throw OperationException.createError(fieldName+" length exceeds "+bytes+" byte limit");
+                }
+            } catch (UnsupportedEncodingException e) {
+                LOGGER.error("Error while getting byte length of string",e);
+            }
+        }
+        return true;
     }
 }
