@@ -23,8 +23,10 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 	public void handleRepositoryStartup(ModuleContextOnRepositoryStartup aContext) throws OperationException {
 		aContext.addPackagedStyleSheetResource("loading.css");
 		aContext.addPackagedStyleSheetResource("custom.css");
+		aContext.addPackagedStyleSheetResource("editableSelect.css");
 		aContext.addPackagedJavaScriptResource("customScripts.js");
 		aContext.addPackagedJavaScriptResource("utf8.js");
+		aContext.addPackagedJavaScriptResource("editableSelect.js");
 	}
 
 	@Override
