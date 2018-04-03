@@ -448,7 +448,7 @@ public class AddressPane implements UIFormPane {
 		writer.addLabel(_StateLocalLanguage);
 		writer.add("</td>");
 		writer.add("<td colspan=\"1\" style=\"padding-left:5px;" + CELL_STYLE_LEFT + "\">");
-		writer.add("<div id='stateLocalCustomDiv'><select id=\"customStateLocalSelect\" onChange=\"var slv=null;if(this.value){slv=this.value;}ebx_form_setValue('"+writer.getPrefixedPath(_StateLocalLanguage).format()+"',slv)\"><option value=\"\">[not defined]</option></select></div>");writer.add("<div id='stateLocalStandardDiv' style=\"display:none;\">");writer.addWidget(_StateLocalLanguage);writer.add("</div>");
+		writer.add("<div id='stateLocalCustomDiv'><input type=\"text\" id=\"customStateLocalSelect\" onChange=\"var slv=null;if(this.value){slv=this.value;}ebx_form_setValue('"+writer.getPrefixedPath(_StateLocalLanguage).format()+"',slv)\"></div>");writer.add("<div id='stateLocalStandardDiv' style=\"display:none;\">");writer.addWidget(_StateLocalLanguage);writer.add("</div>");
 		writer.add("</td>");
 		writer.add("</tr>");
 
