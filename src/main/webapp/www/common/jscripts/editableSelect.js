@@ -1,9 +1,9 @@
 
 
 	// Path to arrow images
-	var arrowImage = './stylesheets/select_arrow.gif';	// Regular arrow
-	var arrowImageOver = './stylesheets/select_arrow_over.gif';	// Mouse over
-	var arrowImageDown = './stylesheets/select_arrow_down.gif';	// Mouse down
+	var arrowImage = 'select_arrow.gif';	// Regular arrow
+	var arrowImageOver = 'select_arrow_over.gif';	// Mouse over
+	var arrowImageDown = 'select_arrow_down.gif';	// Mouse down
 
 
 	var selectBoxIds = 0;
@@ -19,8 +19,6 @@
 		}else{
 			this.src = this.src.replace(arrowImageOver,arrowImage);
 		}
-
-
 	}
 
 	function selectBox_showOptions()

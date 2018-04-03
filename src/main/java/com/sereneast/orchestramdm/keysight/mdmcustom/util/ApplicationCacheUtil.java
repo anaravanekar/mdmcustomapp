@@ -162,9 +162,9 @@ public class ApplicationCacheUtil {
 	}
 
 	@Cacheable(cacheNames="mainCache",key="{#root.methodName, #dataSpace, #countryCode}", unless="#result == null")
-	public List<Map<String,String>> getStateOptions(String dataSpace,String countryCode) {
+	public List<String> getStateOptions(String dataSpace,String countryCode) {
 		int retryCount = 0;
-		List<Map<String,String>> options = new ArrayList<>();
+		List<String> options = new ArrayList<>();
 		OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
 		Map<String, String> parameters = new HashMap<>();
 		parameters.put("pageSize", "unbounded");
@@ -177,10 +177,7 @@ public class ApplicationCacheUtil {
 				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
 					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
 						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
-						Map<String, String> resultItem = new HashMap<>();
-						resultItem.put("Option",record.get("State").getContent().toString());
-						resultItem.put("OptionValue",record.get("StateCode").getContent().toString());
-						options.add(resultItem);
+						options.add(record.get("StateCode").getContent().toString());
 					}
 				}
 			} catch (Exception e) {

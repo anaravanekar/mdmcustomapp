@@ -137,15 +137,22 @@ public class RestController {
     public String getStateOptions(@PathVariable("dataSpace") String dataSpace, @PathVariable("territoryType") String territoryType,@PathVariable("countryCode") String countryCode) throws IOException {
         ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
         Map<String,List<Map<String,String>>> resultObject = new HashMap<>();
-        List<Map<String,String>> options = new ArrayList<>();
+        String returnValue = "{options:null}";
         if("state".equalsIgnoreCase(territoryType)){
+            Map<String,List<String>> resultStateObject = new HashMap<>();
+            List<String> options = new ArrayList<>();
             options = applicationCacheUtil.getStateOptions(dataSpace,countryCode);
+            resultStateObject.put("options",options);
+            ObjectMapper mapper = new ObjectMapper();
+            returnValue = mapper.writeValueAsString(resultStateObject);
         }else if("province".equalsIgnoreCase(territoryType)){
+            List<Map<String,String>> options = new ArrayList<>();
             options = applicationCacheUtil.getProvinceOptions(dataSpace,countryCode);
+            resultObject.put("options",options);
+            ObjectMapper mapper = new ObjectMapper();
+            returnValue = mapper.writeValueAsString(resultObject);
         }
-        resultObject.put("options",options);
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(resultObject);
+        return returnValue;
     }
 
     @RequestMapping(value = "checkIfOuExists/{dataSpace}/{dataSet}/{mdmAddressId}/{operatingUnit}", method = RequestMethod.GET)
