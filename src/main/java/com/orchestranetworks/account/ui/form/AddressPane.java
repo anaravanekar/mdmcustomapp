@@ -740,8 +740,8 @@ public class AddressPane implements UIFormPane {
 		writer.addJS("var mdmRestHost = '"+host+"';");
 		writer.addJS("var mdmRestPort = '"+port+"';");
 		writer.addJS("var arrowImage = '"+protocol+"://"+host+":"+port+"/mdmcustomapp/www/common/stylesheets/select_arrow.gif';");	// Regular arrow
-		writer.addJS("var arrowImageOver = '"+protocol+"://"+host+":"+port+"/mdmcustomapp/www/common/stylesheets/'select_arrow_over.gif';");	// Mouse over
-		writer.addJS("var arrowImageDown = '"+protocol+"://"+host+":"+port+"/mdmcustomapp/www/common/stylesheets/'select_arrow_down.gif';");	// Mouse down
+		writer.addJS("var arrowImageOver = '"+protocol+"://"+host+":"+port+"/mdmcustomapp/www/common/stylesheets/select_arrow_over.gif';");	// Mouse over
+		writer.addJS("var arrowImageDown = '"+protocol+"://"+host+":"+port+"/mdmcustomapp/www/common/stylesheets/select_arrow_down.gif';");	// Mouse down
 		//JS FUNCTION CALLS
 		writer.addJS("populateLovsOnLoad();");
 		if(!context.isCreatingRecord() && "MERGED".equalsIgnoreCase(context.getCurrentRecord().getString(Paths._Address._DaqaMetaData_State))){
