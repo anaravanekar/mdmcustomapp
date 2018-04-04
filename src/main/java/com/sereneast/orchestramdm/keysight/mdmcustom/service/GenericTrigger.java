@@ -316,10 +316,10 @@ public class GenericTrigger extends TableTrigger {
                     if(otherRecordIsIdentifying && "Y".equals(currentIdentifyingAddress)){
                         throw OperationException.createError("Cannot mark address as identifying address. Address with MDMAddressId "+otherRecordId+" is already marked as identifying address.");
                     }
-                    if(!otherRecordIsIdentifying && !"Y".equals(currentIdentifyingAddress)){
+                    if(!otherRecordIsIdentifying){
                         valueContextForUpdate.setValue("Y", Paths._Address._IdentifyingAddress);
                         LOGGER.debug("setting identifying flag to Y");
-                    }else if(aContext.getOccurrenceContext().getValue(Paths._Address._IdentifyingAddress)==null){
+                    }else{
                         valueContextForUpdate.setValue("N", Paths._Address._IdentifyingAddress);
                     }
                 }
