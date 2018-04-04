@@ -518,11 +518,3 @@ function showWarningByte(fieldValue,args){
     }
     //console.log("byteString.length"+byteString.length);
 }
-
-$(document).on('input', '#customStateLocalSelect', function(){
-  ebx_form_setValue(addressPrefixedPaths.StateLocalLanguage,this.value);
-});
-
-$(document).on('input', '#customProvinceLocalSelect', function(){
-  ebx_form_setValue(addressPrefixedPaths.ProvinceLocalLanguage,this.value);
-});
