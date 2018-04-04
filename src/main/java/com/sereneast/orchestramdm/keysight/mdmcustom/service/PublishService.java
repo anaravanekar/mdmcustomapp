@@ -524,15 +524,7 @@ public class PublishService implements UserService<TableViewEntitySelection> {
                                     }
                                 }
                                 if(!businessPurposesFinal.isEmpty()) {
-                                    businessPurposesFinal.sort((OrchestraObject s1, OrchestraObject s2)->s1.getContent().get("BusinessPurpose").toString().compareTo(s2.getContent().get("BusinessPurpose").toString()));
-                                    for(OrchestraObject object:businessPurposesFinal){
-                                        ObjectMapper mapper = new ObjectMapper();
-                                        try {
-                                            LOGGER.debug("bpobj="+mapper.writeValueAsString(object));
-                                        } catch (JsonProcessingException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
+                                    businessPurposesFinal.sort((OrchestraObject s1, OrchestraObject s2)->s1.getContent().get("BusinessPurpose").getContent().toString().compareTo(s2.getContent().get("BusinessPurpose").getContent().toString()));
                                     jsonFieldsMapForJitterbit.put("BusinessPurpose", new OrchestraContent(businessPurposesFinal));
                                 }else if(!removedOperatingUnits.contains(operatingUnit)){
                                     throw new ApplicationRuntimeException(ERROR_MDM_DATA+" Business Purpose does not exist for Operating Unit "+operatingUnit+".");
