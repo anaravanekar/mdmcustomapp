@@ -547,6 +547,6 @@ function lookForProvinceLocalChange()
     var newProvinceVal = document.getElementById("customProvinceLocalSelect").value;
     if (newProvinceVal != provinceLocal) {
         provinceLocal = newProvinceVal;
-        ebx_form_setValue(addressPrefixedPaths.StateLocalLanguage,newProvinceVal);
+        ebx_form_setValue(addressPrefixedPaths.ProvinceLocalLanguage,newProvinceVal);
     }
 }
