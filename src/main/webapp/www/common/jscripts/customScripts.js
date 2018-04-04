@@ -518,3 +518,35 @@ function showWarningByte(fieldValue,args){
     }
     //console.log("byteString.length"+byteString.length);
 }
+
+function changeStateLocalStandard(newValue){
+    ebx_form_setValue(addressPrefixedPaths.StateLocalLanguage,newValue);
+}
+
+function changeProvinceLocalStandard(newValue){
+    ebx_form_setValue(addressPrefixedPaths.ProvinceLocalLanguage,newValue);
+}
+
+setInterval(lookForStateLocalChange, 200);
+setInterval(lookForProvinceLocalChange, 200);
+
+var stateLocal = "";
+var provinceLocal = "";
+
+function lookForStateLocalChange()
+{
+    var newStateVal = document.getElementById("customStateLocalSelect").value;
+    if (newStateVal != stateLocal) {
+        stateLocal = newStateVal;
+        ebx_form_setValue(addressPrefixedPaths.StateLocalLanguage,newStateVal);
+    }
+}
+
+function lookForProvinceLocalChange()
+{
+    var newProvinceVal = document.getElementById("customProvinceLocalSelect").value;
+    if (newProvinceVal != provinceLocal) {
+        provinceLocal = newProvinceVal;
+        ebx_form_setValue(addressPrefixedPaths.StateLocalLanguage,newProvinceVal);
+    }
+}
