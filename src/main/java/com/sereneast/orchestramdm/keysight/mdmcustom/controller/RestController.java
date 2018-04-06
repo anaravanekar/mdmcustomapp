@@ -136,14 +136,18 @@ public class RestController {
     @RequestMapping(value = "selectOptions/{dataSpace}/{territoryType}/{countryCode}", method = RequestMethod.GET)
     public String getStateOptions(@PathVariable("dataSpace") String dataSpace, @PathVariable("territoryType") String territoryType,@PathVariable("countryCode") String countryCode) throws IOException {
         ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
-        Map<String,List<Map<String,String>>> resultObject = new HashMap<>();
+        Map<String,List<String>> resultObject = new HashMap<>();
         List<Map<String,String>> options = new ArrayList<>();
+        List<String> optionsList = new ArrayList<>();
         if("state".equalsIgnoreCase(territoryType)){
             options = applicationCacheUtil.getStateOptions(dataSpace,countryCode);
         }else if("province".equalsIgnoreCase(territoryType)){
             options = applicationCacheUtil.getProvinceOptions(dataSpace,countryCode);
         }
-        resultObject.put("options",options);
+        for(Map<String,String> item: options){
+            optionsList.add(item.get("OptionValue"));
+        }
+        resultObject.put("options",optionsList);
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(resultObject);
     }
