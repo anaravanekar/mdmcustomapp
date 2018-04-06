@@ -527,26 +527,136 @@ function changeProvinceLocalStandard(newValue){
     ebx_form_setValue(addressPrefixedPaths.ProvinceLocalLanguage,newValue);
 }
 
+function changeStateStandard(newValue){
+    ebx_form_setValue(addressPrefixedPaths.AddressState,newValue);
+}
+
+function changeProvinceStandard(newValue){
+    ebx_form_setValue(addressPrefixedPaths.Province,newValue);
+}
+
 setInterval(lookForStateLocalChange, 200);
 setInterval(lookForProvinceLocalChange, 200);
+setInterval(lookForStateChange, 200);
+setInterval(lookForProvinceChange, 200);
 
 var stateLocal = "";
 var provinceLocal = "";
+var stateCustom = "";
+var provinceCustom="";
 
 function lookForStateLocalChange()
 {
-    var newStateVal = document.getElementById("customStateLocalSelect").value;
-    if (newStateVal != stateLocal) {
-        stateLocal = newStateVal;
-        ebx_form_setValue(addressPrefixedPaths.StateLocalLanguage,newStateVal);
+    if(document.getElementById("customStateLocalSelect")){
+        var newStateVal = document.getElementById("customStateLocalSelect").value;
+        if (newStateVal != stateLocal) {
+            stateLocal = newStateVal;
+            ebx_form_setValue(addressPrefixedPaths.StateLocalLanguage,newStateVal);
+        }
     }
 }
 
 function lookForProvinceLocalChange()
 {
-    var newProvinceVal = document.getElementById("customProvinceLocalSelect").value;
-    if (newProvinceVal != provinceLocal) {
-        provinceLocal = newProvinceVal;
-        ebx_form_setValue(addressPrefixedPaths.ProvinceLocalLanguage,newProvinceVal);
+    if(document.getElementById("customProvinceLocalSelect")){
+        var newProvinceVal = document.getElementById("customProvinceLocalSelect").value;
+        if (newProvinceVal != provinceLocal) {
+            provinceLocal = newProvinceVal;
+            ebx_form_setValue(addressPrefixedPaths.ProvinceLocalLanguage,newProvinceVal);
+        }
     }
+}
+
+function lookForStateChange()
+{
+    if(document.getElementById("customStateSelect")){
+        var newStateVal = document.getElementById("customStateSelect").value;
+        if (newStateVal != stateCustom) {
+            stateCustom = newStateVal;
+            ebx_form_setValue(addressPrefixedPaths.StateLanguage,newStateVal);
+        }
+    }
+}
+
+function lookForProvinceChange()
+{
+    if(document.getElementById("customProvinceSelect")){
+        var newProvinceVal = document.getElementById("customProvinceSelect").value;
+        if (newProvinceVal != provinceCustom) {
+            provinceCustom = newProvinceVal;
+            ebx_form_setValue(addressPrefixedPaths.ProvinceLanguage,newProvinceVal);
+        }
+    }
+}
+
+function createEditableSelectStateLocal(optionsArray){
+    var stateSelect = document.getElementById("customStateLocalSelect");
+    stateSelect.parentNode.removeChild(stateSelect);
+    var att = document.createAttribute("selectBoxOptions");
+    var separator = ';';
+    att.value = optionsArray.join([separator]);
+    var idAttr = document.createAttribute("id");
+    idAttr.value = "customStateLocalSelect";
+    var onChangeAttr = document.createAttribute("oninput");
+    onChangeAttr.value = 'changeStateLocalStandard(this.value)';
+    var newElement = document.createElement("input");
+    newElement.setAttributeNode(att);
+    newElement.setAttributeNode(idAttr);
+    newElement.setAttributeNode(onChangeAttr);
+    document.getElementById("stateLocalCustomDiv").appendChild(newElement);
+    createEditableSelect(newElement);
+}
+
+function createEditableSelectProvinceLocal(optionsArray){
+    var provinceSelect = document.getElementById("customProvinceLocalSelect");
+    provinceSelect.parentNode.removeChild(provinceSelect);
+    var att = document.createAttribute("selectBoxOptions");
+    var separator = ';';
+    att.value = optionsArray.join([separator]);
+    var idAttr = document.createAttribute("id");
+    idAttr.value = "customProvinceLocalSelect";
+    var onChangeAttr = document.createAttribute("oninput");
+    onChangeAttr.value = 'changeProvinceLocalStandard(this.value)';
+    var newElement = document.createElement("input");
+    newElement.setAttributeNode(att);
+    newElement.setAttributeNode(idAttr);
+    newElement.setAttributeNode(onChangeAttr);
+    document.getElementById("provinceLocalCustomDiv").appendChild(newElement);
+    createEditableSelect(newElement);
+}
+
+function createEditableSelectState(optionsArray){
+    var stateSelect = document.getElementById("customStateSelect");
+    stateSelect.parentNode.removeChild(stateSelect);
+    var att = document.createAttribute("selectBoxOptions");
+    var separator = ';';
+    att.value = optionsArray.join([separator]);
+    var idAttr = document.createAttribute("id");
+    idAttr.value = "customStateSelect";
+    var onChangeAttr = document.createAttribute("oninput");
+    onChangeAttr.value = 'changeStateStandard(this.value)';
+    var newElement = document.createElement("input");
+    newElement.setAttributeNode(att);
+    newElement.setAttributeNode(idAttr);
+    newElement.setAttributeNode(onChangeAttr);
+    document.getElementById("stateCustomDiv").appendChild(newElement);
+    createEditableSelect(newElement);
+}
+
+function createEditableSelectProvince(optionsArray){
+    var provinceSelect = document.getElementById("customProvinceSelect");
+    provinceSelect.parentNode.removeChild(provinceSelect);
+    var att = document.createAttribute("selectBoxOptions");
+    var separator = ';';
+    att.value = optionsArray.join([separator]);
+    var idAttr = document.createAttribute("id");
+    idAttr.value = "customProvinceSelect";
+    var onChangeAttr = document.createAttribute("oninput");
+    onChangeAttr.value = 'changeProvinceStandard(this.value)';
+    var newElement = document.createElement("input");
+    newElement.setAttributeNode(att);
+    newElement.setAttributeNode(idAttr);
+    newElement.setAttributeNode(onChangeAttr);
+    document.getElementById("provinceCustomDiv").appendChild(newElement);
+    createEditableSelect(newElement);
 }
