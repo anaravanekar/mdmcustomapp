@@ -136,16 +136,51 @@ public class RestController {
     @RequestMapping(value = "selectOptions/{dataSpace}/{territoryType}/{countryCode}", method = RequestMethod.GET)
     public String getStateOptions(@PathVariable("dataSpace") String dataSpace, @PathVariable("territoryType") String territoryType,@PathVariable("countryCode") String countryCode) throws IOException {
         ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
-        Map<String,List<Map<String,String>>> resultObject = new HashMap<>();
+        Map<String,List<String>> resultObject = new HashMap<>();
         List<Map<String,String>> options = new ArrayList<>();
+        List<String> optionsList = new ArrayList<>();
         if("state".equalsIgnoreCase(territoryType)){
             options = applicationCacheUtil.getStateOptions(dataSpace,countryCode);
         }else if("province".equalsIgnoreCase(territoryType)){
             options = applicationCacheUtil.getProvinceOptions(dataSpace,countryCode);
         }
-        resultObject.put("options",options);
+        for(Map<String,String> item: options){
+            optionsList.add(item.get("OptionValue"));
+        }
+        resultObject.put("options",optionsList);
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(resultObject);
+    }
+
+    @RequestMapping(value = "selectOptionsLocal/{dataSpace}/{territoryType}/{countryCode}", method = RequestMethod.GET)
+    public String getStateOptionsLocal(@PathVariable("dataSpace") String dataSpace, @PathVariable("territoryType") String territoryType,@PathVariable("countryCode") String countryCode) throws IOException {
+        ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
+        Map<String,List<Map<String,String>>> resultObject = new HashMap<>();
+        String returnValue = "{options:null}";
+        if("state".equalsIgnoreCase(territoryType)){
+            Map<String,List<String>> resultStateObject = new HashMap<>();
+            List<String> options = new ArrayList<>();
+            List<Map<String,String>> optionsMap = new ArrayList<>();
+            optionsMap = applicationCacheUtil.getStateOptions(dataSpace,countryCode);
+            for(Map<String,String> item: optionsMap){
+                options.add(item.get("OptionValue"));
+            }
+            resultStateObject.put("options",options);
+            ObjectMapper mapper = new ObjectMapper();
+            returnValue = mapper.writeValueAsString(resultStateObject);
+        }else if("province".equalsIgnoreCase(territoryType)){
+            Map<String,List<String>> resultStateObject = new HashMap<>();
+            List<String> options = new ArrayList<>();
+            List<Map<String,String>> optionsMap = new ArrayList<>();
+            optionsMap = applicationCacheUtil.getProvinceOptions(dataSpace,countryCode);
+            for(Map<String,String> item: optionsMap){
+                options.add(item.get("OptionValue"));
+            }
+            resultStateObject.put("options",options);
+            ObjectMapper mapper = new ObjectMapper();
+            returnValue = mapper.writeValueAsString(resultStateObject);
+        }
+        return returnValue;
     }
 
     @RequestMapping(value = "checkIfOuExists/{dataSpace}/{dataSet}/{mdmAddressId}/{operatingUnit}", method = RequestMethod.GET)
