@@ -405,6 +405,9 @@ public class GenericTrigger extends TableTrigger {
                 }
             }
             if( "ADDRESS".equalsIgnoreCase(objectName)){
+                if(changes.getChange(Paths._Address._MDMAccountId)!=null && aContext.getAdaptationOccurrence().getString(Paths._Address._Published)!=null){
+                    throw OperationException.createError("Address association to account can't be modified for already published address");
+                }
                 for(int i=1;i<=4;i++) {
                     validateByteLength("Address Line "+i, String.valueOf(aContext.getOccurrenceContext().getValue(Path.parse("./AddressLine"+i))), 150);
                 }

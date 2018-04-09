@@ -573,7 +573,7 @@ function lookForStateChange()
         var newStateVal = document.getElementById("customStateSelect").value;
         if (newStateVal != stateCustom) {
             stateCustom = newStateVal;
-            ebx_form_setValue(addressPrefixedPaths.StateLanguage,newStateVal);
+            ebx_form_setValue(addressPrefixedPaths.AddressState,newStateVal);
         }
     }
 }
@@ -584,7 +584,7 @@ function lookForProvinceChange()
         var newProvinceVal = document.getElementById("customProvinceSelect").value;
         if (newProvinceVal != provinceCustom) {
             provinceCustom = newProvinceVal;
-            ebx_form_setValue(addressPrefixedPaths.ProvinceLanguage,newProvinceVal);
+            ebx_form_setValue(addressPrefixedPaths.Province,newProvinceVal);
         }
     }
 }

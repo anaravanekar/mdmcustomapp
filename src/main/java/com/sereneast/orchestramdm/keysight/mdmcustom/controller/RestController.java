@@ -152,37 +152,6 @@ public class RestController {
         return mapper.writeValueAsString(resultObject);
     }
 
-    @RequestMapping(value = "selectOptionsLocal/{dataSpace}/{territoryType}/{countryCode}", method = RequestMethod.GET)
-    public String getStateOptionsLocal(@PathVariable("dataSpace") String dataSpace, @PathVariable("territoryType") String territoryType,@PathVariable("countryCode") String countryCode) throws IOException {
-        ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
-        Map<String,List<Map<String,String>>> resultObject = new HashMap<>();
-        String returnValue = "{options:null}";
-        if("state".equalsIgnoreCase(territoryType)){
-            Map<String,List<String>> resultStateObject = new HashMap<>();
-            List<String> options = new ArrayList<>();
-            List<Map<String,String>> optionsMap = new ArrayList<>();
-            optionsMap = applicationCacheUtil.getStateOptions(dataSpace,countryCode);
-            for(Map<String,String> item: optionsMap){
-                options.add(item.get("OptionValue"));
-            }
-            resultStateObject.put("options",options);
-            ObjectMapper mapper = new ObjectMapper();
-            returnValue = mapper.writeValueAsString(resultStateObject);
-        }else if("province".equalsIgnoreCase(territoryType)){
-            Map<String,List<String>> resultStateObject = new HashMap<>();
-            List<String> options = new ArrayList<>();
-            List<Map<String,String>> optionsMap = new ArrayList<>();
-            optionsMap = applicationCacheUtil.getProvinceOptions(dataSpace,countryCode);
-            for(Map<String,String> item: optionsMap){
-                options.add(item.get("OptionValue"));
-            }
-            resultStateObject.put("options",options);
-            ObjectMapper mapper = new ObjectMapper();
-            returnValue = mapper.writeValueAsString(resultStateObject);
-        }
-        return returnValue;
-    }
-
     @RequestMapping(value = "checkIfOuExists/{dataSpace}/{dataSet}/{mdmAddressId}/{operatingUnit}", method = RequestMethod.GET)
     public String checkIfOuExists(@PathVariable("dataSpace") String dataSpace, @PathVariable("dataSet") String dataSet,@PathVariable("mdmAddressId") String mdmAddressId,@PathVariable("operatingUnit") String operatingUnit) throws IOException {
         Map<String,Boolean> result = new HashMap<>();
