@@ -591,6 +591,7 @@ function lookForProvinceChange()
 
 function createEditableSelectStateLocal(optionsArray){
     var stateSelect = document.getElementById("customStateLocalSelect");
+    stateSelect.setAttribute("selectBoxOptions", "");
     stateSelect.parentNode.removeChild(stateSelect);
     var att = document.createAttribute("selectBoxOptions");
     var separator = ';';
@@ -609,6 +610,7 @@ function createEditableSelectStateLocal(optionsArray){
 
 function createEditableSelectProvinceLocal(optionsArray){
     var provinceSelect = document.getElementById("customProvinceLocalSelect");
+    provinceSelect.setAttribute("selectBoxOptions", "");
     provinceSelect.parentNode.removeChild(provinceSelect);
     var att = document.createAttribute("selectBoxOptions");
     var separator = ';';
@@ -627,6 +629,7 @@ function createEditableSelectProvinceLocal(optionsArray){
 
 function createEditableSelectState(optionsArray){
     var stateSelect = document.getElementById("customStateSelect");
+    stateSelect.setAttribute("selectBoxOptions", "");
     stateSelect.parentNode.removeChild(stateSelect);
     var att = document.createAttribute("selectBoxOptions");
     var separator = ';';
@@ -645,6 +648,7 @@ function createEditableSelectState(optionsArray){
 
 function createEditableSelectProvince(optionsArray){
     var provinceSelect = document.getElementById("customProvinceSelect");
+    provinceSelect.setAttribute("selectBoxOptions", "");
     provinceSelect.parentNode.removeChild(provinceSelect);
     var att = document.createAttribute("selectBoxOptions");
     var separator = ';';
