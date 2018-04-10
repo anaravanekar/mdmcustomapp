@@ -590,9 +590,10 @@ function lookForProvinceChange()
 }
 
 function createEditableSelectStateLocal(optionsArray){
-    var stateSelect = document.getElementById("customStateLocalSelect");
-    stateSelect.setAttribute("selectBoxOptions", "");
-    stateSelect.parentNode.removeChild(stateSelect);
+    var container = document.getElementById("stateLocalCustomDiv");
+    while(container.hasChildNodes()) {
+      container.removeChild(container.lastChild);
+    }
     var att = document.createAttribute("selectBoxOptions");
     var separator = ';';
     att.value = optionsArray.join([separator]);
@@ -604,14 +605,15 @@ function createEditableSelectStateLocal(optionsArray){
     newElement.setAttributeNode(att);
     newElement.setAttributeNode(idAttr);
     newElement.setAttributeNode(onChangeAttr);
-    document.getElementById("stateLocalCustomDiv").appendChild(newElement);
+    container.appendChild(newElement);
     createEditableSelect(newElement);
 }
 
 function createEditableSelectProvinceLocal(optionsArray){
-    var provinceSelect = document.getElementById("customProvinceLocalSelect");
-    provinceSelect.setAttribute("selectBoxOptions", "");
-    provinceSelect.parentNode.removeChild(provinceSelect);
+    var container = document.getElementById("provinceLocalCustomDiv");
+    while(container.hasChildNodes()) {
+      container.removeChild(container.lastChild);
+    }
     var att = document.createAttribute("selectBoxOptions");
     var separator = ';';
     att.value = optionsArray.join([separator]);
@@ -623,14 +625,15 @@ function createEditableSelectProvinceLocal(optionsArray){
     newElement.setAttributeNode(att);
     newElement.setAttributeNode(idAttr);
     newElement.setAttributeNode(onChangeAttr);
-    document.getElementById("provinceLocalCustomDiv").appendChild(newElement);
+    container.appendChild(newElement);
     createEditableSelect(newElement);
 }
 
 function createEditableSelectState(optionsArray){
-    var stateSelect = document.getElementById("customStateSelect");
-    stateSelect.setAttribute("selectBoxOptions", "");
-    stateSelect.parentNode.removeChild(stateSelect);
+    var container = document.getElementById("stateCustomDiv");
+    while(container.hasChildNodes()) {
+      container.removeChild(container.lastChild);
+    }
     var att = document.createAttribute("selectBoxOptions");
     var separator = ';';
     att.value = optionsArray.join([separator]);
@@ -642,14 +645,15 @@ function createEditableSelectState(optionsArray){
     newElement.setAttributeNode(att);
     newElement.setAttributeNode(idAttr);
     newElement.setAttributeNode(onChangeAttr);
-    document.getElementById("stateCustomDiv").appendChild(newElement);
+    container.appendChild(newElement);
     createEditableSelect(newElement);
 }
 
 function createEditableSelectProvince(optionsArray){
-    var provinceSelect = document.getElementById("customProvinceSelect");
-    provinceSelect.setAttribute("selectBoxOptions", "");
-    provinceSelect.parentNode.removeChild(provinceSelect);
+    var container = document.getElementById("provinceCustomDiv");
+    while(container.hasChildNodes()) {
+      container.removeChild(container.lastChild);
+    }
     var att = document.createAttribute("selectBoxOptions");
     var separator = ';';
     att.value = optionsArray.join([separator]);
@@ -661,6 +665,6 @@ function createEditableSelectProvince(optionsArray){
     newElement.setAttributeNode(att);
     newElement.setAttributeNode(idAttr);
     newElement.setAttributeNode(onChangeAttr);
-    document.getElementById("provinceCustomDiv").appendChild(newElement);
+    container.appendChild(newElement);
     createEditableSelect(newElement);
 }
