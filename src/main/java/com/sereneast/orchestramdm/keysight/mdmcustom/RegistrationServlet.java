@@ -47,7 +47,7 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				AddressPublishService.class,
 				"Promote and Publish",
 				"Promote and Publish",
-				"",-1,
+				"",1,
 				toPath("/root/Address")));
 		aContext.registerUserService(new TableViewSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",AccountPublishServiceBulk.class.getSimpleName()),
