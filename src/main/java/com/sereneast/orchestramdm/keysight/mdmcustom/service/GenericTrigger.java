@@ -905,7 +905,7 @@ public class GenericTrigger extends TableTrigger {
         if("STATE".equalsIgnoreCase(territoryTypeMap.get(countryCode))){
             options = applicationCacheUtil.getOptionsList("BReference",countryCode,"STATE");
             if(options!=null && !options.contains(currentState) && StringUtils.isNotBlank(currentState)){
-                if(("JP" == countryCode || "RU" == countryCode) && local){
+                if(("JP".equals(countryCode) || "RU".equals(countryCode)) && local){
                     throw OperationException.createError("State Local Language value is invalid");
                 }else if(!local){
                     throw OperationException.createError("State value is invalid");
@@ -916,7 +916,7 @@ public class GenericTrigger extends TableTrigger {
         }else if("PROVINCE".equalsIgnoreCase(territoryTypeMap.get(countryCode))){
             options = applicationCacheUtil.getOptionsList("BReference",countryCode,"PROVINCE");
             if(options!=null && !options.contains(currentProvince) && StringUtils.isNotBlank(currentProvince)){
-                if(("CN" == countryCode || "KR" == countryCode) && local){
+                if(("CN".equals(countryCode) || "KR".equals(countryCode)) && local){
                     throw OperationException.createError("Province Local Language value is invalid");
                 }else if(!local){
                     throw OperationException.createError("Province value is invalid");
