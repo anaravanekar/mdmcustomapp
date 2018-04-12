@@ -44,7 +44,7 @@
         var hiddenItems = document.getElementsByClassName('selectBoxOptionContainer'), hidden;
         document.addEventListener('click', function (e) {
             for (var i = 0; hidden = hiddenItems[i]; i++) {
-                if (!hidden.contains(e.target) && hidden.style.display != 'none')
+                if (!hidden.parentElement.contains(e.target) && hidden.style.display != 'none')
                     hidden.style.display = 'none';
             }
         }, false);
