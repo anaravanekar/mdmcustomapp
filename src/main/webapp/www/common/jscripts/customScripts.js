@@ -599,11 +599,14 @@ function createEditableSelectStateLocal(optionsArray){
     att.value = optionsArray.join([separator]);
     var idAttr = document.createAttribute("id");
     idAttr.value = "customStateLocalSelect";
-    var onChangeAttr = document.createAttribute("oninput");
-    onChangeAttr.value = 'changeStateLocalStandard(this.value)';
+    var onInputAttr = document.createAttribute("oninput");
+    onInputAttr.value = 'changeStateLocalStandard(this.value)';
+    var onChangeAttr = document.createAttribute("onchange");
+    onChangeAttr.value = "validateOption('customStateLocalSelect',this.value)";
     var newElement = document.createElement("input");
     newElement.setAttributeNode(att);
     newElement.setAttributeNode(idAttr);
+    newElement.setAttributeNode(onInputAttr);
     newElement.setAttributeNode(onChangeAttr);
     container.appendChild(newElement);
     createEditableSelect(newElement);
@@ -619,11 +622,14 @@ function createEditableSelectProvinceLocal(optionsArray){
     att.value = optionsArray.join([separator]);
     var idAttr = document.createAttribute("id");
     idAttr.value = "customProvinceLocalSelect";
-    var onChangeAttr = document.createAttribute("oninput");
-    onChangeAttr.value = 'changeProvinceLocalStandard(this.value)';
+    var onInputAttr = document.createAttribute("oninput");
+    onInputAttr.value = 'changeProvinceLocalStandard(this.value)';
+    var onChangeAttr = document.createAttribute("onchange");
+    onChangeAttr.value = "validateOption('customProvinceLocalSelect',this.value)";
     var newElement = document.createElement("input");
     newElement.setAttributeNode(att);
     newElement.setAttributeNode(idAttr);
+    newElement.setAttributeNode(onInputAttr);
     newElement.setAttributeNode(onChangeAttr);
     container.appendChild(newElement);
     createEditableSelect(newElement);
@@ -639,11 +645,14 @@ function createEditableSelectState(optionsArray){
     att.value = optionsArray.join([separator]);
     var idAttr = document.createAttribute("id");
     idAttr.value = "customStateSelect";
-    var onChangeAttr = document.createAttribute("oninput");
-    onChangeAttr.value = 'changeStateStandard(this.value)';
+    var onInputAttr = document.createAttribute("oninput");
+    onInputAttr.value = 'changeStateStandard(this.value)';
+    var onChangeAttr = document.createAttribute("onchange");
+    onChangeAttr.value = "validateOption('customStateSelect',this.value)";
     var newElement = document.createElement("input");
     newElement.setAttributeNode(att);
     newElement.setAttributeNode(idAttr);
+    newElement.setAttributeNode(onInputAttr);
     newElement.setAttributeNode(onChangeAttr);
     container.appendChild(newElement);
     createEditableSelect(newElement);
@@ -659,12 +668,33 @@ function createEditableSelectProvince(optionsArray){
     att.value = optionsArray.join([separator]);
     var idAttr = document.createAttribute("id");
     idAttr.value = "customProvinceSelect";
-    var onChangeAttr = document.createAttribute("oninput");
-    onChangeAttr.value = 'changeProvinceStandard(this.value)';
+    var onInputAttr = document.createAttribute("oninput");
+    onInputAttr.value = 'changeProvinceStandard(this.value)';
+    var onChangeAttr = document.createAttribute("onchange");
+    onChangeAttr.value = "validateOption('customProvinceSelect',this.value)";
     var newElement = document.createElement("input");
     newElement.setAttributeNode(att);
     newElement.setAttributeNode(idAttr);
+    newElement.setAttributeNode(onInputAttr);
     newElement.setAttributeNode(onChangeAttr);
     container.appendChild(newElement);
     createEditableSelect(newElement);
+}
+
+function validateOption(id,option){
+     if(option){
+         var editableSelectField = document.getElementById(id);
+         var optionsArray = editableSelectField.getAttribute("selectBoxOptions").split(";");
+         if(optionsArray.indexOf(option)<0){
+            if(id.includes("State")){
+                alert("Warning: State value is invalid");
+            }else if(id.includes("StateLocal")){
+                alert("Warning: State Local Language value is invalid");
+            }else if(id.includes("Province")){
+                alert("Warning: Province value is invalid");
+            }else if(id.includes("ProvinceLocal")){
+                alert("Warning: Province Local Language value is invalid");
+            }
+         }
+     }
 }
