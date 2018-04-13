@@ -687,13 +687,13 @@ function validateOption(id,option){
          var optionsArray = editableSelectField.getAttribute("selectBoxOptions").split(";");
          if(optionsArray.indexOf(option)<0){
             if(id.includes("StateLocal")){
-                alert("Warning: State value is invalid");
-            }else if(id.includes("State")){
                 alert("Warning: State Local Language value is invalid");
+            }else if(id.includes("State")){
+                alert("Warning: State value is invalid");
             }else if(id.includes("ProvinceLocal")){
-                alert("Warning: Province value is invalid");
-            }else if(id.includes("Province")){
                 alert("Warning: Province Local Language value is invalid");
+            }else if(id.includes("Province")){
+                alert("Warning: Province value is invalid");
             }
          }
      }
