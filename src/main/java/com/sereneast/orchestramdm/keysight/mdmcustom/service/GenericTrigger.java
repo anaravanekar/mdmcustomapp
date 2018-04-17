@@ -622,7 +622,7 @@ public class GenericTrigger extends TableTrigger {
                         }
                     }
                 }
-                if(changes.getChange(Paths._Address._IdentifyingAddress)!=null) {
+/*                if(changes.getChange(Paths._Address._IdentifyingAddress)!=null) {
                     AdaptationTable table = aContext.getTable();
                     RequestResult tableRequestResult = table.createRequestResult(Paths._Address._MDMAccountId.format() + " = '" + String.valueOf(aContext.getOccurrenceContext().getValue(Paths._Address._MDMAccountId))+"' and ("+Paths._Address._IdentifyingAddress.format()+" = 'Y')");
                     String currentIdentifyingAddress = aContext.getAdaptationOccurrence().getString(Paths._Address._IdentifyingAddress);
@@ -642,7 +642,7 @@ public class GenericTrigger extends TableTrigger {
                     if(otherRecordIsIdentifying && "Y".equals(currentIdentifyingAddress)){
                         throw OperationException.createError("Cannot mark address as identifying address. Address with MDMAddressId "+otherRecordId+" is already marked as identifying address.");
                     }
-                }
+                }*/
                 if(update){
                     aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
                 }
