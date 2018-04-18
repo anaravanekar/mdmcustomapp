@@ -1,6 +1,7 @@
 package com.sereneast.orchestramdm.keysight.mdmcustom.util;
 
 import com.orchestranetworks.schema.Path;
+import com.orchestranetworks.service.OperationException;
 import com.orchestranetworks.ui.form.UIFormPaneWriter;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
@@ -8,6 +9,7 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectListResponse;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectResponse;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.OrchestraRestClient;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -297,4 +299,39 @@ public class ApplicationCacheUtil {
 		}
 		return perefixedPaths;
 	}
+
+	@Cacheable(cacheNames="mainCache",key="{#root.methodName, #currentState, #local}")
+	public String validateState(String countryCode,String currentState,boolean local) {
+		ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
+		Map<String,String> territoryTypeMap = applicationCacheUtil.getTerritoryTypeMap("BReference");
+		HashSet<String> options = new HashSet<>();
+		options = applicationCacheUtil.getOptionsList("BReference",countryCode,"STATE");
+		if(options!=null && !options.contains(currentState) && StringUtils.isNotBlank(currentState)){
+			if(("JP".equals(countryCode) || "RU".equals(countryCode)) && local){
+				return "State Local Language value is invalid";
+			}else if(!local){
+				return "State value is invalid";
+			}
+		}else if(options==null && !local){
+			return "Error getting state options";
+		}
+		return null;
+	}
+
+	@Cacheable(cacheNames="mainCache",key="{#root.methodName, #currentProvince, #local}")
+	public String validateProvince(String countryCode,String currentProvince,boolean local) {
+		ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
+		HashSet<String> options = applicationCacheUtil.getOptionsList("BReference",countryCode,"PROVINCE");
+		if(options!=null && !options.contains(currentProvince) && StringUtils.isNotBlank(currentProvince)){
+			if(("CN".equals(countryCode) || "KR".equals(countryCode)) && local){
+				return "Province Local Language value is invalid";
+			}else if(!local){
+				return "Province value is invalid";
+			}
+		}else if(options==null && !local){
+			return "Error getting province options";
+		}
+		return null;
+	}
+
 }

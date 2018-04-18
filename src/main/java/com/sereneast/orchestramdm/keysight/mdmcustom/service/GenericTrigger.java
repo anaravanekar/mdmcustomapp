@@ -16,8 +16,10 @@ import com.orchestranetworks.service.ValueContextForUpdate;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.EbxProperties;
-import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationOperationException;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.*;
+import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
+import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
+import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
+import com.sereneast.orchestramdm.keysight.mdmcustom.model.RestResponse;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.OrchestraRestClient;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -73,6 +75,7 @@ public class GenericTrigger extends TableTrigger {
     public void handleAfterCreate(AfterCreateOccurrenceContext aContext) throws OperationException{
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())) {
             initialize();
+            ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil) SpringContext.getApplicationContext().getBean("applicationCacheUtil");
             ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
             if(aContext.getOccurrenceContext().getValue(Paths._Account._Published)!=null) {
                 ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
@@ -118,7 +121,6 @@ public class GenericTrigger extends TableTrigger {
                         update=true;
                     }
 
-                    ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
                     Map<String,Map<String,String>> countryReferenceFieldsMap = applicationCacheUtil.CountryReferenceFieldsMap("BReference");
                     Map<String,String> resultItem = countryReferenceFieldsMap!=null?countryReferenceFieldsMap.get(countryCode):null;
                     if(resultItem!=null){
@@ -185,7 +187,7 @@ public class GenericTrigger extends TableTrigger {
                 }else if("GU".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country)) ||
                         "PR".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country)) ||
                         "VE".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country)) ||
-                                "US".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
+                        "US".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
                     if(aContext.getOccurrenceContext().getValue(Paths._Address._SendAcknowledgement)==null) {
                         update=true;
                         valueContextForUpdate.setValue("Y", Paths._Address._SendAcknowledgement);
@@ -245,12 +247,12 @@ public class GenericTrigger extends TableTrigger {
                     update = true;
                 }
                 String countryCode = aContext.getAdaptationOccurrence().getString(Paths._Address._Country);
-                if(countryCode!=null){
+                /*if(countryCode!=null){
                     validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState),
                             aContext.getAdaptationOccurrence().getString(Paths._Address._Province),false);
                     validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._StateLocalLanguage),
                             aContext.getAdaptationOccurrence().getString(Paths._Address._ProvinceLocalLanguage),true);
-                }
+                }*/
                 if("null".equals(aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState))){
                     update = true;
                     valueContextForUpdate.setValue(null,Paths._Address._AddressState);
@@ -268,7 +270,6 @@ public class GenericTrigger extends TableTrigger {
                     valueContextForUpdate.setValue(null,Paths._Address._ProvinceLocalLanguage);
                 }
                 if(aContext.getOccurrenceContext().getValue(Paths._Address._TaxRegimeCode)==null){
-                    ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
                     Map<String,Map<String,String>> countryReferenceFieldsMap = applicationCacheUtil.CountryReferenceFieldsMap("BReference");
                     Map<String,String> resultItem = countryReferenceFieldsMap!=null?countryReferenceFieldsMap.get(countryCode):null;
                     if(resultItem!=null){
@@ -373,6 +374,7 @@ public class GenericTrigger extends TableTrigger {
         LOGGER.debug(objectName+" GenericTrigger handleAfterModify called...");
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())) {
             initialize();
+            ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil) SpringContext.getApplicationContext().getBean("applicationCacheUtil");
             ValueChanges changes = aContext.getChanges();
             int numberOfChanges = changes.getNumberOfChanges();
             LOGGER.debug(objectPrimaryKeyPath+" = "+aContext.getAdaptationOccurrence().get(objectPrimaryKeyPath)+" Number of changes="+numberOfChanges+"\nModified Fields:\n");
@@ -401,17 +403,17 @@ public class GenericTrigger extends TableTrigger {
                     (aContext.getChanges().getChange(Paths._Address._Country)!=null || aContext.getChanges().getChange(Paths._Address._AddressState)!=null
                             || aContext.getChanges().getChange(Paths._Address._Province)!=null)){
                 String countryCode = aContext.getAdaptationOccurrence().getString(Paths._Address._Country);
-                if(countryCode!=null){
+                /*if(countryCode!=null){
                     validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState),
                             aContext.getAdaptationOccurrence().getString(Paths._Address._Province),false);
                     validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._StateLocalLanguage),
                             aContext.getAdaptationOccurrence().getString(Paths._Address._ProvinceLocalLanguage),true);
-                }
+                }*/
             }
             if( "ADDRESS".equalsIgnoreCase(objectName)){
-                if(changes.getChange(Paths._Address._MDMAccountId)!=null && aContext.getAdaptationOccurrence().getString(Paths._Address._Published)!=null){
+/*                if(changes.getChange(Paths._Address._MDMAccountId)!=null && aContext.getAdaptationOccurrence().getString(Paths._Address._Published)!=null){
                     throw OperationException.createError("Address association to account can't be modified for already published address");
-                }
+                }*/
                 for(int i=1;i<=4;i++) {
                     validateByteLength("Address Line "+i, String.valueOf(aContext.getOccurrenceContext().getValue(Path.parse("./AddressLine"+i))), 150);
                 }
@@ -670,8 +672,6 @@ public class GenericTrigger extends TableTrigger {
                 List countryList = (List) aContext.getOccurrenceContext().getValue(Paths._Account._Country);
                 if (countryList != null && !countryList.isEmpty()) {
                     String countryCode = (String) countryList.get(0);
-
-                    ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
                     Map<String,Map<String,String>> countryReferenceFieldsMap = applicationCacheUtil.CountryReferenceFieldsMap("BReference");
                     Map<String,String> resultItem = countryReferenceFieldsMap!=null?countryReferenceFieldsMap.get(countryCode):null;
                     if(resultItem!=null){
@@ -896,35 +896,6 @@ public class GenericTrigger extends TableTrigger {
             LOGGER.error("Language could not be detected. May be because of probability of detected language is less than minimal confidence 0.999");
         }
         return detectedLanguage;
-    }
-
-    private void validateStateAndProvince(String countryCode,String currentState,String currentProvince,boolean local) throws OperationException {
-        ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
-        Map<String,String> territoryTypeMap = applicationCacheUtil.getTerritoryTypeMap("BReference");
-        HashSet<String> options = new HashSet<>();
-        if("STATE".equalsIgnoreCase(territoryTypeMap.get(countryCode))){
-            options = applicationCacheUtil.getOptionsList("BReference",countryCode,"STATE");
-            if(options!=null && !options.contains(currentState) && StringUtils.isNotBlank(currentState)){
-                if(("JP".equals(countryCode) || "RU".equals(countryCode)) && local){
-                    throw OperationException.createError("State Local Language value is invalid");
-                }else if(!local){
-                    throw OperationException.createError("State value is invalid");
-                }
-            }else if(options==null && !local){
-                throw OperationException.createError("Error getting state options");
-            }
-        }else if("PROVINCE".equalsIgnoreCase(territoryTypeMap.get(countryCode))){
-            options = applicationCacheUtil.getOptionsList("BReference",countryCode,"PROVINCE");
-            if(options!=null && !options.contains(currentProvince) && StringUtils.isNotBlank(currentProvince)){
-                if(("CN".equals(countryCode) || "KR".equals(countryCode)) && local){
-                    throw OperationException.createError("Province Local Language value is invalid");
-                }else if(!local){
-                    throw OperationException.createError("Province value is invalid");
-                }
-            }else if(options==null && !local){
-                throw OperationException.createError("Error getting province options");
-            }
-        }
     }
 
     public boolean isInitialized() {
