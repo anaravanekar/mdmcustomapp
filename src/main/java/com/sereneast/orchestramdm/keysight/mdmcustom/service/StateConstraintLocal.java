@@ -22,6 +22,7 @@ public class StateConstraintLocal implements Constraint {
 
     @Override
     public void checkOccurrence(Object o, ValueContextForValidation valueContextForValidation) {
+        LOGGER.debug("StateConstraintLocal.checkOccurrence-> ");
         String countryCode = valueContextForValidation.getValue(Path.PARENT.add(Paths._Address._Country)) != null ?
                 String.valueOf(valueContextForValidation.getValue(Path.PARENT.add(Paths._Address._Country))) : null;
         String currentState = valueContextForValidation.getValue(Path.PARENT.add(Paths._Address._StateLocalLanguage)) != null ?
@@ -30,11 +31,13 @@ public class StateConstraintLocal implements Constraint {
         Map<String, String> territoryTypeMap = applicationCacheUtil.getTerritoryTypeMap("BReference");
         if(StringUtils.isNotBlank(countryCode) && "STATE".equalsIgnoreCase(territoryTypeMap.get(countryCode))) {
             String errorMessage = applicationCacheUtil.validateState(countryCode,currentState,true);
-            if(StringUtils.isBlank(errorMessage)){
+            if(StringUtils.isNotBlank(errorMessage)){
+                LOGGER.debug("message="+errorMessage);
                 UserMessage message = UserMessage.createError(errorMessage);
                 valueContextForValidation.addMessage(message);
             }
         }
+        LOGGER.debug("<-StateConstraintLocal.checkOccurrence ");
     }
 
     @Override

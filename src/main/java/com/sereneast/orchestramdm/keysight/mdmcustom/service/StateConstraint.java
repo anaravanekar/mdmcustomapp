@@ -38,7 +38,7 @@ public class StateConstraint implements Constraint, ConstraintOnNull {
         Map<String, String> territoryTypeMap = applicationCacheUtil.getTerritoryTypeMap("BReference");
         if(StringUtils.isNotBlank(countryCode) && "STATE".equalsIgnoreCase(territoryTypeMap.get(countryCode))) {
             String errorMessage = applicationCacheUtil.validateState(countryCode,currentState,false);
-            if(StringUtils.isBlank(errorMessage)){
+            if(StringUtils.isNotBlank(errorMessage)){
                 UserMessage message = UserMessage.createError(errorMessage);
                 valueContextForValidation.addMessage(message);
             }

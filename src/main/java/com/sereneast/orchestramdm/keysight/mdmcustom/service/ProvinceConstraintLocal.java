@@ -30,7 +30,7 @@ public class ProvinceConstraintLocal implements Constraint {
         Map<String, String> territoryTypeMap = applicationCacheUtil.getTerritoryTypeMap("BReference");
         if(StringUtils.isNotBlank(countryCode) && "PROVINCE".equalsIgnoreCase(territoryTypeMap.get(countryCode))) {
             String errorMessage = applicationCacheUtil.validateProvince(countryCode,currentProvince,true);
-            if(StringUtils.isBlank(errorMessage)){
+            if(StringUtils.isNotBlank(errorMessage)){
                 UserMessage message = UserMessage.createError(errorMessage);
                 valueContextForValidation.addMessage(message);
             }
