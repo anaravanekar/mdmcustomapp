@@ -20,14 +20,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
-public class OperatingUnitConstraint implements Constraint, ConstraintOnNull {
+public class OperatingUnitConstraint implements Constraint {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperatingUnitConstraint.class);
-
-    @Override
-    public void checkNull(ValueContextForValidation valueContextForValidation) {
-        LOGGER.debug("OperatingUnitConstraint.checkNull");
-    }
 
     @Override
     public void checkOccurrence(Object o, ValueContextForValidation valueContextForValidation) {
