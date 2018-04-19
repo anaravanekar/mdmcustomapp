@@ -26,7 +26,7 @@ public class OperatingUnitConstraint implements Constraint, ConstraintOnNull {
 
     @Override
     public void checkNull(ValueContextForValidation valueContextForValidation) {
-        LOGGER.debug("OperatingUnitConstraint.checkNull->");
+        LOGGER.debug("OperatingUnitConstraint.checkNull");
     }
 
     @Override
@@ -49,17 +49,17 @@ public class OperatingUnitConstraint implements Constraint, ConstraintOnNull {
                         }
                     }
                 }
-            }
-            LOGGER.debug("bpOus="+bpOus.size());
-            for(Object addressOu:addressOus){
-                if(!bpOus.contains(String.valueOf(addressOu))){
-                    ousWithNoBp.add(String.valueOf(addressOu));
+                LOGGER.debug("bpOus="+bpOus.size());
+                for(Object addressOu:addressOus){
+                    if(!bpOus.contains(String.valueOf(addressOu))){
+                        ousWithNoBp.add(String.valueOf(addressOu));
+                    }
                 }
-            }
-            LOGGER.debug("ousWithNoBp="+ousWithNoBp.size());
-            if(!ousWithNoBp.isEmpty()){
-                UserMessage message = UserMessage.createError("No Business Purpose exists for Operating Units "+StringUtils.join(ousWithNoBp, ','));
-                valueContextForValidation.addMessage(message);
+                LOGGER.debug("ousWithNoBp="+ousWithNoBp.size());
+                if(!ousWithNoBp.isEmpty()){
+                    UserMessage message = UserMessage.createError("No Business Purpose exists for Operating Units "+StringUtils.join(ousWithNoBp, ','));
+                    valueContextForValidation.addMessage(message);
+                }
             }
         }
     }
