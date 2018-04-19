@@ -8,7 +8,6 @@ import com.orchestranetworks.instance.ValueContext;
 import com.orchestranetworks.instance.ValueContextForValidation;
 import com.orchestranetworks.schema.Constraint;
 import com.orchestranetworks.schema.ConstraintContext;
-import com.orchestranetworks.schema.ConstraintOnNull;
 import com.orchestranetworks.schema.Path;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import org.apache.commons.lang3.StringUtils;
@@ -28,9 +27,9 @@ public class OperatingUnitConstraint implements Constraint {
     public void checkOccurrence(Object o, ValueContextForValidation valueContextForValidation) {
         LOGGER.debug("OperatingUnitConstraint.checkOccurrence->");
         if(o!=null) {
-            LOGGER.debug("o not null");
-            List addressOus = (List)o;
-            LOGGER.debug("addressOus="+addressOus.size());
+            LOGGER.debug("o not null. o="+o);
+            // List addressOus = (List)o;
+            //LOGGER.debug("addressOus="+addressOus.size());
             List<String> ousWithNoBp = new ArrayList<>();
             AdaptationTable table = valueContextForValidation.getAdaptationInstance().getTable(Paths._BusinessPurpose.getPathInSchema());
             RequestResult bpResult = table.createRequestResult(Paths._BusinessPurpose._MDMAddressId.format() + " = '" + valueContextForValidation.getValue(Path.PARENT.add(Paths._Address._MDMAddressId)) + "'");
@@ -45,11 +44,11 @@ public class OperatingUnitConstraint implements Constraint {
                     }
                 }
                 LOGGER.debug("bpOus="+bpOus.size());
-                for(Object addressOu:addressOus){
-                    if(!bpOus.contains(String.valueOf(addressOu))){
-                        ousWithNoBp.add(String.valueOf(addressOu));
-                    }
+                //for(Object addressOu:addressOus){
+                if(!bpOus.contains(String.valueOf(o))){
+                    ousWithNoBp.add(String.valueOf(o));
                 }
+                // }
                 LOGGER.debug("ousWithNoBp="+ousWithNoBp.size());
                 if(!ousWithNoBp.isEmpty()){
                     UserMessage message = UserMessage.createError("No Business Purpose exists for Operating Units "+StringUtils.join(ousWithNoBp, ','));
