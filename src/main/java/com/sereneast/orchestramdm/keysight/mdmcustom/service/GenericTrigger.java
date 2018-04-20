@@ -152,9 +152,9 @@ public class GenericTrigger extends TableTrigger {
             }
             //get application context
             if("ADDRESS".equalsIgnoreCase(objectName)) {
-                for(int i=1;i<=4;i++) {
+                /*for(int i=1;i<=4;i++) {
                     validateByteLength("Address Line "+i, String.valueOf(aContext.getOccurrenceContext().getValue(Path.parse("./AddressLine"+i))), 150);
-                }
+                }*/
                 boolean update = false;
                 ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                 if("JP".equals(aContext.getOccurrenceContext().getValue(Paths._Address._Country))){
@@ -414,9 +414,9 @@ public class GenericTrigger extends TableTrigger {
 /*                if(changes.getChange(Paths._Address._MDMAccountId)!=null && aContext.getAdaptationOccurrence().getString(Paths._Address._Published)!=null){
                     throw OperationException.createError("Address association to account can't be modified for already published address");
                 }*/
-                for(int i=1;i<=4;i++) {
+                /*for(int i=1;i<=4;i++) {
                     validateByteLength("Address Line "+i, String.valueOf(aContext.getOccurrenceContext().getValue(Path.parse("./AddressLine"+i))), 150);
-                }
+                }*/
                 boolean update = false;
                 ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                 if("null".equals(aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState))){
@@ -580,9 +580,9 @@ public class GenericTrigger extends TableTrigger {
                                     ousWithNoBp.add(addedOu);
                                 }
                             }
-                            if(!ousWithNoBp.isEmpty()){
+                            /*if(!ousWithNoBp.isEmpty()){
                                 throw OperationException.createError("No Business Purpose exists for Operating Units "+StringUtils.join(ousWithNoBp, ',')+". Please add Business Purpose(s) first.");
-                            }
+                            }*/
                         }
                     }
                     if(firstOu!=null){
