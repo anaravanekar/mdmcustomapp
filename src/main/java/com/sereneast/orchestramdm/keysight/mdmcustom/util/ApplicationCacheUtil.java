@@ -302,10 +302,12 @@ public class ApplicationCacheUtil {
 
 	@Cacheable(cacheNames="mainCache",key="{#root.methodName, #currentState, #local}")
 	public String validateState(String countryCode,String currentState,boolean local) {
+		LOGGER.debug("In validateState. countryCode={},currentState={},local={}",countryCode,currentState,local);
 		ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
 		Map<String,String> territoryTypeMap = applicationCacheUtil.getTerritoryTypeMap("BReference");
 		HashSet<String> options = new HashSet<>();
 		options = applicationCacheUtil.getOptionsList("BReference",countryCode,"STATE");
+		LOGGER.debug("options={}",options);
 		if(options!=null && !options.contains(currentState) && StringUtils.isNotBlank(currentState)){
 			if(("JP".equals(countryCode) || "RU".equals(countryCode)) && local){
 				return "State Local Language value is invalid";
