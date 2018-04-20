@@ -47,10 +47,10 @@ public class StateConstraint implements Constraint, ConstraintOnNull {
 
     @Override
     public void setup(ConstraintContext constraintContext) {
-        LOGGER.debug("StateConstraint.setup-> schemaNode{}",constraintContext.getSchemaNode().toString());
-        LOGGER.debug("constraintContext.getSchemaNode().getNode(Paths._Address._Country)={}",constraintContext.getSchemaNode().getNode(Paths._Address._Country));
-        constraintContext.addDependencyToModify(constraintContext.getSchemaNode().getNode(Paths._Address._Country));
-        constraintContext.addDependencyToModify(constraintContext.getSchemaNode().getNode(Paths._Address._AddressState));
+        LOGGER.info("StateConstraint.setup-> schemaNode{}",constraintContext.getSchemaNode().toString());
+        LOGGER.info("constraintContext.getSchemaNode().getTableNode().getNode(Paths._Address._Country)={}",constraintContext.getSchemaNode().getTableNode().getNode(Paths._Address._Country));
+        constraintContext.addDependencyToModify(constraintContext.getSchemaNode().getTableNode().getNode(Paths._Address._Country));
+        constraintContext.addDependencyToModify(constraintContext.getSchemaNode().getTableNode().getNode(Paths._Address._AddressState));
     }
 
     @Override
