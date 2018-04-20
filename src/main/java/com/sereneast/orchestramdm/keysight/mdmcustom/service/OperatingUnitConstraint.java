@@ -26,7 +26,7 @@ public class OperatingUnitConstraint implements Constraint {
     @Override
     public void checkOccurrence(Object o, ValueContextForValidation valueContextForValidation) {
         LOGGER.debug("OperatingUnitConstraint.checkOccurrence->");
-        if(o!=null) {
+        if(o!=null && valueContextForValidation.getValue(Path.PARENT.add(Paths._Address._MDMAddressId))!=null) {
             LOGGER.debug("o not null. o="+o);
             // List addressOus = (List)o;
             //LOGGER.debug("addressOus="+addressOus.size());
