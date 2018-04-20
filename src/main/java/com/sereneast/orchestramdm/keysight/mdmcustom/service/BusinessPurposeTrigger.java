@@ -110,7 +110,7 @@ public class BusinessPurposeTrigger extends TableTrigger {
                     throw OperationException.createError("Primary in OU must contain Operating Units present in Operating Unit field");
                 }
             }
-            validateByteLength("Location",String.valueOf(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._Location)),40);
+//            validateByteLength("Location",String.valueOf(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._Location)),40);
             if (update) {
                 aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
             }
@@ -220,7 +220,7 @@ public class BusinessPurposeTrigger extends TableTrigger {
                     update = true;
                 }
             }
-            validateByteLength("Location",String.valueOf(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._Location)),40);
+//            validateByteLength("Location",String.valueOf(aContext.getOccurrenceContext().getValue(Paths._BusinessPurpose._Location)),40);
             if (update) {
                 aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
             }

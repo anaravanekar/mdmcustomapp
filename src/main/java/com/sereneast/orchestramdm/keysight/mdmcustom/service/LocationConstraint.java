@@ -11,14 +11,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 
-public class AddressLineConstraint extends GenericLengthConstraint implements Constraint {
+public class LocationConstraint extends GenericLengthConstraint implements Constraint {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AddressLineConstraint.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocationConstraint.class);
 
     @Override
     public void checkOccurrence(Object o, ValueContextForValidation valueContextForValidation) {
-        String errorMessage = validateByteLength(String.valueOf(o), 150);
-        if (StringUtils.isNotBlank(errorMessage)) {
+        String errorMessage = validateByteLength(String.valueOf(o),40);
+        if(StringUtils.isNotBlank(errorMessage)){
             UserMessage message = UserMessage.createError(errorMessage);
             valueContextForValidation.addMessage(message);
         }

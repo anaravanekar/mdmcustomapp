@@ -247,12 +247,12 @@ public class GenericTrigger extends TableTrigger {
                     update = true;
                 }
                 String countryCode = aContext.getAdaptationOccurrence().getString(Paths._Address._Country);
-                /*if(countryCode!=null){
+                if(countryCode!=null){
                     validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState),
                             aContext.getAdaptationOccurrence().getString(Paths._Address._Province),false);
                     validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._StateLocalLanguage),
                             aContext.getAdaptationOccurrence().getString(Paths._Address._ProvinceLocalLanguage),true);
-                }*/
+                }
                 if("null".equals(aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState))){
                     update = true;
                     valueContextForUpdate.setValue(null,Paths._Address._AddressState);
@@ -403,12 +403,12 @@ public class GenericTrigger extends TableTrigger {
                     (aContext.getChanges().getChange(Paths._Address._Country)!=null || aContext.getChanges().getChange(Paths._Address._AddressState)!=null
                             || aContext.getChanges().getChange(Paths._Address._Province)!=null)){
                 String countryCode = aContext.getAdaptationOccurrence().getString(Paths._Address._Country);
-                /*if(countryCode!=null){
+                if(countryCode!=null){
                     validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState),
                             aContext.getAdaptationOccurrence().getString(Paths._Address._Province),false);
                     validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._StateLocalLanguage),
                             aContext.getAdaptationOccurrence().getString(Paths._Address._ProvinceLocalLanguage),true);
-                }*/
+                }
             }
             if( "ADDRESS".equalsIgnoreCase(objectName)){
 /*                if(changes.getChange(Paths._Address._MDMAccountId)!=null && aContext.getAdaptationOccurrence().getString(Paths._Address._Published)!=null){
@@ -896,6 +896,35 @@ public class GenericTrigger extends TableTrigger {
             LOGGER.error("Language could not be detected. May be because of probability of detected language is less than minimal confidence 0.999");
         }
         return detectedLanguage;
+    }
+
+    private void validateStateAndProvince(String countryCode,String currentState,String currentProvince,boolean local) throws OperationException {
+        ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
+        Map<String,String> territoryTypeMap = applicationCacheUtil.getTerritoryTypeMap("BReference");
+        HashSet<String> options = new HashSet<>();
+        if("STATE".equalsIgnoreCase(territoryTypeMap.get(countryCode))){
+            options = applicationCacheUtil.getOptionsList("BReference",countryCode,"STATE");
+            if(options!=null && !options.contains(currentState) && StringUtils.isNotBlank(currentState)){
+                if(("JP".equals(countryCode) || "RU".equals(countryCode)) && local){
+                    throw OperationException.createError("State Local Language value is invalid");
+                }else if(!local){
+                    throw OperationException.createError("State value is invalid");
+                }
+            }else if(options==null && !local){
+                throw OperationException.createError("Error getting state options");
+            }
+        }else if("PROVINCE".equalsIgnoreCase(territoryTypeMap.get(countryCode))){
+            options = applicationCacheUtil.getOptionsList("BReference",countryCode,"PROVINCE");
+            if(options!=null && !options.contains(currentProvince) && StringUtils.isNotBlank(currentProvince)){
+                if(("CN".equals(countryCode) || "KR".equals(countryCode)) && local){
+                    throw OperationException.createError("Province Local Language value is invalid");
+                }else if(!local){
+                    throw OperationException.createError("Province value is invalid");
+                }
+            }else if(options==null && !local){
+                throw OperationException.createError("Error getting province options");
+            }
+        }
     }
 
     public boolean isInitialized() {
