@@ -32,7 +32,7 @@ public class ProvinceConstraint implements Constraint, ConstraintOnNull {
 
     @Override
     public void checkOccurrence(Object o, ValueContextForValidation valueContextForValidation) {
-        String countryCode = valueContextForValidation.getValue(Path.PARENT.add(Paths._Address._Country)) != null ?
+/*        String countryCode = valueContextForValidation.getValue(Path.PARENT.add(Paths._Address._Country)) != null ?
                 String.valueOf(valueContextForValidation.getValue(Path.PARENT.add(Paths._Address._Country))) : null;
         String currentProvince = valueContextForValidation.getValue(Path.PARENT.add(Paths._Address._Province)) != null ?
                 String.valueOf(valueContextForValidation.getValue(Path.PARENT.add(Paths._Address._Province))) : null;
@@ -44,7 +44,7 @@ public class ProvinceConstraint implements Constraint, ConstraintOnNull {
                 UserMessage message = UserMessage.createError(errorMessage);
                 valueContextForValidation.addMessage(message);
             }
-        }
+        }*/
     }
 
     @Override

@@ -30,7 +30,7 @@ public class StateConstraint implements Constraint, ConstraintOnNull {
 
     @Override
     public void checkOccurrence(Object o, ValueContextForValidation valueContextForValidation) {
-        String countryCode = valueContextForValidation.getValue(Path.PARENT.add(Paths._Address._Country)) != null ?
+/*        String countryCode = valueContextForValidation.getValue(Path.PARENT.add(Paths._Address._Country)) != null ?
                 String.valueOf(valueContextForValidation.getValue(Path.PARENT.add(Paths._Address._Country))) : null;
         String currentState = valueContextForValidation.getValue(Path.PARENT.add(Paths._Address._AddressState)) != null ?
                 String.valueOf(valueContextForValidation.getValue(Path.PARENT.add(Paths._Address._AddressState))) : null;
@@ -42,15 +42,15 @@ public class StateConstraint implements Constraint, ConstraintOnNull {
                 UserMessage message = UserMessage.createError(errorMessage);
                 valueContextForValidation.addMessage(message);
             }
-        }
+        }*/
     }
 
     @Override
     public void setup(ConstraintContext constraintContext) {
-        LOGGER.info("StateConstraint.setup-> schemaNode{}",constraintContext.getSchemaNode().toString());
+/*        LOGGER.info("StateConstraint.setup-> schemaNode{}",constraintContext.getSchemaNode().toString());
         LOGGER.info("constraintContext.getSchemaNode().getTableNode().getNode(Paths._Address._Country)={}",constraintContext.getSchemaNode().getTableNode().getNode(Paths._Address._Country));
         constraintContext.addDependencyToModify(constraintContext.getSchemaNode().getTableNode().getNode(Paths._Address._Country));
-        constraintContext.addDependencyToModify(constraintContext.getSchemaNode().getTableNode().getNode(Paths._Address._AddressState));
+        constraintContext.addDependencyToModify(constraintContext.getSchemaNode().getTableNode().getNode(Paths._Address._AddressState));*/
     }
 
     @Override
