@@ -445,13 +445,13 @@ public class AddressPane implements UIFormPane {
 		writer.add("</tr>");
 
 		writer.add("<tr>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.add("<td id=\"StateTd\" colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_AddressState);
 		writer.add("</td>");
 		writer.add("<td colspan=\"1\" style=\"padding-left:5px;" + CELL_STYLE_LEFT + "\">");
 		writer.add("<div id='stateCustomDiv'><input type=\"text\" selectBoxOptions=\"\" id=\"customStateSelect\" oninput=\"changeStateStandard(this.value)\"></div>");writer.add("<div id='stateStandardDiv' style=\"display:none;\">");writer.addWidget(_AddressState);writer.add("</div>");
 		writer.add("</td>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.add("<td id=\"StateLocalTd\" colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_StateLocalLanguage);
 		writer.add("</td>");
 		writer.add("<td colspan=\"1\" style=\"padding-left:5px;" + CELL_STYLE_LEFT + "\">");
@@ -460,13 +460,13 @@ public class AddressPane implements UIFormPane {
 		writer.add("</tr>");
 
 		writer.add("<tr>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.add("<td id=\"ProvinceTd\" colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_Province);
 		writer.add("</td>");
 		writer.add("<td colspan=\"1\" style=\"padding-left:5px;" + CELL_STYLE_LEFT + "\">");
 		writer.add("<div id='provinceCustomDiv'><input type=\"text\" selectBoxOptions=\"\" id=\"customProvinceSelect\" oninput=\"changeProvinceStandard(this.value)\"></div>");writer.add("<div id='provinceStandardDiv' style=\"display:none;\">");writer.addWidget(_Province);writer.add("</div>");
 		writer.add("</td>");
-		writer.add("<td colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
+		writer.add("<td id=\"ProvinceLocalTd\" colspan=\"1\" nowrap=\"nowrap\" style=\"" + CELL_STYLE_RIGHT + "\"><font color=\"#606060\">");
 		writer.addLabel(_ProvinceLocalLanguage);
 		writer.add("</td>");
 		writer.add("<td colspan=\"1\" style=\"padding-left:5px;" + CELL_STYLE_LEFT + "\">");

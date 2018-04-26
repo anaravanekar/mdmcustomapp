@@ -687,14 +687,108 @@ function validateOption(id,option){
          var optionsArray = editableSelectField.getAttribute("selectBoxOptions").split(";");
          if(optionsArray.indexOf(option)<0){
             if(id.includes("StateLocal")){
-                alert("Warning: State Local Language value is invalid");
+                showErrorCustomSelect("StateLocalTd", "customStateLocalSelect", option);//alert("Warning: State Local Language value is invalid");
             }else if(id.includes("State")){
-                alert("Warning: State value is invalid");
+                showErrorCustomSelect("StateTd", "customStateSelect", option);//alert("Warning: State value is invalid");
             }else if(id.includes("ProvinceLocal")){
-                alert("Warning: Province Local Language value is invalid");
+                showErrorCustomSelect("ProvinceLocalTd", "customProvinceLocalSelect", option);//alert("Warning: Province Local Language value is invalid");
             }else if(id.includes("Province")){
-                alert("Warning: Province value is invalid");
+                showErrorCustomSelect("ProvinceTd", "customProvinceSelect", option);//alert("Warning: Province value is invalid");
+            }
+         }else{
+            if(id.includes("StateLocal")){
+                removeErrorCustomSelect("StateLocalTd", "customStateLocalSelect");//alert("Warning: State Local Language value is invalid");
+            }else if(id.includes("State")){
+                removeErrorCustomSelect("StateTd", "customStateSelect");//alert("Warning: State value is invalid");
+            }else if(id.includes("ProvinceLocal")){
+                removeErrorCustomSelect("ProvinceLocalTd", "customProvinceLocalSelect");//alert("Warning: Province Local Language value is invalid");
+            }else if(id.includes("Province")){
+                removeErrorCustomSelect("ProvinceTd", "customProvinceSelect");//alert("Warning: Province value is invalid");
             }
          }
      }
+}
+
+var errorCount = 0;
+function showErrorCustomSelect(labelTdId, containerDivId, currentValue) {
+    var errorMessage = "The value '"+currentValue+"' is not valid";
+	var errorMessageDivNode = getNewErrorMessageDiv(errorMessage,containerDivId+"Error");
+	var labelTdElem = document.getElementById(labelTdId);
+	var labelSpanElem = labelTdElem.querySelector("span.ebx_RawLabel");
+	addClass(labelSpanElem,"ebx_Error");
+	var containerDivElem = document.getElementById(containerDivId);
+	containerDivElem.appendChild(errorMessageDivNode);
+	errorCount = errorCount+1;
+	var submitElements = document.querySelector("button[type='submit']");
+	var i;
+	for(i=0;i<submitElements.length;i++){
+		if(!hasClass(submitElements[i],"ebx_Disabled")){
+			addClass(submitElements[i],"ebx_Disabled");
+			submitElements[i].disabled = true;
+		}
+	}
+}
+
+function removeErrorCustomSelect(labelTdId, containerDivId){
+	var labelTdElem = document.getElementById(labelTdId);
+	var labelSpanElem = labelTdElem.querySelector("span.ebx_RawLabel");
+	removeClass(labelSpanElem,"ebx_Error");
+	var containerDivElem = document.getElementById(containerDivId);
+	var errorMessageDivElem = document.getElementById(containerDivId+"Error");
+	if(errorMessageDivElem){
+		containerDivElem.removeChild(errorMessageDivElem);
+	}
+	errorCount = errorCount-1;
+	if(errorCount==0){
+		var submitElements = document.querySelector("button[type='submit']");
+		var i;
+		for(i=0;i<submitElements.length;i++){
+			if(hasClass(submitElements[i],"ebx_Disabled")){
+				removeClass(submitElements[i],"ebx_Disabled");
+				submitElements[i].disabled = false;
+			}
+		}
+	}
+}
+
+function getNewErrorMessageDiv(errorMessage,divId){
+    var div1 = document.createElement("div");
+    var errorId = document.createAttribute("id");
+	errorId.value = divId;
+    var classmc = document.createAttribute("class");
+	classmc.value = "ebx_MessageContainer";
+	div1.setAttributeNode(errorId);
+	div1.setAttributeNode(classmc);
+
+	var div2 = document.createElement("div");
+    var classie = document.createAttribute("class");
+	classie.value = "ebx_IconError";
+	div2.setAttributeNode(classie);
+
+	var div3 = document.createElement("div");
+    var classe = document.createAttribute("class");
+	classe.value = "ebx_Error";
+	div3.setAttributeNode(classe);
+
+	var textnode = document.createTextNode(errorMessage);
+
+	div3.appendChild(textnode);
+	div2.appendChild(div3);
+	div1.appendChild(div2);
+	return div1;
+}
+
+function hasClass(ele,cls) {
+  return !!ele.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)'));
+}
+
+function addClass(ele,cls) {
+  if (!hasClass(ele,cls)) ele.className += " "+cls;
+}
+
+function removeClass(ele,cls) {
+  if (hasClass(ele,cls)) {
+    var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)');
+    ele.className=ele.className.replace(reg,' ');
+  }
 }
