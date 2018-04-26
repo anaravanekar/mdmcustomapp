@@ -713,6 +713,7 @@ var errorCount = 0;
 function showErrorCustomSelect(labelTdId, containerDivId, currentValue) {
     var errorMessage = "The value '"+currentValue+"' is not valid";
 	var errorMessageDivNode = getNewErrorMessageDiv(errorMessage,containerDivId+"Error");
+	console.log(errorMessageDivNode);
 	var labelTdElem = document.getElementById(labelTdId);
 	var labelSpanElem = labelTdElem.querySelector("span.ebx_RawLabel");
 	addClass(labelSpanElem,"ebx_Error");
@@ -720,6 +721,7 @@ function showErrorCustomSelect(labelTdId, containerDivId, currentValue) {
 	containerDivElem.appendChild(errorMessageDivNode);
 	errorCount = errorCount+1;
 	var submitElements = document.querySelector("button[type='submit']");
+	console.log(submitElements);
 	var i;
 	for(i=0;i<submitElements.length;i++){
 		if(!hasClass(submitElements[i],"ebx_Disabled")){
