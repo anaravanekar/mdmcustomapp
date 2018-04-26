@@ -747,7 +747,7 @@ function removeErrorCustomSelect(labelTdId, containerDivId){
 		containerDivElem.removeChild(errorMessageDivElem);
 	}
 	errorCount = errorCount-1;
-	if(errorCount==0){
+	if(errorCount<=0){
 		var submitElements = document.querySelectorAll("button[type='submit']");
 		var i;
 		for(i=0;i<submitElements.length;i++){
