@@ -684,10 +684,10 @@ function createEditableSelectProvince(optionsArray){
 }
 
 function validateOption(id,option,isOnChange){
-     if(option){
+ //    if(option){
         var editableSelectField = document.getElementById(id);
         var optionsArray = editableSelectField.getAttribute("selectBoxOptions").split(";");
-         if(optionsArray.length>0 && option!="" && optionsArray.indexOf(option)<0){
+         if(optionsArray.length>0 && option!="" && option!=undefined && optionsArray.indexOf(option)<0){
             if(isOnChange){
                 if(id.includes("StateLocal")){
                     showErrorCustomSelect("StateLocalTd", "stateLocalCustomDiv", option);//alert("Warning: State Local Language value is invalid");
@@ -710,7 +710,7 @@ function validateOption(id,option,isOnChange){
                 removeErrorCustomSelect("ProvinceTd", "provinceCustomDiv");//alert("Warning: Province value is invalid");
             }
          }
-     }
+ //    }
 }
 
 var errorCount = 0;
