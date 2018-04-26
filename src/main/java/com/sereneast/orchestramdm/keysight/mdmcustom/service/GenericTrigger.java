@@ -247,12 +247,12 @@ public class GenericTrigger extends TableTrigger {
                     update = true;
                 }
                 String countryCode = aContext.getAdaptationOccurrence().getString(Paths._Address._Country);
-                if(countryCode!=null){
+                /*if(countryCode!=null){
                     validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState),
                             aContext.getAdaptationOccurrence().getString(Paths._Address._Province),false);
                     validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._StateLocalLanguage),
                             aContext.getAdaptationOccurrence().getString(Paths._Address._ProvinceLocalLanguage),true);
-                }
+                }*/
                 if("null".equals(aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState))){
                     update = true;
                     valueContextForUpdate.setValue(null,Paths._Address._AddressState);
@@ -403,12 +403,12 @@ public class GenericTrigger extends TableTrigger {
                     (aContext.getChanges().getChange(Paths._Address._Country)!=null || aContext.getChanges().getChange(Paths._Address._AddressState)!=null
                             || aContext.getChanges().getChange(Paths._Address._Province)!=null)){
                 String countryCode = aContext.getAdaptationOccurrence().getString(Paths._Address._Country);
-                if(countryCode!=null){
+                /*if(countryCode!=null){
                     validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._AddressState),
                             aContext.getAdaptationOccurrence().getString(Paths._Address._Province),false);
                     validateStateAndProvince(countryCode,aContext.getAdaptationOccurrence().getString(Paths._Address._StateLocalLanguage),
                             aContext.getAdaptationOccurrence().getString(Paths._Address._ProvinceLocalLanguage),true);
-                }
+                }*/
             }
             if( "ADDRESS".equalsIgnoreCase(objectName)){
 /*                if(changes.getChange(Paths._Address._MDMAccountId)!=null && aContext.getAdaptationOccurrence().getString(Paths._Address._Published)!=null){
