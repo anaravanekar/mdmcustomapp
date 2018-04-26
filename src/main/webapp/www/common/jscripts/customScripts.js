@@ -713,7 +713,6 @@ function validateOption(id,option,isOnChange){
  //    }
 }
 
-var errorCount = 0;
 function showErrorCustomSelect(labelTdId, containerDivId, currentValue) {
 	var containerDivElem = document.getElementById(containerDivId);
 	var errorMessageDivElem = document.getElementById(containerDivId+"Error");
@@ -726,7 +725,6 @@ function showErrorCustomSelect(labelTdId, containerDivId, currentValue) {
 	var labelSpanElem = labelTdElem.querySelector("span.ebx_RawLabel");
 	addClass(labelSpanElem,"ebx_Error");
 	containerDivElem.appendChild(errorMessageDivNode);
-	errorCount = errorCount+1;
 	var submitElements = document.querySelectorAll("button[type='submit']");
 	var i;
 	for(i=0;i<submitElements.length;i++){
@@ -746,8 +744,8 @@ function removeErrorCustomSelect(labelTdId, containerDivId){
 	if(errorMessageDivElem){
 		containerDivElem.removeChild(errorMessageDivElem);
 	}
-	errorCount = errorCount-1;
-	if(errorCount<=0){
+	var resultsArray = document.querySelectorAll("div.customErrorContainer");
+	if(!resultsArray || !resultsArray.length>0){
 		var submitElements = document.querySelectorAll("button[type='submit']");
 		var i;
 		for(i=0;i<submitElements.length;i++){
@@ -764,7 +762,7 @@ function getNewErrorMessageDiv(errorMessage,divId){
     var errorId = document.createAttribute("id");
 	errorId.value = divId;
     var classmc = document.createAttribute("class");
-	classmc.value = "ebx_MessageContainer";
+	classmc.value = "ebx_MessageContainer customErrorContainer";
 	div1.setAttributeNode(errorId);
 	div1.setAttributeNode(classmc);
 
