@@ -550,7 +550,7 @@ function lookForStateLocalChange()
         if (newStateVal != stateLocal) {
             stateLocal = newStateVal;
             ebx_form_setValue(addressPrefixedPaths.StateLocalLanguage,newStateVal);
-            validateOption('customStateLocalSelect',newStateVal);
+            validateOption('customStateLocalSelect',newStateVal,false);
         }
     }
 }
@@ -562,7 +562,7 @@ function lookForProvinceLocalChange()
         if (newProvinceVal != provinceLocal) {
             provinceLocal = newProvinceVal;
             ebx_form_setValue(addressPrefixedPaths.ProvinceLocalLanguage,newProvinceVal);
-            validateOption('customProvinceLocalSelect',newProvinceVal);
+            validateOption('customProvinceLocalSelect',newProvinceVal,false);
         }
     }
 }
@@ -574,7 +574,7 @@ function lookForStateChange()
         if (newStateVal != stateCustom) {
             stateCustom = newStateVal;
             ebx_form_setValue(addressPrefixedPaths.AddressState,newStateVal);
-            validateOption('customStateSelect',newStateVal);
+            validateOption('customStateSelect',newStateVal,false);
         }
     }
 }
@@ -586,7 +586,7 @@ function lookForProvinceChange()
         if (newProvinceVal != provinceCustom) {
             provinceCustom = newProvinceVal;
             ebx_form_setValue(addressPrefixedPaths.Province,newProvinceVal);
-            validateOption('customProvinceSelect',newProvinceVal);
+            validateOption('customProvinceSelect',newProvinceVal,false);
         }
     }
 }
@@ -604,7 +604,7 @@ function createEditableSelectStateLocal(optionsArray){
     var onInputAttr = document.createAttribute("oninput");
     onInputAttr.value = 'changeStateLocalStandard(this.value)';
     var onChangeAttr = document.createAttribute("onchange");
-    onChangeAttr.value = "validateOption('customStateLocalSelect',this.value)";
+    onChangeAttr.value = "validateOption('customStateLocalSelect',this.value,true)";
     var newElement = document.createElement("input");
     newElement.setAttributeNode(att);
     newElement.setAttributeNode(idAttr);
@@ -627,7 +627,7 @@ function createEditableSelectProvinceLocal(optionsArray){
     var onInputAttr = document.createAttribute("oninput");
     onInputAttr.value = 'changeProvinceLocalStandard(this.value)';
     var onChangeAttr = document.createAttribute("onchange");
-    onChangeAttr.value = "validateOption('customProvinceLocalSelect',this.value)";
+    onChangeAttr.value = "validateOption('customProvinceLocalSelect',this.value,true)";
     var newElement = document.createElement("input");
     newElement.setAttributeNode(att);
     newElement.setAttributeNode(idAttr);
@@ -650,7 +650,7 @@ function createEditableSelectState(optionsArray){
     var onInputAttr = document.createAttribute("oninput");
     onInputAttr.value = "changeStateStandard(this.value)";
     var onChangeAttr = document.createAttribute("onchange");
-    onChangeAttr.value = "validateOption('customStateSelect',this.value)";
+    onChangeAttr.value = "validateOption('customStateSelect',this.value,true)";
     var newElement = document.createElement("input");
     newElement.setAttributeNode(att);
     newElement.setAttributeNode(idAttr);
@@ -673,7 +673,7 @@ function createEditableSelectProvince(optionsArray){
     var onInputAttr = document.createAttribute("oninput");
     onInputAttr.value = "changeProvinceStandard(this.value)";
     var onChangeAttr = document.createAttribute("onchange");
-    onChangeAttr.value = "validateOption('customProvinceSelect',this.value)";
+    onChangeAttr.value = "validateOption('customProvinceSelect',this.value,true)";
     var newElement = document.createElement("input");
     newElement.setAttributeNode(att);
     newElement.setAttributeNode(idAttr);
@@ -683,19 +683,21 @@ function createEditableSelectProvince(optionsArray){
     createEditableSelect(newElement);
 }
 
-function validateOption(id,option){
+function validateOption(id,option,isOnChange){
      if(option){
          var editableSelectField = document.getElementById(id);
          var optionsArray = editableSelectField.getAttribute("selectBoxOptions").split(";");
          if(optionsArray.indexOf(option)<0){
-            if(id.includes("StateLocal")){
-                showErrorCustomSelect("StateLocalTd", "stateLocalCustomDiv", option);//alert("Warning: State Local Language value is invalid");
-            }else if(id.includes("State")){
-                showErrorCustomSelect("StateTd", "stateCustomDiv", option);//alert("Warning: State value is invalid");
-            }else if(id.includes("ProvinceLocal")){
-                showErrorCustomSelect("ProvinceLocalTd", "provinceLocalCustomDiv", option);//alert("Warning: Province Local Language value is invalid");
-            }else if(id.includes("Province")){
-                showErrorCustomSelect("ProvinceTd", "provinceCustomDiv", option);//alert("Warning: Province value is invalid");
+            if(isOnChange){
+                if(id.includes("StateLocal")){
+                    showErrorCustomSelect("StateLocalTd", "stateLocalCustomDiv", option);//alert("Warning: State Local Language value is invalid");
+                }else if(id.includes("State")){
+                    showErrorCustomSelect("StateTd", "stateCustomDiv", option);//alert("Warning: State value is invalid");
+                }else if(id.includes("ProvinceLocal")){
+                    showErrorCustomSelect("ProvinceLocalTd", "provinceLocalCustomDiv", option);//alert("Warning: Province Local Language value is invalid");
+                }else if(id.includes("Province")){
+                    showErrorCustomSelect("ProvinceTd", "provinceCustomDiv", option);//alert("Warning: Province value is invalid");
+                }
             }
          }else{
             if(id.includes("StateLocal")){
