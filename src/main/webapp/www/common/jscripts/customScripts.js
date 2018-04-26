@@ -493,7 +493,6 @@ function showWarningChar(fieldValue,args){
             alert("Warning - "+fname+" length exceeds "+limitChar+" characters and may exceed the "+limitByte+" byte integration limit");
         }
     }
-    //console.log("byteString.length"+byteString.length);
 }
 
 function showWarningByte(fieldValue,args){
@@ -516,7 +515,6 @@ function showWarningByte(fieldValue,args){
             alert("Warning - "+fname+" length exceeding "+limitByte+" bytes will exceed Oracle limits");
         }
     }
-    //console.log("byteString.length"+byteString.length);
 }
 
 function changeStateLocalStandard(newValue){
@@ -552,6 +550,7 @@ function lookForStateLocalChange()
         if (newStateVal != stateLocal) {
             stateLocal = newStateVal;
             ebx_form_setValue(addressPrefixedPaths.StateLocalLanguage,newStateVal);
+            validateOption('customStateLocalSelect',newStateVal);
         }
     }
 }
@@ -563,6 +562,7 @@ function lookForProvinceLocalChange()
         if (newProvinceVal != provinceLocal) {
             provinceLocal = newProvinceVal;
             ebx_form_setValue(addressPrefixedPaths.ProvinceLocalLanguage,newProvinceVal);
+            validateOption('customProvinceLocalSelect',newProvinceVal);
         }
     }
 }
@@ -574,6 +574,7 @@ function lookForStateChange()
         if (newStateVal != stateCustom) {
             stateCustom = newStateVal;
             ebx_form_setValue(addressPrefixedPaths.AddressState,newStateVal);
+            validateOption('customStateSelect',newStateVal);
         }
     }
 }
@@ -585,6 +586,7 @@ function lookForProvinceChange()
         if (newProvinceVal != provinceCustom) {
             provinceCustom = newProvinceVal;
             ebx_form_setValue(addressPrefixedPaths.Province,newProvinceVal);
+            validateOption('customProvinceSelect',newProvinceVal);
         }
     }
 }
@@ -646,7 +648,7 @@ function createEditableSelectState(optionsArray){
     var idAttr = document.createAttribute("id");
     idAttr.value = "customStateSelect";
     var onInputAttr = document.createAttribute("oninput");
-    onInputAttr.value = 'changeStateStandard(this.value)';
+    onInputAttr.value = "changeStateStandard(this.value)";
     var onChangeAttr = document.createAttribute("onchange");
     onChangeAttr.value = "validateOption('customStateSelect',this.value)";
     var newElement = document.createElement("input");
@@ -669,7 +671,7 @@ function createEditableSelectProvince(optionsArray){
     var idAttr = document.createAttribute("id");
     idAttr.value = "customProvinceSelect";
     var onInputAttr = document.createAttribute("oninput");
-    onInputAttr.value = 'changeProvinceStandard(this.value)';
+    onInputAttr.value = "changeProvinceStandard(this.value)";
     var onChangeAttr = document.createAttribute("onchange");
     onChangeAttr.value = "validateOption('customProvinceSelect',this.value)";
     var newElement = document.createElement("input");
@@ -687,23 +689,23 @@ function validateOption(id,option){
          var optionsArray = editableSelectField.getAttribute("selectBoxOptions").split(";");
          if(optionsArray.indexOf(option)<0){
             if(id.includes("StateLocal")){
-                showErrorCustomSelect("StateLocalTd", "customStateLocalSelect", option);//alert("Warning: State Local Language value is invalid");
+                showErrorCustomSelect("StateLocalTd", "stateLocalCustomDiv", option);//alert("Warning: State Local Language value is invalid");
             }else if(id.includes("State")){
-                showErrorCustomSelect("StateTd", "customStateSelect", option);//alert("Warning: State value is invalid");
+                showErrorCustomSelect("StateTd", "stateCustomDiv", option);//alert("Warning: State value is invalid");
             }else if(id.includes("ProvinceLocal")){
-                showErrorCustomSelect("ProvinceLocalTd", "customProvinceLocalSelect", option);//alert("Warning: Province Local Language value is invalid");
+                showErrorCustomSelect("ProvinceLocalTd", "provinceLocalCustomDiv", option);//alert("Warning: Province Local Language value is invalid");
             }else if(id.includes("Province")){
-                showErrorCustomSelect("ProvinceTd", "customProvinceSelect", option);//alert("Warning: Province value is invalid");
+                showErrorCustomSelect("ProvinceTd", "provinceCustomDiv", option);//alert("Warning: Province value is invalid");
             }
          }else{
             if(id.includes("StateLocal")){
-                removeErrorCustomSelect("StateLocalTd", "customStateLocalSelect");//alert("Warning: State Local Language value is invalid");
+                removeErrorCustomSelect("StateLocalTd", "stateLocalCustomDiv");//alert("Warning: State Local Language value is invalid");
             }else if(id.includes("State")){
-                removeErrorCustomSelect("StateTd", "customStateSelect");//alert("Warning: State value is invalid");
+                removeErrorCustomSelect("StateTd", "stateCustomDiv");//alert("Warning: State value is invalid");
             }else if(id.includes("ProvinceLocal")){
-                removeErrorCustomSelect("ProvinceLocalTd", "customProvinceLocalSelect");//alert("Warning: Province Local Language value is invalid");
+                removeErrorCustomSelect("ProvinceLocalTd", "provinceLocalCustomDiv");//alert("Warning: Province Local Language value is invalid");
             }else if(id.includes("Province")){
-                removeErrorCustomSelect("ProvinceTd", "customProvinceSelect");//alert("Warning: Province value is invalid");
+                removeErrorCustomSelect("ProvinceTd", "provinceCustomDiv");//alert("Warning: Province value is invalid");
             }
          }
      }
@@ -713,15 +715,13 @@ var errorCount = 0;
 function showErrorCustomSelect(labelTdId, containerDivId, currentValue) {
     var errorMessage = "The value '"+currentValue+"' is not valid";
 	var errorMessageDivNode = getNewErrorMessageDiv(errorMessage,containerDivId+"Error");
-	console.log(errorMessageDivNode);
 	var labelTdElem = document.getElementById(labelTdId);
 	var labelSpanElem = labelTdElem.querySelector("span.ebx_RawLabel");
 	addClass(labelSpanElem,"ebx_Error");
 	var containerDivElem = document.getElementById(containerDivId);
 	containerDivElem.appendChild(errorMessageDivNode);
 	errorCount = errorCount+1;
-	var submitElements = document.querySelector("button[type='submit']");
-	console.log(submitElements);
+	var submitElements = document.querySelectorAll("button[type='submit']");
 	var i;
 	for(i=0;i<submitElements.length;i++){
 		if(!hasClass(submitElements[i],"ebx_Disabled")){
@@ -742,7 +742,7 @@ function removeErrorCustomSelect(labelTdId, containerDivId){
 	}
 	errorCount = errorCount-1;
 	if(errorCount==0){
-		var submitElements = document.querySelector("button[type='submit']");
+		var submitElements = document.querySelectorAll("button[type='submit']");
 		var i;
 		for(i=0;i<submitElements.length;i++){
 			if(hasClass(submitElements[i],"ebx_Disabled")){
