@@ -715,12 +715,16 @@ function validateOption(id,option,isOnChange){
 
 var errorCount = 0;
 function showErrorCustomSelect(labelTdId, containerDivId, currentValue) {
+	var containerDivElem = document.getElementById(containerDivId);
+	var errorMessageDivElem = document.getElementById(containerDivId+"Error");
+	if(errorMessageDivElem){
+		containerDivElem.removeChild(errorMessageDivElem);
+	}
     var errorMessage = "The value '"+currentValue+"' is not valid";
 	var errorMessageDivNode = getNewErrorMessageDiv(errorMessage,containerDivId+"Error");
 	var labelTdElem = document.getElementById(labelTdId);
 	var labelSpanElem = labelTdElem.querySelector("span.ebx_RawLabel");
 	addClass(labelSpanElem,"ebx_Error");
-	var containerDivElem = document.getElementById(containerDivId);
 	containerDivElem.appendChild(errorMessageDivNode);
 	errorCount = errorCount+1;
 	var submitElements = document.querySelectorAll("button[type='submit']");
