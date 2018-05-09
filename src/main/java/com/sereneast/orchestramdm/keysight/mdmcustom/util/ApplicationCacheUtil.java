@@ -338,6 +338,7 @@ public class ApplicationCacheUtil {
 
 	@Cacheable(cacheNames="mainCache",key="{#root.methodName, #dataSpace}", unless="#result == null")
 	public Map<String,Map<String,String>> getLookupValues(String dataSpace){
+		LOGGER.debug("getLookupValues->");
 		int retryCount = 0;
 		Map<String,Map<String,String>> result = new HashMap<>();
 		HashSet<String> options = new HashSet<>();
@@ -357,6 +358,8 @@ public class ApplicationCacheUtil {
 									record.get("Value")!=null && record.get("Value").getContent()!=null?record.get("Value").getContent().toString():null);
 						}
 					}
+				}else{
+					LOGGER.debug("orchestraObjectListResponse="+orchestraObjectListResponse);
 				}
 			} catch (Exception e) {
 				LOGGER.error("Error getting Lookup Values", e);

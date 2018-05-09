@@ -243,6 +243,7 @@ public class RestController {
 
     @RequestMapping(value = "getLookupValues", method = RequestMethod.GET)
     public String getLookupValues() {
+        LOGGER.debug("getLookupValues->");
         ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
         Map<String,Map<String,String>> resultObject = null;
         resultObject = applicationCacheUtil.getLookupValues("BReference");
@@ -251,6 +252,8 @@ public class RestController {
         try {
             if(resultObject!=null) {
                 result = mapper.writeValueAsString(resultObject);
+            }else{
+                LOGGER.debug("result obj is null");
             }
         }catch (Exception e){
             LOGGER.error("Error fetching lookup values",e);

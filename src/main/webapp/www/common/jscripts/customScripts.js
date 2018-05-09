@@ -809,7 +809,7 @@ function validateNlsLanguage(country,ou,nlsLang){
 				console.log(lookupObj["VALIDATE_NLS"]["CN_CNS-OU-3613"]);
 			}
 		}else{
-			if(!nlsCode && (country=='CN' || country=='KR' || country=='TW')){
+			if(!nlsLang && (country=='CN' || country=='KR' || country=='TW')){
 				var a1 = ebx_form_getValue(addressPrefixedPaths.AddressLine1LocalLanguage);
 				var a2 = ebx_form_getValue(addressPrefixedPaths.AddressLine2LocalLanguage);
 				var a3 = ebx_form_getValue(addressPrefixedPaths.AddressLine3LocalLanguage);
@@ -836,7 +836,7 @@ function validateNlsLanguage(country,ou,nlsLang){
 function validateNlsLanguageHelper(){
 	var country = ebx_form_getValue(addressPrefixedPaths.Country);
 	var ou = null;
-	var ouElementName = '';
+	var ouElementName = '___40_cfvAO__OperatingUnit_5b_0_5d_';
 	if(document.getElementsByName(ouElementName) && document.getElementsByName(ouElementName).length>0){
 		ou = document.getElementsByName(ouElementName)[0].value;
 	}
