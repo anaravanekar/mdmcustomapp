@@ -803,11 +803,17 @@ function validateNlsLanguage(country,ou,nlsLang){
 	if(country){
 		if(nlsLang){
 			if(ou){
-				var lookupObj = getLookupValues();
 				if(lookupObj){
                     console.log(lookupObj);
                     console.log(lookupObj["VALIDATE_NLS"]);
-                    console.log(lookupObj["VALIDATE_NLS"]["CN_CNS-OU-3613"]);
+                    console.log(lookupObj["VALIDATE_NLS"]["CN_"+ou]);
+                    if(!lookupObj["VALIDATE_NLS"]["CN_"+ou]){
+                        var msgs = new EBX_ValidationMessage();
+					    msgs.warnings = ['Invalid NLS Code'];
+					    ebx_form_setNodeMessage(addressPrefixedPaths.NLSLanguage,msgs);
+				    }else{
+					    ebx_form_setNodeMessage(addressPrefixedPaths.NLSLanguage,null);
+				    }
 				}
 			}
 		}else{
