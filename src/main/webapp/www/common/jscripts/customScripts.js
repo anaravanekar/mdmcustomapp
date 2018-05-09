@@ -798,3 +798,50 @@ function removeClass(ele,cls) {
     ele.className=ele.className.replace(reg,' ');
   }
 }
+
+function validateNlsLanguage(country,ou,nlsLang){
+	if(country){
+		if(nlsLang){
+			if(ou){
+				var lookupObj = getLookupValues();
+				console.log(lookupObj);
+				console.log(lookupObj["VALIDATE_NLS"]);
+				console.log(lookupObj["VALIDATE_NLS"]["CN_CNS-OU-3613"]);
+			}
+		}else{
+			if(nlsCode==null && (country=='CN' || country=='KR' || country=='TW')){
+				var a1 = ebx_form_getValue(addressPrefixedPaths.AddressLine1LocalLanguage);
+				var a2 = ebx_form_getValue(addressPrefixedPaths.AddressLine2LocalLanguage);
+				var a3 = ebx_form_getValue(addressPrefixedPaths.AddressLine3LocalLanguage);
+				var a4 = ebx_form_getValue(addressPrefixedPaths.AddressLine4LocalLanguage);
+				var city = ebx_form_getValue(addressPrefixedPaths.CityLocalLanguage);
+				var state = ebx_form_getValue(addressPrefixedPaths.StateLocalLanguage);
+				var postal = ebx_form_getValue(addressPrefixedPaths.PostalLocalLanguage);
+				var province = ebx_form_getValue(addressPrefixedPaths.ProvinceLocalLanguage);
+				var county = ebx_form_getValue(addressPrefixedPaths.CountyLocalLanguage);
+				var country = ebx_form_getValue(addressPrefixedPaths.CountryLocalLanguage);
+				if(a1 || a2 || a3 || a4 || city || state || postal || province || county || country){
+					var msgs = new EBX_ValidationMessage();
+					msgs.warnings = ['Invalid Address NLS Code'];
+					ebx_form_setNodeMessage(addressPrefixedPaths.NLSLanguage,msgs);
+				}else{
+					ebx_form_setNodeMessage(addressPrefixedPaths.NLSLanguage,null);
+				}
+			}
+
+		}
+	}
+}
+
+function validateNlsLanguageHelper(){
+	var country = ebx_form_getValue(addressPrefixedPaths.Country);
+	var ou = null;
+	var ouElementName = '';
+	if(document.getElementsByName(ouElementName) && document.getElementsByName(ouElementName).length>0){
+		ou = document.getElementsByName(ouElementName)[0].value;
+	}
+	var nlsLang = ebx_form_getValue(addressPrefixedPaths.NLSLanguage);
+	console.log('country='+country+' ou='+ou+' nlsLang='+nlsLang);
+	validateNlsLanguage(country,ou,nlsLang);
+}
+

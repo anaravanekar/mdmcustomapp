@@ -336,4 +336,37 @@ public class ApplicationCacheUtil {
 		return null;
 	}
 
+	@Cacheable(cacheNames="mainCache",key="{#root.methodName, #dataSpace}", unless="#result == null")
+	public Map<String,Map<String,String>> getLookupValues(String dataSpace){
+		int retryCount = 0;
+		Map<String,Map<String,String>> result = new HashMap<>();
+		HashSet<String> options = new HashSet<>();
+		OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+		Map<String, String> parameters = new HashMap<>();
+		parameters.put("pageSize", "unbounded");
+		OrchestraObjectListResponse orchestraObjectListResponse = null;
+		do{
+			retryCount++;
+			try {
+				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "ReferenceData", "root/LookupValues", parameters);
+				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
+					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
+						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
+						if(result.get(record.get("Type").getContent().toString())!=null){
+							result.get(record.get("Type").getContent().toString()).put(record.get("Key").getContent().toString(),
+									record.get("Value")!=null && record.get("Value").getContent()!=null?record.get("Value").getContent().toString():null);
+						}
+					}
+				}
+			} catch (Exception e) {
+				LOGGER.error("Error getting Lookup Values", e);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+					LOGGER.error("Error getting Lookup Values", e);
+				}
+			}
+		}while((orchestraObjectListResponse == null || orchestraObjectListResponse.getRows()==null) && retryCount<3);
+		return result;
+	}
 }
