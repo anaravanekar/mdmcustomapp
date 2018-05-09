@@ -351,8 +351,8 @@ public class ApplicationCacheUtil {
 			try {
 				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "ReferenceData", "root/LookupValues", parameters);
 				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
+					result = new HashMap<>();
 					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
-						result = new HashMap<>();
 						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
 						if(result.get(record.get("Type").getContent().toString())!=null){
 							result.get(record.get("Type").getContent().toString()).put(record.get("Key").getContent().toString(),
