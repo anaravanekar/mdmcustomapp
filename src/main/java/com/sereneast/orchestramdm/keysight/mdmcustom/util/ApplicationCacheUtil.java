@@ -340,7 +340,7 @@ public class ApplicationCacheUtil {
 	public Map<String,Map<String,String>> getLookupValues(String dataSpace){
 		LOGGER.debug("getLookupValues->");
 		int retryCount = 0;
-		Map<String,Map<String,String>> result = new HashMap<>();
+		Map<String,Map<String,String>> result = null;
 		HashSet<String> options = new HashSet<>();
 		OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
 		Map<String, String> parameters = new HashMap<>();
@@ -352,8 +352,14 @@ public class ApplicationCacheUtil {
 				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "ReferenceData", "root/LookupValues", parameters);
 				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
 					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
+						result = new HashMap<>();
 						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
 						if(result.get(record.get("Type").getContent().toString())!=null){
+							result.get(record.get("Type").getContent().toString()).put(record.get("Key").getContent().toString(),
+									record.get("Value")!=null && record.get("Value").getContent()!=null?record.get("Value").getContent().toString():null);
+						}else{
+							Map<String,String> keyValueMap = new HashMap<>();
+							result.put(record.get("Type").getContent().toString(),keyValueMap);
 							result.get(record.get("Type").getContent().toString()).put(record.get("Key").getContent().toString(),
 									record.get("Value")!=null && record.get("Value").getContent()!=null?record.get("Value").getContent().toString():null);
 						}

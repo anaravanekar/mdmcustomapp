@@ -804,9 +804,11 @@ function validateNlsLanguage(country,ou,nlsLang){
 		if(nlsLang){
 			if(ou){
 				var lookupObj = getLookupValues();
-				console.log(lookupObj);
-				console.log(lookupObj["VALIDATE_NLS"]);
-				console.log(lookupObj["VALIDATE_NLS"]["CN_CNS-OU-3613"]);
+				if(lookupObj){
+                    console.log(lookupObj);
+                    console.log(lookupObj["VALIDATE_NLS"]);
+                    console.log(lookupObj["VALIDATE_NLS"]["CN_CNS-OU-3613"]);
+				}
 			}
 		}else{
 			if(!nlsLang && (country=='CN' || country=='KR' || country=='TW')){
@@ -841,6 +843,9 @@ function validateNlsLanguageHelper(){
 		ou = document.getElementsByName(ouElementName)[0].value;
 	}
 	var nlsLang = ebx_form_getValue(addressPrefixedPaths.NLSLanguage);
+	if(nlsLang){
+	    nlsLang=nlsLang.key;
+	}
 	console.log('country='+country+' ou='+ou+' nlsLang='+nlsLang);
 	validateNlsLanguage(country,ou,nlsLang);
 }
