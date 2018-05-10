@@ -804,9 +804,9 @@ function validateNlsLanguage(country,ou,nlsLang){
 		if(nlsLang){
 			if(ou){
 				if(lookupObj){
-                    console.log(lookupObj);
-                    console.log(lookupObj["VALIDATE_NLS"]);
-                    console.log(lookupObj["VALIDATE_NLS"]["CN_"+ou]);
+                    //console.log(lookupObj);
+                    //console.log(lookupObj["VALIDATE_NLS"]);
+                    //console.log(lookupObj["VALIDATE_NLS"]["CN_"+ou]);
                     if(nlsLang!=lookupObj["VALIDATE_NLS"]["CN_"+ou]){
                         var msgs = new EBX_ValidationMessage();
 					    msgs.warnings = ['Invalid NLS Code'];
@@ -852,7 +852,7 @@ function validateNlsLanguageHelper(){
 	if(nlsLang){
 	    nlsLang=nlsLang.key;
 	}
-	console.log('country='+country+' ou='+ou+' nlsLang='+nlsLang);
+	//console.log('country='+country+' ou='+ou+' nlsLang='+nlsLang);
 	validateNlsLanguage(country,ou,nlsLang);
 }
 
