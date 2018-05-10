@@ -807,15 +807,21 @@ function validateNlsLanguage(country,ou,nlsLang){
                     //console.log(lookupObj);
                     //console.log(lookupObj["VALIDATE_NLS"]);
                     //console.log(lookupObj["VALIDATE_NLS"]["CN_"+ou]);
-                    if(nlsLang!=lookupObj["VALIDATE_NLS"]["CN_"+ou]){
-                        var msgs = new EBX_ValidationMessage();
-					    msgs.warnings = ['Invalid NLS Code'];
-					    ebx_form_setNodeMessage(addressPrefixedPaths.NLSLanguage,msgs);
+                    if(lookupObj["VALIDATE_NLS"]["CN_"+ou]){
+                        if(nlsLang!=lookupObj["VALIDATE_NLS"]["CN_"+ou]){
+                            var msgs = new EBX_ValidationMessage();
+                            msgs.warnings = ['Invalid NLS Code'];
+                            ebx_form_setNodeMessage(addressPrefixedPaths.NLSLanguage,msgs);
+                        }else{
+                            ebx_form_setNodeMessage(addressPrefixedPaths.NLSLanguage,null);
+                        }
 				    }else{
-					    ebx_form_setNodeMessage(addressPrefixedPaths.NLSLanguage,null);
+                            ebx_form_setNodeMessage(addressPrefixedPaths.NLSLanguage,null);
 				    }
 				}
-			}
+			}else{
+                ebx_form_setNodeMessage(addressPrefixedPaths.NLSLanguage,null);
+            }
 		}else{
 			if(!nlsLang && (country=='CN' || country=='KR' || country=='TW')){
 				var a1 = ebx_form_getValue(addressPrefixedPaths.AddressLine1LocalLanguage);
@@ -835,8 +841,9 @@ function validateNlsLanguage(country,ou,nlsLang){
 				}else{
 					ebx_form_setNodeMessage(addressPrefixedPaths.NLSLanguage,null);
 				}
+			}else{
+			    ebx_form_setNodeMessage(addressPrefixedPaths.NLSLanguage,null);
 			}
-
 		}
 	}
 }
