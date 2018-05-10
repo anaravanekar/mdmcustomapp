@@ -807,8 +807,8 @@ function validateNlsLanguage(country,ou,nlsLang){
                     //console.log(lookupObj);
                     //console.log(lookupObj["VALIDATE_NLS"]);
                     //console.log(lookupObj["VALIDATE_NLS"]["CN_"+ou]);
-                    if(lookupObj["VALIDATE_NLS"]["CN_"+ou]){
-                        if(nlsLang!=lookupObj["VALIDATE_NLS"]["CN_"+ou]){
+                    if(lookupObj["VALIDATE_NLS"][country+"_"+ou]){
+                        if(nlsLang!=lookupObj["VALIDATE_NLS"][country+"_"+ou]){
                             var msgs = new EBX_ValidationMessage();
                             msgs.warnings = ['Invalid NLS Code'];
                             ebx_form_setNodeMessage(addressPrefixedPaths.NLSLanguage,msgs);
