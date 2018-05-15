@@ -863,3 +863,25 @@ function validateNlsLanguageHelper(){
 	validateNlsLanguage(country,ou,nlsLang);
 }
 
+function validateTaxId() {
+    var country = ebx_form_getValue(addressPrefixedPaths.Country);
+    var value = ebx_form_getValue(addressPrefixedPaths.TaxRegistrationNumber);
+    if (value && country) {
+        if (lookupObj) {
+            if (lookupObj["VALIDATE_TAX_ID"][country]) {
+                var patt = lookupObj["VALIDATE_TAX_ID"][country]
+                if (!patt.exec(value)) {
+                    var msgs = new EBX_ValidationMessage();
+                    msgs.warnings = ['Invalid Tax Id'];
+                    ebx_form_setNodeMessage(addressPrefixedPaths.TaxRegistrationNumber, msgs);
+                } else {
+                    ebx_form_setNodeMessage(addressPrefixedPaths.TaxRegistrationNumber, null);
+                }
+            } else {
+                ebx_form_setNodeMessage(addressPrefixedPaths.TaxRegistrationNumber, null);
+            }
+        }
+    } else {
+        ebx_form_setNodeMessage(addressPrefixedPaths.TaxRegistrationNumber, null);
+    }
+}
