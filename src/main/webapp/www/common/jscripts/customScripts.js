@@ -866,10 +866,12 @@ function validateNlsLanguageHelper(){
 function validateTaxId() {
     var country = ebx_form_getValue(addressPrefixedPaths.Country);
     var value = ebx_form_getValue(addressPrefixedPaths.TaxRegistrationNumber);
+    console.log('country='+country);
+    console.log('value='+value);
     if (value && country) {
         if (lookupObj) {
             if (lookupObj["VALIDATE_TAX_ID"][country]) {
-                var patt = lookupObj["VALIDATE_TAX_ID"][country]
+                var patt = new RegExp(lookupObj["VALIDATE_TAX_ID"][country], "g");
                 if (!patt.exec(value)) {
                     var msgs = new EBX_ValidationMessage();
                     msgs.warnings = ['Invalid Tax Id'];
