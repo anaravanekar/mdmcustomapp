@@ -1,7 +1,6 @@
 package com.sereneast.orchestramdm.keysight.mdmcustom.util;
 
 import com.orchestranetworks.schema.Path;
-import com.orchestranetworks.service.OperationException;
 import com.orchestranetworks.ui.form.UIFormPaneWriter;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
@@ -373,6 +372,50 @@ public class ApplicationCacheUtil {
 					Thread.sleep(1000);
 				} catch (InterruptedException e1) {
 					LOGGER.error("Error getting Lookup Values", e);
+				}
+			}
+		}while((orchestraObjectListResponse == null || orchestraObjectListResponse.getRows()==null) && retryCount<3);
+		return result;
+	}
+
+	@Cacheable(cacheNames="mainCache",key="{#root.methodName, #dataSpace}", unless="#result == null")
+	public Map<String, List<String>> getCityMap(String dataSpace){
+		LOGGER.debug("getCityMap->");
+		int retryCount = 0;
+		Map<String,List<String>> result = new HashMap<>();
+		HashSet<String> options = new HashSet<>();
+		OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+		Map<String, String> parameters = new HashMap<>();
+		parameters.put("pageSize", "unbounded");
+		OrchestraObjectListResponse orchestraObjectListResponse = null;
+		do{
+			retryCount++;
+			try {
+				orchestraObjectListResponse = orchestraRestClient.get(dataSpace, "ReferenceData", "root/City", parameters);
+				if (orchestraObjectListResponse != null && orchestraObjectListResponse.getRows() != null && !orchestraObjectListResponse.getRows().isEmpty()) {
+					result = new HashMap<>();
+					for (OrchestraObjectResponse orchestraObjectResponse : orchestraObjectListResponse.getRows()) {
+						Map<String, OrchestraContent> record = orchestraObjectResponse.getContent();
+						if("Y".equals(record.get("Active").getContent().toString())) {
+							if (result.get(record.get("CountryCode").getContent().toString())!=null
+									&& record.get("CityCode")!=null && record.get("CityCode").getContent()!=null) {
+								result.get(record.get("CountryCode").getContent().toString()).add(record.get("CityCode").getContent().toString());
+							} else if(record.get("CityCode")!=null && record.get("CityCode").getContent()!=null) {
+								List<String> cityList = new ArrayList<>();
+								cityList.add(record.get("CityCode").getContent().toString());
+								result.put(record.get("CountryCode").getContent().toString(), cityList);
+							}
+						}
+					}
+				}else{
+					LOGGER.debug("orchestraObjectListResponse="+orchestraObjectListResponse);
+				}
+			} catch (Exception e) {
+				LOGGER.error("Error getting city lookup map", e);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+					LOGGER.error("Error getting city lookup map", e);
 				}
 			}
 		}while((orchestraObjectListResponse == null || orchestraObjectListResponse.getRows()==null) && retryCount<3);

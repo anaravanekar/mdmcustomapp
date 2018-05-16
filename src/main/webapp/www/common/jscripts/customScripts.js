@@ -887,3 +887,33 @@ function validateTaxId() {
         ebx_form_setNodeMessage(addressPrefixedPaths.TaxRegistrationNumber, null);
     }
 }
+
+function validateCity() {
+    var country = ebx_form_getValue(addressPrefixedPaths.Country);
+    var city = ebx_form_getValue(addressPrefixedPaths.City);
+    console.log('country='+country);
+    console.log('city='+city);
+    if (city && country) {
+        if (cityLookup) {
+            if (cityLookup[country]) {
+                var cityArray = cityLookup[country];
+                if (cityArray.indexOf(city)===-1) {
+                    var msgs = new EBX_ValidationMessage();
+                    msgs.warnings = ['Invalid City'];
+                    ebx_form_setNodeMessage(addressPrefixedPaths.City, msgs);
+                } else {
+                    //var msgs = ebx_form_getNodeMessage(addressPrefixedPaths.City);
+                    //if(){
+                        //var index = array.indexOf('Invalid City');
+                        //if (index !== -1) array.splice(index, 1);
+                        ebx_form_setNodeMessage(addressPrefixedPaths.City, null);
+                    //}
+                }
+            } else {
+                ebx_form_setNodeMessage(addressPrefixedPaths.City, null);
+            }
+        }
+    } else {
+        ebx_form_setNodeMessage(addressPrefixedPaths.City, null);
+    }
+}
