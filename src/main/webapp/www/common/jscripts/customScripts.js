@@ -897,7 +897,7 @@ function validateCity() {
         if (cityLookup) {
             if (cityLookup[country]) {
                 var cityArray = cityLookup[country];
-                if (cityArray.indexOf(city)===-1) {
+                if (cityArray.indexOf(city.toLowerCase())===-1) {
                     var msgs = new EBX_ValidationMessage();
                     msgs.warnings = ['Invalid City'];
                     ebx_form_setNodeMessage(addressPrefixedPaths.City, msgs);

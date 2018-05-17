@@ -399,10 +399,10 @@ public class ApplicationCacheUtil {
 						if("Y".equals(record.get("Active").getContent().toString())) {
 							if (result.get(record.get("CountryCode").getContent().toString())!=null
 									&& record.get("CityCode")!=null && record.get("CityCode").getContent()!=null) {
-								result.get(record.get("CountryCode").getContent().toString()).add(record.get("CityCode").getContent().toString());
+								result.get(record.get("CountryCode").getContent().toString()).add(record.get("CityCode").getContent().toString().toLowerCase());
 							} else if(record.get("CityCode")!=null && record.get("CityCode").getContent()!=null) {
 								List<String> cityList = new ArrayList<>();
-								cityList.add(record.get("CityCode").getContent().toString());
+								cityList.add(record.get("CityCode").getContent().toString().toLowerCase());
 								result.put(record.get("CountryCode").getContent().toString(), cityList);
 							}
 						}
