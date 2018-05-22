@@ -917,3 +917,34 @@ function validateCity() {
         ebx_form_setNodeMessage(addressPrefixedPaths.City, null);
     }
 }
+
+function validatePostalCode(){
+    var country = ebx_form_getValue(addressPrefixedPaths.Country);
+    var postalCode = ebx_form_getValue(addressPrefixedPaths.PostalCode);
+	if(country){
+		if(postalCode && lookupObj){
+            if(lookupObj["VALIDATE_POSTAL_FORMAT"][country]){
+                var patt = new RegExp(lookupObj["VALIDATE_POSTAL_FORMAT"][country], "g");
+                if (!patt.exec(postalCode)) {
+                    var msgs = new EBX_ValidationMessage();
+                    msgs.warnings = ['Invalid Zip Code'];
+                    ebx_form_setNodeMessage(addressPrefixedPaths.PostalCode,msgs);
+                }else{
+                    ebx_form_setNodeMessage(addressPrefixedPaths.PostalCode,null);
+                }
+            }else{
+                ebx_form_setNodeMessage(addressPrefixedPaths.PostalCode,null);
+            }
+		}else if(!postalCode && lookupObj ){
+            if(lookupObj["VALIDATE_POSTAL_NOT_NULL"][country]){
+                var msgs = new EBX_ValidationMessage();
+                msgs.warnings = ['Invalid or Null Postal Code'];
+                ebx_form_setNodeMessage(addressPrefixedPaths.PostalCode,msgs);
+            }else{
+                ebx_form_setNodeMessage(addressPrefixedPaths.PostalCode,null);
+            }
+		}else{
+            ebx_form_setNodeMessage(addressPrefixedPaths.PostalCode,null);
+		}
+	}
+}
