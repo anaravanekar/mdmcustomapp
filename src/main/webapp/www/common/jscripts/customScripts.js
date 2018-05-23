@@ -948,3 +948,61 @@ function validatePostalCode(){
 		}
 	}
 }
+
+function defaultUsingLookup(thisField,keyField,isLov){
+    var lovs = {};
+    lovs["DEFAULT_InvoiceCopies"] = {"1":{key:"1",label:"One copy"}},"2":{key:"2",label:{key:"2",label:"Two copies"}},"3":{key:"3",label:{key:"3",label:"Three copies"},"4":{key:"4",label:"Four copies"},"5":{key:"5",label:"Five copies"},"0.3":{key:"0.3",label:"Suppress because a Government Invoice number is required"},"0.2":{key:"0.2",label:"Suppress because of special format requirements"}};
+    lovs["DEFAULT_SendAcknowledgement"] = {"Y":{key:"Y",label:"Y"},"N":{key:"1",label:"One copy"}};
+    var keyValue = ebx_form_getValue(addressPrefixedPaths[keyField]);
+    if(lookupObj){
+		if(keyValue){
+            if(lookupObj["DEFAULT_"+thisField][keyValue]){
+                var value = lookupObj["DEFAULT_"+thisField][keyValue];
+                if(isLov){
+                    ebx_form_setValue(addressPrefixedPaths[thisField], lovs["DEFAULT_"+thisField][value]);
+                }else{
+                    ebx_form_setValue(addressPrefixedPaths[thisField], value);
+                }
+            }
+		}
+    }
+}
+
+function validateUsingLookup(thisField,keyField,message){
+    var keyValue = ebx_form_getValue(addressPrefixedPaths[keyField]);
+    var thisValue = ebx_form_getValue(addressPrefixedPaths[thisField]);
+    if(lookupObj){
+		if(keyValue){
+            if(lookupObj["VALIDATE_"+thisField][keyValue]){
+                var expr = lookupObj["VALIDATE_"+thisField][keyValue];
+                var patt = new RegExp(expr, "g");
+                if (!patt.exec(thisValue)) {
+                    var msgs = new EBX_ValidationMessage();
+                    msgs.warnings = [message];
+                    ebx_form_setNodeMessage(addressPrefixedPaths[thisField],msgs);
+                }else{
+                    ebx_form_setNodeMessage(addressPrefixedPaths[thisField],null);
+                }
+            }else{
+                ebx_form_setNodeMessage(addressPrefixedPaths[thisField],null);
+            }
+		}else{
+            ebx_form_setNodeMessage(addressPrefixedPaths[thisField],null);
+        }
+    }else{
+        ebx_form_setNodeMessage(addressPrefixedPaths[thisField],null);
+    }
+}
+
+function calculatedFields(countryCode) {
+    defaultUsingLookup("InvoiceCopies","Country",true);
+    defaultUsingLookup("SendAcknowledgement","Country",true);
+    defaultUsingLookup("TaxRegimeCode","Country",true);
+    updateRelatedOptions(countryCode, null, null);
+    updateRelatedLocalOptions(countryCode, null, null);
+    validatePostalCode();
+    validateCity();
+    validateTaxId();
+    validateNlsLanguageHelper();
+    validateUsingLookup("InvoiceCopies","Country","Invalid Invoice Copies");
+}
