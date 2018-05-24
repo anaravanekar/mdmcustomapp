@@ -951,7 +951,7 @@ function validatePostalCode(){
 
 function defaultUsingLookup(thisField,keyField,isLov){
     var lovs = {};
-    lovs["DEFAULT_InvoiceCopies"] = {"1":{key:"1",label:"One copy"},"2":{key:"2",label:{key:"2",label:"Two copies"},"3":{key:"3",label:{key:"3",label:"Three copies"},"4":{key:"4",label:"Four copies"},"5":{key:"5",label:"Five copies"},"0.3":{key:"0.3",label:"Suppress because a Government Invoice number is required"},"0.2":{key:"0.2",label:"Suppress because of special format requirements"}};
+    lovs["DEFAULT_InvoiceCopies"] = {"1":{key:"1",label:"One copy"},"2":{key:"2",label:"Two copies"},"3":{key:"3",label:"Three copies"},"4":{key:"4",label:"Four copies"},"5":{key:"5",label:"Five copies"},"0.3":{key:"0.3",label:"Suppress because a Government Invoice number is required"},"0.2":{key:"0.2",label:"Suppress because of special format requirements"}};
     lovs["DEFAULT_SendAcknowledgement"] = {"Y":{key:"Y",label:"Y"},"N":{key:"1",label:"One copy"}};
     var keyValue = ebx_form_getValue(addressPrefixedPaths[keyField]);
     if(lookupObj){
