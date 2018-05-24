@@ -968,7 +968,11 @@ function defaultUsingLookup(thisField,keyField,isLov){
     }
 }
 
-function validateUsingLookup(thisField,keyField,message){
+function validateUsingLookup(param){
+    var params = param.split("|");
+    var thisField = params[0];
+    var keyField = params[1];
+    var message = params[2];
     var keyValue = ebx_form_getValue(addressPrefixedPaths[keyField]);
     var thisValue = ebx_form_getValue(addressPrefixedPaths[thisField]);
     if(lookupObj){
@@ -1004,5 +1008,5 @@ function calculatedFields(countryCode) {
     validateCity();
     validateTaxId();
     validateNlsLanguageHelper();
-    validateUsingLookup("InvoiceCopies","Country","Invalid Invoice Copies");
+    validateUsingLookup("InvoiceCopies|Country|Invalid Invoice Copies");
 }
