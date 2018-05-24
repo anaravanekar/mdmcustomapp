@@ -921,13 +921,27 @@ function validateCity() {
 function validatePostalCode(){
     var country = ebx_form_getValue(addressPrefixedPaths.Country);
     var postalCode = ebx_form_getValue(addressPrefixedPaths.PostalCode);
+    var city = ebx_form_getValue(addressPrefixedPaths.City);
+    var province = ebx_form_getValue(addressPrefixedPaths.Province);
 	if(country){
 		if(postalCode && lookupObj){
             if(lookupObj["VALIDATE_POSTAL_FORMAT"][country]){
+                var msgs = null;
                 var patt = new RegExp(lookupObj["VALIDATE_POSTAL_FORMAT"][country], "g");
+                if("ES"==country && ((city && "LAS PALMAS DE GRAN CANARIA"==city.toUpperCase()) || (province && "Las Palmas"==province.toUpperCase()))){
+                    patt = new RegExp("35[0-9]{3}", "g");
+                    msgs = new EBX_ValidationMessage();
+                    msgs.warnings = ['Invalid Canary Address'];
+                }else if("ES"==country && ((city && "SANTA CRUZ DE TENERIFE"==city.toUpperCase()) || (province && "Santa Cruz de Tenerife"==province.toUpperCase()))){
+                    patt = new RegExp("38[0-9]{3}", "g");
+                    msgs = new EBX_ValidationMessage();
+                    msgs.warnings = ['Invalid Canary Address'];
+                }
                 if (!patt.exec(postalCode)) {
-                    var msgs = new EBX_ValidationMessage();
-                    msgs.warnings = ['Invalid Zip Code'];
+                    if(!msgs){
+                        msgs = new EBX_ValidationMessage();
+                        msgs.warnings = ['Invalid Zip Code'];
+                    }
                     ebx_form_setNodeMessage(addressPrefixedPaths.PostalCode,msgs);
                 }else{
                     ebx_form_setNodeMessage(addressPrefixedPaths.PostalCode,null);
@@ -946,8 +960,27 @@ function validatePostalCode(){
 		}else{
             ebx_form_setNodeMessage(addressPrefixedPaths.PostalCode,null);
 		}
-
 	}
+}
+
+function validateProvince(){
+    var country = ebx_form_getValue(addressPrefixedPaths.Country);
+    var city = ebx_form_getValue(addressPrefixedPaths.City);
+    var province = ebx_form_getValue(addressPrefixedPaths.Province);
+    var error = false;
+    if("ES"==country && city && city.toUpperCase()=="LAS PALMAS DE GRAN CANARIA" && (!province || "Las Palmas".toUpperCase()!=province.toUpperCase())){
+        error=true;
+    }else if("ES"==country && city && city.toUpperCase()=="SANTA CRUZ DE TENERIFE" && (!province || "Santa Cruz de Tenerife".toUpperCase()!=province.toUpperCase())){
+        error=true;
+    }
+    if(error){
+        var msgs = new EBX_ValidationMessage();
+        msgs.warnings = ['Invalid Canary Address'];
+        ebx_form_setNodeMessage(addressPrefixedPaths.Province,msgs);
+    }else{
+        ebx_form_setNodeMessage(addressPrefixedPaths.Province,null);
+    }
+
 }
 
 function defaultUsingLookup(thisField,keyField,isLov){
@@ -999,6 +1032,8 @@ function validateUsingLookup(vl,param){
     }
 }
 
+
+
 function calculatedFields(countryCode) {
     defaultUsingLookup("InvoiceCopies","Country",true);
     defaultUsingLookup("SendAcknowledgement","Country",true);
@@ -1006,6 +1041,7 @@ function calculatedFields(countryCode) {
     updateRelatedOptions(countryCode, null, null);
     updateRelatedLocalOptions(countryCode, null, null);
     validatePostalCode();
+    validateProvince();
     validateCity();
     validateTaxId();
     validateNlsLanguageHelper();
