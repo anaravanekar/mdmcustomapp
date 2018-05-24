@@ -969,7 +969,7 @@ function defaultUsingLookup(thisField,keyField,isLov){
     }
 }
 
-function validateUsingLookup(param){
+function validateUsingLookup(vl,param){
     var params = param.split("|");
     var thisField = params[0];
     var keyField = params[1];
@@ -1009,5 +1009,5 @@ function calculatedFields(countryCode) {
     validateCity();
     validateTaxId();
     validateNlsLanguageHelper();
-    validateUsingLookup("InvoiceCopies|Country|Invalid Invoice Copies");
+    validateUsingLookup(null,"InvoiceCopies|Country|Invalid Invoice Copies");
 }
