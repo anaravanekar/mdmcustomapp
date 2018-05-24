@@ -916,6 +916,8 @@ function validateCity() {
     } else {
         ebx_form_setNodeMessage(addressPrefixedPaths.City, null);
     }
+    validatePostalCode();
+    validateProvince();
 }
 
 function validatePostalCode(){
