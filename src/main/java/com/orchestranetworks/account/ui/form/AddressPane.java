@@ -35,19 +35,21 @@ public class AddressPane implements UIFormPane {
 	@Override
 	public void writePane(UIFormPaneWriter writer, UIFormContext context) {
 		String accountLocalName = "";
+		String accountClassification = "";
 		if(!context.isCreatingRecord() && context.getCurrentRecord()!=null){
 			StringBuilder textToAppend = new StringBuilder();
 
 			String accountName = null;
 			if(StringUtils.isNotBlank(context.getCurrentRecord().getString(_MDMAccountId))) {
-				/*AdaptationTable accountTable = context.getCurrentDataSet().getTable(Paths._Account.getPathInSchema());
+				AdaptationTable accountTable = context.getCurrentDataSet().getTable(Paths._Account.getPathInSchema());
 				final RequestResult requestResult = accountTable.createRequestResult(Paths._Account._MDMAccountId.format() + " = " + context.getCurrentRecord().getString(_MDMAccountId));
 				if (requestResult != null && !requestResult.isEmpty()) {
-					Adaptation record = requestResult.nextAdaptation();*/
+					Adaptation record = requestResult.nextAdaptation();
+					accountClassification=record.getString(Paths._Account._Classification);
 					accountName = context.getCurrentRecord().getString(Path.parse("./MDMAccountName"));//record.getString(Paths._Account._AccountName);
 					accountLocalName = context.getCurrentRecord().getString(Path.parse("./MDMNameLocalLanguage"))!=null?context.getCurrentRecord().getString(Path.parse("./MDMNameLocalLanguage")):"";//record.getString(Paths._Account._NameLocalLanguage)!=null?record.getString(Paths._Account._NameLocalLanguage):"";
 					textToAppend.append(" of ").append(accountName);
-//				}
+				}
 			}
 			/*if(StringUtils.isNotBlank(context.getCurrentRecord().getString(_AccountName))){
 				textToAppend.append("    ").append(context.getCurrentRecord().getString(_AccountName));
@@ -743,6 +745,7 @@ public class AddressPane implements UIFormPane {
 			writer.addJS("var addressPrefixedPaths = "+mapper.writeValueAsString(prefixedPaths)+";");
 			writer.addJS("var lookupObj = "+mapper.writeValueAsString(lookupObj)+";");
 			writer.addJS("var cityLookup = "+mapper.writeValueAsString(cityMap)+";");
+			writer.addJS("var accountClassification = "+accountClassification+";");
 		} catch (IllegalAccessException | ClassNotFoundException | JsonProcessingException e) {
 			throw new ApplicationRuntimeException("Error geting prefixed paths for address",e);
 		}

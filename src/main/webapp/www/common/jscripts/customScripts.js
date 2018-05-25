@@ -735,6 +735,16 @@ function showErrorCustomSelect(labelTdId, containerDivId, currentValue) {
 	}
 }
 
+function showWarningCustomSelect(containerDivId, message) {
+	var containerDivElem = document.getElementById(containerDivId);
+	var warningMessageDivElem = document.getElementById(containerDivId+"Error");
+	if(warningMessageDivElem){
+		containerDivElem.removeChild(warningMessageDivElem);
+	}
+	var warningMessageDivNode = getNewWarningMessageDiv(message,containerDivId+"Error");
+	containerDivElem.appendChild(warningMessageDivNode);
+}
+
 function removeErrorCustomSelect(labelTdId, containerDivId){
 	var labelTdElem = document.getElementById(labelTdId);
 	var labelSpanElem = labelTdElem.querySelector("span.ebx_RawLabel");
@@ -774,6 +784,33 @@ function getNewErrorMessageDiv(errorMessage,divId){
 	var div3 = document.createElement("div");
     var classe = document.createAttribute("class");
 	classe.value = "ebx_Error";
+	div3.setAttributeNode(classe);
+
+	var textnode = document.createTextNode(errorMessage);
+
+	div3.appendChild(textnode);
+	div2.appendChild(div3);
+	div1.appendChild(div2);
+	return div1;
+}
+
+function getNewWarningMessageDiv(errorMessage,divId){
+    var div1 = document.createElement("div");
+    var errorId = document.createAttribute("id");
+	errorId.value = divId;
+    var classmc = document.createAttribute("class");
+	classmc.value = "ebx_MessageContainer customErrorContainer";
+	div1.setAttributeNode(errorId);
+	div1.setAttributeNode(classmc);
+
+	var div2 = document.createElement("div");
+    var classie = document.createAttribute("class");
+	classie.value = "ebx_IconWarning";
+	div2.setAttributeNode(classie);
+
+	var div3 = document.createElement("div");
+    var classe = document.createAttribute("class");
+	classe.value = "ebx_Warning";
 	div3.setAttributeNode(classe);
 
 	var textnode = document.createTextNode(errorMessage);
@@ -975,11 +1012,19 @@ function validateProvince(){
         error=true;
     }
     if(error){
-        var msgs = new EBX_ValidationMessage();
-        msgs.warnings = ['Invalid Canary Address'];
-        ebx_form_setNodeMessage(addressPrefixedPaths.Province,msgs);
+        if(!(document.getElementById('provinceCustomDiv').style.display==='none')){
+            showWarningCustomSelect("provinceCustomDiv", "Invalid Canary Address");
+        }else{
+            var msgs = new EBX_ValidationMessage();
+            msgs.warnings = ['Invalid Canary Address'];
+            ebx_form_setNodeMessage(addressPrefixedPaths.Province,msgs);
+        }
     }else{
-        ebx_form_setNodeMessage(addressPrefixedPaths.Province,null);
+        if(!(document.getElementById('provinceCustomDiv').style.display==='none')){
+            removeErrorCustomSelect("ProvinceTd", "provinceCustomDiv");
+        }else{
+            ebx_form_setNodeMessage(addressPrefixedPaths.Province,null);
+        }
     }
     validatePostalCode();
 }
@@ -1015,7 +1060,7 @@ function validateUsingLookup(vl,param){
             if(lookupObj["VALIDATE_"+thisField][keyValue]){
                 var expr = lookupObj["VALIDATE_"+thisField][keyValue];
                 var patt = new RegExp(expr, "g");
-                if (!patt.exec(thisValue)) {
+                if ((thisField=="InvoiceCopies" && keyValue=="US" && accountClassification.toUpperCase()=="GOVERNMENT" && thisValue!="4") || !patt.exec(thisValue)) {
                     var msgs = new EBX_ValidationMessage();
                     msgs.warnings = [message];
                     ebx_form_setNodeMessage(addressPrefixedPaths[thisField],msgs);
@@ -1037,14 +1082,26 @@ function validateState(value){
     var country = ebx_form_getValue(addressPrefixedPaths.Country);
     if(country=="JP"){
         if(!value){
-            var msgs = new EBX_ValidationMessage();
-            msgs.warnings = ["Null State"];
-            ebx_form_setNodeMessage(addressPrefixedPaths.AddressState,msgs);
+            if(!(document.getElementById('stateCustomDiv').style.display==='none')){
+                showWarningCustomSelect("stateCustomDiv", "Null State");
+            }else{
+                var msgs = new EBX_ValidationMessage();
+                msgs.warnings = ["Null State"];
+                ebx_form_setNodeMessage(addressPrefixedPaths.AddressState,msgs);
+            }
         }else{
-             ebx_form_setNodeMessage(addressPrefixedPaths.AddressState,null);
+            if(!(document.getElementById('stateCustomDiv').style.display==='none')){
+                removeErrorCustomSelect("StateTd", "stateCustomDiv");
+             }else{
+                ebx_form_setNodeMessage(addressPrefixedPaths.AddressState,null);
+             }
         }
     }else{
-         ebx_form_setNodeMessage(addressPrefixedPaths.AddressState,null);
+        if(!(document.getElementById('stateCustomDiv').style.display==='none')){
+            removeErrorCustomSelect("StateTd", "stateCustomDiv");
+        }else{
+            ebx_form_setNodeMessage(addressPrefixedPaths.AddressState,null);
+        }
     }
 }
 
