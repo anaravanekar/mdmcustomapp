@@ -916,7 +916,6 @@ function validateCity() {
     } else {
         ebx_form_setNodeMessage(addressPrefixedPaths.City, null);
     }
-    validatePostalCode();
     validateProvince();
 }
 
@@ -982,7 +981,7 @@ function validateProvince(){
     }else{
         ebx_form_setNodeMessage(addressPrefixedPaths.Province,null);
     }
-
+    validatePostalCode();
 }
 
 function defaultUsingLookup(thisField,keyField,isLov){
@@ -1034,7 +1033,20 @@ function validateUsingLookup(vl,param){
     }
 }
 
-
+function validateState(value){
+    var country = ebx_form_getValue(addressPrefixedPaths.Country);
+    if(country=="JP"){
+        if(!value){
+            var msgs = new EBX_ValidationMessage();
+            msgs.warnings = ["Null State"];
+            ebx_form_setNodeMessage(addressPrefixedPaths.AddressState,msgs);
+        }else{
+             ebx_form_setNodeMessage(addressPrefixedPaths.AddressState,null);
+        }
+    }else{
+         ebx_form_setNodeMessage(addressPrefixedPaths.AddressState,null);
+    }
+}
 
 function calculatedFields(countryCode) {
     defaultUsingLookup("InvoiceCopies","Country",true);
@@ -1042,9 +1054,8 @@ function calculatedFields(countryCode) {
     defaultUsingLookup("TaxRegimeCode","Country",true);
     updateRelatedOptions(countryCode, null, null);
     updateRelatedLocalOptions(countryCode, null, null);
-    validatePostalCode();
-    validateProvince();
     validateCity();
+    validateState();
     validateTaxId();
     validateNlsLanguageHelper();
     validateUsingLookup(null,"InvoiceCopies|Country|Invalid Invoice Copies");
