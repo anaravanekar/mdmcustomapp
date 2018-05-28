@@ -745,7 +745,7 @@ public class AddressPane implements UIFormPane {
 			writer.addJS("var addressPrefixedPaths = "+mapper.writeValueAsString(prefixedPaths)+";");
 			writer.addJS("var lookupObj = "+mapper.writeValueAsString(lookupObj)+";");
 			writer.addJS("var cityLookup = "+mapper.writeValueAsString(cityMap)+";");
-			writer.addJS("var accountClassification = "+accountClassification+";");
+			writer.addJS("var accountClassification = '"+accountClassification+"';");
 		} catch (IllegalAccessException | ClassNotFoundException | JsonProcessingException e) {
 			throw new ApplicationRuntimeException("Error geting prefixed paths for address",e);
 		}
