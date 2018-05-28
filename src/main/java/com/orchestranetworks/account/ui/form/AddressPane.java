@@ -36,16 +36,18 @@ public class AddressPane implements UIFormPane {
 	public void writePane(UIFormPaneWriter writer, UIFormContext context) {
 		String accountLocalName = "";
 		String accountClassification = "";
-		if(!context.isCreatingRecord() && context.getCurrentRecord()!=null){
+//		if(!context.isCreatingRecord() && context.getCurrentRecord()!=null){
 			StringBuilder textToAppend = new StringBuilder();
 
 			String accountName = null;
-			if(StringUtils.isNotBlank(context.getCurrentRecord().getString(_MDMAccountId))) {
+			if(context.getCurrentRecord()!=null && StringUtils.isNotBlank(context.getCurrentRecord().getString(_MDMAccountId))) {
 				AdaptationTable accountTable = context.getCurrentDataSet().getTable(Paths._Account.getPathInSchema());
 				final RequestResult requestResult = accountTable.createRequestResult(Paths._Account._MDMAccountId.format() + " = " + context.getCurrentRecord().getString(_MDMAccountId));
 				if (requestResult != null && !requestResult.isEmpty()) {
+					LOGGER.debug("Account found");
 					Adaptation record = requestResult.nextAdaptation();
 					accountClassification=record.getString(Paths._Account._Classification);
+					LOGGER.debug("accountClassification="+accountClassification);
 					accountName = context.getCurrentRecord().getString(Path.parse("./MDMAccountName"));//record.getString(Paths._Account._AccountName);
 					accountLocalName = context.getCurrentRecord().getString(Path.parse("./MDMNameLocalLanguage"))!=null?context.getCurrentRecord().getString(Path.parse("./MDMNameLocalLanguage")):"";//record.getString(Paths._Account._NameLocalLanguage)!=null?record.getString(Paths._Account._NameLocalLanguage):"";
 					textToAppend.append(" of ").append(accountName);
@@ -64,7 +66,7 @@ public class AddressPane implements UIFormPane {
 				writer.addJS("var textToAppendToHeader=\"" + StringEscapeUtils.escapeEcmaScript(textToAppend.toString()) + "\";");
 				writer.addJS("appendToFormHeader(textToAppendToHeader);");
 			}
-		}
+		//}
 
 		ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil)SpringContext.getApplicationContext().getBean("applicationCacheUtil");
 
