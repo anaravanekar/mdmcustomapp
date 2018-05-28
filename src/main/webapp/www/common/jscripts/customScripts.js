@@ -966,11 +966,11 @@ function validatePostalCode(){
             if(lookupObj["VALIDATE_POSTAL_FORMAT"][country]){
                 var msgs = null;
                 var patt = new RegExp(lookupObj["VALIDATE_POSTAL_FORMAT"][country], "g");
-                if("ES"==country && ((city && "LAS PALMAS DE GRAN CANARIA"==city.toUpperCase()) || (province && "Las Palmas"==province.toUpperCase()))){
+                if("ES"==country && ((city && "LAS PALMAS DE GRAN CANARIA"==city.toUpperCase()) || (province && "LAS PALMAS"==province.toUpperCase()))){
                     patt = new RegExp("35[0-9]{3}", "g");
                     msgs = new EBX_ValidationMessage();
                     msgs.warnings = ['Invalid Canary Address'];
-                }else if("ES"==country && ((city && "SANTA CRUZ DE TENERIFE"==city.toUpperCase()) || (province && "Santa Cruz de Tenerife"==province.toUpperCase()))){
+                }else if("ES"==country && ((city && "SANTA CRUZ DE TENERIFE"==city.toUpperCase()) || (province && "SANTA CRUZ DE TENERIFE"==province.toUpperCase()))){
                     patt = new RegExp("38[0-9]{3}", "g");
                     msgs = new EBX_ValidationMessage();
                     msgs.warnings = ['Invalid Canary Address'];
