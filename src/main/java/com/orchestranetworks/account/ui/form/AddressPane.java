@@ -40,6 +40,10 @@ public class AddressPane implements UIFormPane {
 			StringBuilder textToAppend = new StringBuilder();
 
 			String accountName = null;
+			LOGGER.debug("context.getCurrentRecord()="+context.getCurrentRecord());
+			if(context.getCurrentRecord()!=null) {
+				LOGGER.debug("context.getCurrentRecord().getString(_MDMAccountId)=" + context.getCurrentRecord().getString(_MDMAccountId));
+			}
 			if(context.getCurrentRecord()!=null && StringUtils.isNotBlank(context.getCurrentRecord().getString(_MDMAccountId))) {
 				AdaptationTable accountTable = context.getCurrentDataSet().getTable(Paths._Account.getPathInSchema());
 				final RequestResult requestResult = accountTable.createRequestResult(Paths._Account._MDMAccountId.format() + " = " + context.getCurrentRecord().getString(_MDMAccountId));
