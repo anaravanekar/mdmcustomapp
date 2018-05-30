@@ -1059,12 +1059,10 @@ function validateUsingLookup(vl,param){
 		if(keyValue){
             if(lookupObj["VALIDATE_"+thisField][keyValue]){
                 var mdmAccountId = ebx_form_getValue(addressPrefixedPaths.MDMAccountId)!=null?ebx_form_getValue(addressPrefixedPaths.MDMAccountId).key:null;
-                var account = null;
-                getRecord("BCMDReference","Account","Account",mdmAccountId,account);
+                getRecord("BCMDReference","Account","Account",mdmAccountId);
+                var account=recordObject;
                 console.log('account='+account);
-                var accountClassification = account!=null?account.Classification.content:null;;
-                console.log('accountClassification='+accountClassification);
-                accountClassification = accountClassification
+                var accountClassification = account!=null?account.Classification.content:null;
                 console.log('accountClassification='+accountClassification);
                 var expr = lookupObj["VALIDATE_"+thisField][keyValue];
                 var patt = new RegExp(expr, "g");
