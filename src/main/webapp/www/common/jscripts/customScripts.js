@@ -1123,3 +1123,7 @@ function calculatedFields(countryCode) {
     validateNlsLanguageHelper();
     validateUsingLookup(null,"InvoiceCopies|Country|Invalid Invoice Copies");
 }
+
+function onAccountChange(){
+    validateUsingLookup(null,"InvoiceCopies|Country|Invalid Invoice Copies");
+}
