@@ -1058,9 +1058,14 @@ function validateUsingLookup(vl,param){
     if(lookupObj){
 		if(keyValue){
             if(lookupObj["VALIDATE_"+thisField][keyValue]){
+                var mdmAccountId = ebx_form_getValue(addressPrefixedPaths.MDMAccountId);
+                var accountClassification = getRecord("BCMDReference","Account","Account",mdmAccountId);
+                console.log('accountClassification='+accountClassification);
+                accountClassification = accountClassification!=null?accountClassification.MDMAccountId.content:null;
+                console.log('accountClassification='+accountClassification);
                 var expr = lookupObj["VALIDATE_"+thisField][keyValue];
                 var patt = new RegExp(expr, "g");
-                if ((thisField=="InvoiceCopies" && keyValue=="US" && accountClassification.toUpperCase()=="GOVERNMENT" && thisValue!="4") || !patt.exec(thisValue)) {
+                if ((thisField=="InvoiceCopies" && keyValue=="US" && accountClassification && accountClassification.toUpperCase()=="GOVERNMENT" && thisValue!="4") || !patt.exec(thisValue)) {
                     var msgs = new EBX_ValidationMessage();
                     msgs.warnings = [message];
                     ebx_form_setNodeMessage(addressPrefixedPaths[thisField],msgs);

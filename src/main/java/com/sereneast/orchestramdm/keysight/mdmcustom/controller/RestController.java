@@ -260,4 +260,28 @@ public class RestController {
         }
         return result;
     }
+
+    @RequestMapping(value = "getRecord/{dataSpace}/{dataSet}/{object}/{objectIdValue}", method = RequestMethod.GET)
+    public String getRecord(@PathVariable("dataSpace") String dataSpace, @PathVariable("dataSet") String dataSet,@PathVariable("object") String object, @PathVariable("objectIdValue") String objectIdValue) {
+        LOGGER.debug("getRecord->");
+        OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+        Map<String, String> parameters = new HashMap<>();
+//        parameters.put("pageSize", "unbounded");
+        parameters.put("includeLabel","no");
+        parameters.put("includeDetails","no");
+        parameters.put("includeSelector","false");
+        OrchestraObjectListResponse orchestraObjectListResponse = null;
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            orchestraObjectListResponse = orchestraRestClient.get(dataSpace, dataSet, "root/"+object+"/"+objectIdValue, parameters);
+            if (orchestraObjectListResponse != null) {
+                    return mapper.writeValueAsString(orchestraObjectListResponse);
+            }else{
+                return "{\"content\":null}";
+            }
+        }catch (Exception e){
+            LOGGER.error("Error fetching record",e);
+            return "{\"content\":null}";
+        }
+    }
 }
