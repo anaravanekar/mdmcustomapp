@@ -1066,7 +1066,7 @@ function validateUsingLookup(vl,param){
                 console.log('accountClassification='+accountClassification);
                 var expr = lookupObj["VALIDATE_"+thisField][keyValue];
                 var patt = new RegExp(expr, "g");
-                if ((thisField=="InvoiceCopies" && keyValue=="US" && mdmAccountId && accountClassification && accountClassification.toUpperCase()=="GOVERNMENT" && thisValue!="4") || !patt.exec(thisValue)) {
+                if ((thisField=="InvoiceCopies" && keyValue=="US" && mdmAccountId>0 && accountClassification!=null && accountClassification.toUpperCase()=="GOVERNMENT" && thisValue!="4") || !patt.exec(thisValue)) {
                     var msgs = new EBX_ValidationMessage();
                     msgs.warnings = [message];
                     ebx_form_setNodeMessage(addressPrefixedPaths[thisField],msgs);
