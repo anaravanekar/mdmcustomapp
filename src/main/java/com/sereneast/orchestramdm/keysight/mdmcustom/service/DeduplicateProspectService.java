@@ -226,10 +226,10 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         record = new StringBuilder();
                     }
                     for (String key : sfdcToMdmMapping.keySet()) {
-                        if(jarr.getJSONObject(i).get(key)!=null && StringUtils.contains(jarr.getJSONObject(i).getString(key),';')){
-                            record.append(StringUtils.wrap(jarr.getJSONObject(i).getString(key),'"'));
+                        if(jarr.getJSONObject(i).get(key)!=null && StringUtils.contains(jarr.getJSONObject(i).get(key).toString(),';')){
+                            record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"",'"'));
                         }else{
-                            record.append(jarr.getJSONObject(i).get(key)!=null?String.valueOf(jarr.getJSONObject(i).get(key)):"");
+                            record.append(jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"");
                         }
                         record.append(";");
                     }
