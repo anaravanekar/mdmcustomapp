@@ -245,7 +245,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
             Procedure procedure = procedureContext -> {
 
                 System.out.println("csv file exists? " + path.toFile().exists());
-                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
+                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
                 System.out.println("table=" + table.toString());
 
                 ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
