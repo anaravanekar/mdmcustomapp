@@ -216,7 +216,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     StringBuilder record = new StringBuilder();
                     if(!header) {
                         for (String key : sfdcToMdmMapping.keySet()) {
-                            record.append(sfdcToMdmMapping.get(key));
+                            record.append("/"+sfdcToMdmMapping.get(key));
                             record.append(";");
                         }
                         record.append('\r');
