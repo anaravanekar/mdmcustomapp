@@ -258,7 +258,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 importSpec.setCSVSpec(csvSpec);
                 procedureContext.doImport(importSpec);
             };
-            ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
+            ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
             ProcedureResult result = null;
             result = svc.execute(procedure);
             if (result == null || result.hasFailed()) {
