@@ -219,6 +219,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                             record.append("/"+sfdcToMdmMapping.get(key));
                             record.append(";");
                         }
+                        record.deleteCharAt(record.length()-1);
                         record.append('\r');
                         record.append('\n');
                         Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
@@ -233,6 +234,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         }
                         record.append(";");
                     }
+                    record.deleteCharAt(record.length()-1);
                     record.append('\r');
                     record.append('\n');
                     Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
