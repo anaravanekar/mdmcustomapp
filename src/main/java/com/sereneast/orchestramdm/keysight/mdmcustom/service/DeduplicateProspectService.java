@@ -216,27 +216,27 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     StringBuilder record = new StringBuilder();
                     if(!header) {
                         for (String key : sfdcToMdmMapping.keySet()) {
-                            record.append(key);
+                            record.append(sfdcToMdmMapping.get(key));
                             record.append(";");
                         }
                         record.append('\r');
                         record.append('\n');
                         Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
-                        LOGGER.info("Record written to file : \n"+record.toString());
                         header = true;
                         record = new StringBuilder();
                     }
                     for (String key : sfdcToMdmMapping.keySet()) {
                         if(StringUtils.contains(sfdcToMdmMapping.get(key),';')){
-                            record.append(StringUtils.wrap(sfdcToMdmMapping.get(key),'"'));
+                            record.append(StringUtils.wrap(jarr.getJSONObject(i).getString(key),'"'));
                         }else{
-                            record.append(sfdcToMdmMapping.get(key));
+                            record.append(jarr.getJSONObject(i).getString(key));
                         }
                         record.append(";");
                     }
                     record.append('\r');
                     record.append('\n');
                     Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
+                    LOGGER.info("Record written to file : \n"+record.toString());
                 }
             }catch (IOException e) {}
 
@@ -248,6 +248,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
 
                 ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
                 csvSpec.setFieldSeparator(';');
+                csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
                 ImportSpec importSpec = new ImportSpec();
                 importSpec.setSourceFile(path.toFile());
                 importSpec.setTargetAdaptationTable(table);
