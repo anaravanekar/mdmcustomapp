@@ -206,12 +206,13 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 JSONObject json = new JSONObject(getResult);
 
                 JSONArray jarr = json.getJSONArray("records");
+                LOGGER.info("Records fetched from SFDC : "+jarr.length());
                 boolean header = false;
                 for(int i = 0 ; i < jarr.length(); i++){
-                    System.out.println("REC\n"+json.getJSONArray("records").getJSONObject(i));
+                    /*System.out.println("REC\n"+json.getJSONArray("records").getJSONObject(i));
                     accountid = json.getJSONArray("records").getJSONObject(i).getString("Id");
                     accountname = json.getJSONArray("records").getJSONObject(i).getString("Name");
-                    System.out.println("The Returned Account Details are " + i + ". " + accountid + " Account Name is " + accountname);
+                    System.out.println("The Returned Account Details are " + i + ". " + accountid + " Account Name is " + accountname);*/
                     StringBuilder record = new StringBuilder();
                     if(!header) {
                         for (String key : sfdcToMdmMapping.keySet()) {
@@ -221,6 +222,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         record.append('\r');
                         record.append('\n');
                         Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
+                        LOGGER.info("Record written to file : \n"+record.toString());
                         header = true;
                         record = new StringBuilder();
                     }
