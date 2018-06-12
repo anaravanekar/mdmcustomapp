@@ -91,6 +91,13 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Custom Master Data View",
 				"",-2,
 				new Path[]{Paths._Account.getPathInSchema(),Paths._Address.getPathInSchema()}));
+		aContext.registerUserService(new TableViewSampleServiceDeclaration(
+				ServiceKey.forModuleServiceName("mdmcustomapp",DeduplicateProspectService.class.getSimpleName()),
+				DeduplicateProspectService.class,
+				"Deduplicate Prospect",
+				"Deduplicate Prospect",
+				"",-2,
+				new Path[]{Paths._Account.getPathInSchema()}));
 		aContext.registerUserService(new DatasetViewUserServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",RefreshCacheService.class.getSimpleName()),
 				RefreshCacheService.class,
