@@ -7,6 +7,7 @@ import com.orchestranetworks.instance.HomeCreationSpec;
 import com.orchestranetworks.instance.HomeKey;
 import com.orchestranetworks.instance.Repository;
 import com.orchestranetworks.service.*;
+import com.orchestranetworks.ui.UIHttpManagerComponent;
 import com.orchestranetworks.ui.selection.TableViewEntitySelection;
 import com.orchestranetworks.userservice.*;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
@@ -118,9 +119,9 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
     }
 
     private void writeForm(UserServicePaneContext aContext, UserServicePaneWriter aWriter) {
-        LOGGER.debug("In writeform");
+        LOGGER.info("In writeform");
         String urlForClose = aWriter.getURLForEndingService();
-        LOGGER.debug("urlForClose=" + urlForClose);
+        LOGGER.info("urlForClose=" + urlForClose);
 
         ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil) SpringContext.getApplicationContext().getBean("applicationCacheUtil");
         Map<String,Map<String,String>> lookup = applicationCacheUtil.getLookupValues("BReference");
@@ -357,7 +358,9 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
             }
             String urlSfdcDs = aWriter.getURLForSelection(Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
             LOGGER.info("Url for dataspace : "+urlSfdcDs);
-            aWriter.addJS("window.location.href='"+urlSfdcDs+"';");
+//            aWriter.addJS("window.location.href='"+urlSfdcDs+"';");
+            UIHttpManagerComponent component = aWriter.createWebComponentForSubSession();
+            component.selectInstance(HomeKey.forBranchName("SFDCProspect"),AdaptationName.forName("Account"));
         }else{
             String urlEnding = aWriter.getURLForEndingService();
             LOGGER.info("Url for ending service : "+urlEnding);
