@@ -229,7 +229,9 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         record = new StringBuilder();
                     }
                     for (String key : sfdcToMdmMapping.keySet()) {
-                        if(jarr.getJSONObject(i).get(key)!=null && StringUtils.contains(jarr.getJSONObject(i).get(key).toString(),';')){
+                        if("Status__c".equals(key)){
+                            record.append("Prospect");
+                        }else if(jarr.getJSONObject(i).get(key)!=null && StringUtils.contains(jarr.getJSONObject(i).get(key).toString(),';')){
                             record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"",'"'));
                         }else{
                             record.append(jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"");
@@ -357,10 +359,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 LOGGER.info("Address Import Procedure successful");
             }
             String urlSfdcDs = aWriter.getURLForSelection(Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
-            LOGGER.info("Url for dataspace : "+urlSfdcDs);
-//            aWriter.addJS("window.location.href='"+urlSfdcDs+"';");
-            UIHttpManagerComponent component = aWriter.createWebComponentForSubSession();
-            component.selectInstance(HomeKey.forBranchName("SFDCProspect"),AdaptationName.forName("Account"));
+            LOGGER.info("Url for sfdc Account datset : "+urlSfdcDs.replaceAll("Spaces",""));
+            aWriter.addJS("window.location.href='"+urlSfdcDs+"';");
         }else{
             String urlEnding = aWriter.getURLForEndingService();
             LOGGER.info("Url for ending service : "+urlEnding);
