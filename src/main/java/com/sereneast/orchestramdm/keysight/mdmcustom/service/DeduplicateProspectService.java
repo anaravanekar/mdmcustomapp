@@ -358,8 +358,9 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
             } else {
                 LOGGER.info("Address Import Procedure successful");
             }
-            String urlSfdcDs = aWriter.getURLForSelection(Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
-            LOGGER.info("Url for sfdc Account datset : "+urlSfdcDs.replaceAll("Spaces",""));
+            String urlSfdcDs = aWriter.getURLForSelection(
+                    Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect"))).replaceAll("Spaces","");
+            LOGGER.info("Url for sfdc Account datset : "+urlSfdcDs);
             aWriter.addJS("window.location.href='"+urlSfdcDs+"';");
         }else{
             String urlEnding = aWriter.getURLForEndingService();
