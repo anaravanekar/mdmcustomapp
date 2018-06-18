@@ -244,6 +244,13 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
 
                 //Address
                 path = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Address"+time+".csv");
+                if(!Files.exists(path)){
+                    try {
+                        Files.createFile(path);
+                    } catch (IOException e) {
+                        LOGGER.error("Error creating temporary file",e);
+                    }
+                }
                 sfdcToMdmMapping = lookup.get("MAPPING_SFDC_TO_MDM_ADDRESS");
                 builder = new StringBuilder();
                 for (String key : sfdcToMdmMapping.keySet()) {
@@ -349,9 +356,11 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 LOGGER.info("Address Import Procedure successful");
             }
             String urlSfdcDs = aWriter.getURLForSelection(Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
+            LOGGER.info("Url for dataspace : "+urlSfdcDs);
             aWriter.addJS("window.location.href='"+urlSfdcDs+"';");
         }else{
             String urlEnding = aWriter.getURLForEndingService();
+            LOGGER.info("Url for ending service : "+urlEnding);
             aWriter.addJS("window.location.href='"+urlEnding+"';");
         }
     }
