@@ -32,6 +32,7 @@ import org.springframework.context.ApplicationContext;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Date;
 import java.util.Locale;
@@ -240,11 +241,67 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
                     LOGGER.info("Record written to file : \n"+record.toString());
                 }
+
+                //Address
+                path = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Address"+time+".csv");
+                sfdcToMdmMapping = lookup.get("MAPPING_SFDC_TO_MDM_ADDRESS");
+                builder = new StringBuilder();
+                for (String key : sfdcToMdmMapping.keySet()) {
+                    builder.append(key);
+                    builder.append("+,+");
+                }
+                uri = baseUri + "/query?q=Select+"+builder.toString().substring(0,builder.toString().length()-3)+"+From+Address__c+WHERE+CreatedDate+=+LAST_N_MONTHS:1";
+                LOGGER.info("address uri="+uri);
+                httpget = new HttpGet(uri);
+                httpget.addHeader(authHeader);
+                httpget.addHeader(ppHeader);
+
+                response = httpClient.execute(httpget);
+                getResult = EntityUtils.toString(response.getEntity());
+                json = new JSONObject(getResult);
+
+                jarr = json.getJSONArray("records");
+                LOGGER.info("Address Records fetched from SFDC : "+jarr.length());
+                header = false;
+                for(int i = 0 ; i < jarr.length(); i++){
+                    /*System.out.println("REC\n"+json.getJSONArray("records").getJSONObject(i));
+                    accountid = json.getJSONArray("records").getJSONObject(i).getString("Id");
+                    accountname = json.getJSONArray("records").getJSONObject(i).getString("Name");
+                    System.out.println("The Returned Account Details are " + i + ". " + accountid + " Account Name is " + accountname);*/
+                    StringBuilder record = new StringBuilder();
+                    if(!header) {
+                        for (String key : sfdcToMdmMapping.keySet()) {
+                            record.append("/"+sfdcToMdmMapping.get(key));
+                            record.append(";");
+                        }
+                        record.deleteCharAt(record.length()-1);
+                        record.append('\r');
+                        record.append('\n');
+                        Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
+                        header = true;
+                        record = new StringBuilder();
+                    }
+                    for (String key : sfdcToMdmMapping.keySet()) {
+                        if(jarr.getJSONObject(i).get(key)!=null && StringUtils.contains(jarr.getJSONObject(i).get(key).toString(),';')){
+                            record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"",'"'));
+                        }else{
+                            record.append(jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"");
+                        }
+                        record.append(";");
+                    }
+                    record.deleteCharAt(record.length()-1);
+                    record.append('\r');
+                    record.append('\n');
+                    Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
+                    LOGGER.info("Address Record written to file : \n"+record.toString());
+                }
             }catch (IOException e) {}
 
+            final Path accountPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Account"+time+".csv");
+            final Path addressPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Address"+time+".csv");
             Procedure procedure = procedureContext -> {
 
-                System.out.println("csv file exists? " + path.toFile().exists());
+                System.out.println("accountPath csv file exists? " + accountPath.toFile().exists());
                 AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
                 System.out.println("table=" + table.toString());
 
@@ -252,7 +309,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 csvSpec.setFieldSeparator(';');
                 csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
                 ImportSpec importSpec = new ImportSpec();
-                importSpec.setSourceFile(path.toFile());
+                importSpec.setSourceFile(accountPath.toFile());
                 importSpec.setTargetAdaptationTable(table);
                 importSpec.setImportMode(ImportSpecMode.UPDATE_OR_INSERT);
                 importSpec.setCSVSpec(csvSpec);
@@ -262,10 +319,40 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
             ProcedureResult result = null;
             result = svc.execute(procedure);
             if (result == null || result.hasFailed()) {
-                LOGGER.info("Import Procedure failed");
+                LOGGER.info("Account Import Procedure failed");
             } else {
-                LOGGER.info("Import Procedure successful");
+                LOGGER.info("Account Import Procedure successful");
             }
+
+            procedure = procedureContext -> {
+
+                System.out.println("addressPath csv file exists? " + addressPath.toFile().exists());
+                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Address.getPathInSchema());
+                System.out.println("table=" + table.toString());
+
+                ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
+                csvSpec.setFieldSeparator(';');
+                csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
+                ImportSpec importSpec = new ImportSpec();
+                importSpec.setSourceFile(addressPath.toFile());
+                importSpec.setTargetAdaptationTable(table);
+                importSpec.setImportMode(ImportSpecMode.UPDATE_OR_INSERT);
+                importSpec.setCSVSpec(csvSpec);
+                procedureContext.doImport(importSpec);
+            };
+            svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
+            result = null;
+            result = svc.execute(procedure);
+            if (result == null || result.hasFailed()) {
+                LOGGER.info("Address Import Procedure failed");
+            } else {
+                LOGGER.info("Address Import Procedure successful");
+            }
+            String urlSfdcDs = aWriter.getURLForSelection(Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
+            aWriter.addJS("window.location.href='"+urlSfdcDs+"';");
+        }else{
+            String urlEnding = aWriter.getURLForEndingService();
+            aWriter.addJS("window.location.href='"+urlEnding+"';");
         }
     }
     public String getObjectName() {
