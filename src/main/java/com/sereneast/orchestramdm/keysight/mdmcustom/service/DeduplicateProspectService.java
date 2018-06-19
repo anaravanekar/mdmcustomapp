@@ -248,7 +248,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         }
                         record.append(";");
                     }
-                    SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                     String today = sdf.format(new Date());
                     record.append(today+";");
                     record.append("SFDC;");
