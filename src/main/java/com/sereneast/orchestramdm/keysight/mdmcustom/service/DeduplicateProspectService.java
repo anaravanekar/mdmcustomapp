@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -229,7 +230,20 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         record = new StringBuilder();
                     }
                     for (String key : sfdcToMdmMapping.keySet()) {
-                        if("Status__c".equals(key)){
+                        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
+                        String today = sdf.format(new Date());
+                        if("SystemName".equals(key)){
+                            record.append("SFDC");
+                        }else if("Type".equals(key)){
+                            String value = jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"";
+                            if("INTERNAL".equals(value.toUpperCase())){
+                                record.append("I");
+                            }else{
+                                record.append("R");
+                            }
+                        }else if("PaymentStartDate".equals(key)){
+                            record.append(today);
+                        }else if("Status__c".equals(key)){
                             record.append("Prospect");
                         }else if(jarr.getJSONObject(i).get(key)!=null && StringUtils.contains(jarr.getJSONObject(i).get(key).toString(),';')){
                             record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"",'"'));
