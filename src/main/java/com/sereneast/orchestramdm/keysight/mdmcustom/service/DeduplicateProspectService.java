@@ -222,6 +222,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                             record.append("/"+sfdcToMdmMapping.get(key));
                             record.append(";");
                         }
+                        record.append("/PaymentStartDate;");
+                        record.append("/SystemName;");
                         record.deleteCharAt(record.length()-1);
                         record.append('\r');
                         record.append('\n');
@@ -230,19 +232,13 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         record = new StringBuilder();
                     }
                     for (String key : sfdcToMdmMapping.keySet()) {
-                        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
-                        String today = sdf.format(new Date());
-                        if("SystemName".equals(key)){
-                            record.append("SFDC");
-                        }else if("Type".equals(key)){
+                        if("Type".equals(key)){
                             String value = jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"";
                             if("INTERNAL".equals(value.toUpperCase())){
                                 record.append("I");
                             }else{
                                 record.append("R");
                             }
-                        }else if("PaymentStartDate".equals(key)){
-                            record.append(today);
                         }else if("Status__c".equals(key)){
                             record.append("Prospect");
                         }else if(jarr.getJSONObject(i).get(key)!=null && StringUtils.contains(jarr.getJSONObject(i).get(key).toString(),';')){
@@ -252,6 +248,10 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         }
                         record.append(";");
                     }
+                    SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
+                    String today = sdf.format(new Date());
+                    record.append(today+";");
+                    record.append("SFDC;");
                     record.deleteCharAt(record.length()-1);
                     record.append('\r');
                     record.append('\n');
