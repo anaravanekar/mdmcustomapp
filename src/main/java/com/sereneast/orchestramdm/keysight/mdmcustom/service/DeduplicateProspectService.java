@@ -3,11 +3,14 @@ package com.sereneast.orchestramdm.keysight.mdmcustom.service;
 import com.onwbp.adaptation.AdaptationName;
 import com.onwbp.adaptation.AdaptationTable;
 import com.onwbp.base.text.UserMessageString;
+import com.orchestranetworks.addon.daqa.TableContext;
+import com.orchestranetworks.addon.daqa.crosswalk.CrosswalkExecutionResult;
+import com.orchestranetworks.addon.daqa.crosswalk.CrosswalkOperations;
+import com.orchestranetworks.addon.daqa.crosswalk.CrosswalkOperationsFactory;
 import com.orchestranetworks.instance.HomeCreationSpec;
 import com.orchestranetworks.instance.HomeKey;
 import com.orchestranetworks.instance.Repository;
 import com.orchestranetworks.service.*;
-import com.orchestranetworks.ui.UIHttpManagerComponent;
 import com.orchestranetworks.ui.selection.TableViewEntitySelection;
 import com.orchestranetworks.userservice.*;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
@@ -36,6 +39,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -385,6 +389,34 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 LOGGER.info("Address Import Procedure failed");
             } else {
                 LOGGER.info("Address Import Procedure successful");
+            }
+            procedure = procedureContext -> {
+                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
+                TableContext context = new TableContext(table, procedureContext);
+                CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
+                CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context,new ArrayList<>());
+            };
+            svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
+            result = null;
+            result = svc.execute(procedure);
+            if (result == null || result.hasFailed()) {
+                LOGGER.info("Account execute crosswalk Procedure failed");
+            } else {
+                LOGGER.info("Account execute crosswalk Procedure successful");
+            }
+            procedure = procedureContext -> {
+                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Address.getPathInSchema());
+                TableContext context = new TableContext(table, procedureContext);
+                CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
+                CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context,new ArrayList<>());
+            };
+            svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
+            result = null;
+            result = svc.execute(procedure);
+            if (result == null || result.hasFailed()) {
+                LOGGER.info("Address execute crosswalk Procedure failed");
+            } else {
+                LOGGER.info("Address execute crosswalk Procedure successful");
             }
             String urlSfdcDs = aWriter.getURLForSelection(
                     Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect"))).replaceAll("Spaces","");
