@@ -394,6 +394,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 List<AdaptationTable> tableList = new ArrayList<>();
                 tableList.add(table);
                 CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context,tableList);
+                crosswalkResult.getCrosswalkResults();
             };
             svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
             result = null;
@@ -410,6 +411,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 List<AdaptationTable> tableList = new ArrayList<>();
                 tableList.add(table);
                 CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context,tableList);
+                crosswalkResult.getCrosswalkResults();
             };
             svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
             result = null;
