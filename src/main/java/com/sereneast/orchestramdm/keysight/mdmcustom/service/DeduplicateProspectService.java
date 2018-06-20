@@ -39,10 +39,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class DeduplicateProspectService implements UserService<TableViewEntitySelection>
 {
@@ -394,7 +391,9 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
                 TableContext context = new TableContext(table, procedureContext);
                 CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
-                CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context,new ArrayList<>());
+                List<AdaptationTable> tableList = new ArrayList<>();
+                tableList.add(table);
+                CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context,tableList);
             };
             svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
             result = null;
