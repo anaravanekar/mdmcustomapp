@@ -232,7 +232,17 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         record = new StringBuilder();
                     }
                     for (String key : sfdcToMdmMapping.keySet()) {
-                        if("Type".equals(key)){
+                        if("Profile_Class__c".equals(key)){
+                            Map<String,Map<String,String>> countryReferenceFieldsMap = applicationCacheUtil.CountryReferenceFieldsMap("BReference");
+                            Map<String,String> resultItem = countryReferenceFieldsMap!=null?
+                                    countryReferenceFieldsMap.get(String.valueOf(jarr.getJSONObject(i).get("Country_Code__c"))):null;
+                            String value = jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"";
+                            if(StringUtils.isNotBlank(value) || resultItem==null) {
+                                record.append(jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"");
+                            }else{
+                                record.append(resultItem.get("ProfileClass"));
+                            }
+                        }else if("Type".equals(key)){
                             String value = jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"";
                             if("INTERNAL".equals(value.toUpperCase())){
                                 record.append("I");
