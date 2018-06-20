@@ -407,7 +407,9 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Address.getPathInSchema());
                 TableContext context = new TableContext(table, procedureContext);
                 CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
-                CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context,new ArrayList<>());
+                List<AdaptationTable> tableList = new ArrayList<>();
+                tableList.add(table);
+                CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context,tableList);
             };
             svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
             result = null;
