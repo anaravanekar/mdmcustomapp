@@ -308,6 +308,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                             record.append("/"+sfdcToMdmMapping.get(key));
                             record.append(";");
                         }
+                        record.append("/RPLCheck;");
+                        record.append("/SystemName;");
                         record.deleteCharAt(record.length()-1);
                         record.append('\r');
                         record.append('\n');
@@ -323,6 +325,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         }
                         record.append(";");
                     }
+                    record.append("rplcheck;");
+                    record.append("SFDC;");
                     record.deleteCharAt(record.length()-1);
                     record.append('\r');
                     record.append('\n');
