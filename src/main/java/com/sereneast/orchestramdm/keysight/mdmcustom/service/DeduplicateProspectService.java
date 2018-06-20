@@ -2,6 +2,7 @@ package com.sereneast.orchestramdm.keysight.mdmcustom.service;
 
 import com.onwbp.adaptation.AdaptationName;
 import com.onwbp.adaptation.AdaptationTable;
+import com.onwbp.adaptation.RequestResult;
 import com.onwbp.base.text.UserMessageString;
 import com.orchestranetworks.addon.daqa.TableContext;
 import com.orchestranetworks.addon.daqa.crosswalk.CrosswalkExecutionResult;
@@ -388,13 +389,15 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 LOGGER.info("Address Import Procedure successful");
             }
             procedure = procedureContext -> {
-                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
+                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Account.getPathInSchema());
+                AdaptationTable targetTable = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
                 TableContext context = new TableContext(table, procedureContext);
                 CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
                 List<AdaptationTable> tableList = new ArrayList<>();
-                tableList.add(table);
+                tableList.add(targetTable);
                 CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context,tableList);
-                crosswalkResult.getCrosswalkResults();
+                RequestResult requestResult = crosswalkResult.getCrosswalkResults();
+                LOGGER.info("Account crosswalk result size : "+requestResult.getSize());
             };
             svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
             result = null;
@@ -405,13 +408,15 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 LOGGER.info("Account execute crosswalk Procedure successful");
             }
             procedure = procedureContext -> {
-                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Address.getPathInSchema());
+                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Address.getPathInSchema());
+                AdaptationTable targetTable = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Address.getPathInSchema());
                 TableContext context = new TableContext(table, procedureContext);
                 CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
                 List<AdaptationTable> tableList = new ArrayList<>();
-                tableList.add(table);
+                tableList.add(targetTable);
                 CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context,tableList);
-                crosswalkResult.getCrosswalkResults();
+                RequestResult requestResult = crosswalkResult.getCrosswalkResults();
+                LOGGER.info("Address crosswalk result size : "+requestResult.getSize());
             };
             svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
             result = null;
