@@ -553,7 +553,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
 
                 ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
                 csvSpec.setFieldSeparator(';');
-                csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
+                csvSpec.setHeader(ExportImportCSVSpec.Header.LABEL);
                 ImportSpec importSpec = new ImportSpec();
                 importSpec.setSourceFile(processPolicyPath.toFile());
                 importSpec.setTargetAdaptationTable(table);
