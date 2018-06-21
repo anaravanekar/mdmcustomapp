@@ -348,7 +348,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
             Procedure procedure = procedureContext -> {
 
                 LOGGER.info("accountPath csv file exists? " + accountPath.toFile().exists());
-                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
+                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Account.getPathInSchema());
                 LOGGER.info("table=" + table.toString());
 
                 ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
@@ -361,7 +361,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 importSpec.setCSVSpec(csvSpec);
                 procedureContext.doImport(importSpec);
             };
-            ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
+            ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
             ProcedureResult result = null;
             result = svc.execute(procedure);
             if (result == null || result.hasFailed()) {
@@ -373,7 +373,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
             procedure = procedureContext -> {
 
                 LOGGER.info("addressPath csv file exists? " + addressPath.toFile().exists());
-                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Address.getPathInSchema());
+                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Address.getPathInSchema());
                 LOGGER.info("table=" + table.toString());
 
                 ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
@@ -386,7 +386,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 importSpec.setCSVSpec(csvSpec);
                 procedureContext.doImport(importSpec);
             };
-            svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
+            svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
             result = null;
             result = svc.execute(procedure);
             if (result == null || result.hasFailed()) {
@@ -395,7 +395,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 LOGGER.info("Address Import Procedure successful");
             }
             procedure = procedureContext -> {
-                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Account.getPathInSchema());
+                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Account.getPathInSchema());
                 AdaptationTable targetTable = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
                 TableContext context = new TableContext(table, procedureContext);
                 CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
@@ -436,7 +436,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     LOGGER.error("Error updating crosswalk results",e);
                 }
             };
-            svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
+            svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
             result = null;
             result = svc.execute(procedure);
             if (result == null || result.hasFailed()) {
@@ -445,7 +445,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 LOGGER.info("Account execute crosswalk Procedure successful");
             }
             procedure = procedureContext -> {
-                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Address.getPathInSchema());
+                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Address.getPathInSchema());
                 AdaptationTable targetTable = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Address.getPathInSchema());
                 TableContext context = new TableContext(table, procedureContext);
                 CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
@@ -486,7 +486,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     LOGGER.error("Error updating address crosswalk results",e);
                 }
             };
-            svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
+            svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
             result = null;
             result = svc.execute(procedure);
             if (result == null || result.hasFailed()) {
@@ -494,10 +494,10 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
             } else {
                 LOGGER.info("Address execute crosswalk Procedure successful");
             }
-            String urlSfdcDs = aWriter.getURLForSelection(
+           /* String urlSfdcDs = aWriter.getURLForSelection(
                     Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect"))).replaceAll("Spaces","");
             LOGGER.info("Url for sfdc Account datset : "+urlSfdcDs);
-            aWriter.addJS("window.location.href='"+urlSfdcDs+"';");
+            aWriter.addJS("window.location.href='"+urlSfdcDs+"';");*/
         }else{
             String urlEnding = aWriter.getURLForEndingService();
             LOGGER.info("Url for ending service : "+urlEnding);
