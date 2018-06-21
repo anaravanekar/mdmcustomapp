@@ -205,7 +205,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 builder.append("+,+");
             }
             //String uri = baseUri + "/query?q=Select+Id+,+Name+,+AccountNumber+,+Site+From+Account+WHERE+CreatedDate+=+LAST_N_MONTHS:1";
-            String uri = baseUri + "/query?q=Select+"+builder.toString().substring(0,builder.toString().length()-3)+"+From+Account+WHERE+CreatedDate+=+LAST_N_MONTHS:1";
+            String uri = baseUri + "/query?q=Select+"+builder.toString().substring(0,builder.toString().length()-3)+"+From+Account+WHERE+Status__c+=+'Prospect'+And+CreatedDate+=+LAST_N_MONTHS:1";
             LOGGER.info("uri="+uri);
             try{
 
@@ -293,7 +293,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     builder.append(key);
                     builder.append("+,+");
                 }
-                uri = baseUri + "/query?q=Select+"+builder.toString().substring(0,builder.toString().length()-3)+"+From+Address__c+WHERE+CreatedDate+=+LAST_N_MONTHS:1";
+                uri = baseUri + "/query?q=Select+"+builder.toString().substring(0,builder.toString().length()-3)+"+From+Address__c+WHERE+Status__c+=+'Prospect'+And+CreatedDate+=+LAST_N_MONTHS:1";
                 LOGGER.info("address uri="+uri);
                 httpget = new HttpGet(uri);
                 httpget.addHeader(authHeader);
@@ -431,7 +431,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     parameters.put("updateOrInsert", "true");
                     RestResponse restResponse = null;
                     LOGGER.info("Updating crosswalk results: \n"+mapper.writeValueAsString(orchestraObjectList));
-                    restResponse = orchestraRestClient.promote("CMDReference", "Prospect", "root/Account", orchestraObjectList, parameters);
+                    restResponse = orchestraRestClient.promote("BCMDReference", "Prospect", "root/Account", orchestraObjectList, parameters);
                     if(restResponse.getStatus()!=200 && restResponse.getStatus()!=201){
                         LOGGER.error("Error updating crosswalk results: "+String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
                     }
@@ -481,7 +481,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     parameters.put("updateOrInsert", "true");
                     RestResponse restResponse = null;
                     LOGGER.info("Updating address crosswalk results: \n"+mapper.writeValueAsString(orchestraObjectList));
-                    restResponse = orchestraRestClient.promote("CMDReference", "Prospect", "root/Address", orchestraObjectList, parameters);
+                    restResponse = orchestraRestClient.promote("BCMDReference", "Prospect", "root/Address", orchestraObjectList, parameters);
                     if(restResponse.getStatus()!=200 && restResponse.getStatus()!=201){
                         LOGGER.error("Error updating address crosswalk results: "+String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
                     }
