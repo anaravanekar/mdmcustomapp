@@ -344,7 +344,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 }
             }catch (IOException e) {}
 
-            doSfdcProspect(aContext,aWriter,time);
+            //doSfdcProspect(aContext,aWriter,time);
 
             final Path accountPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Account"+time+".csv");
             final Path addressPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Address"+time+".csv");
