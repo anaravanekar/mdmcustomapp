@@ -5,11 +5,13 @@ import com.onwbp.adaptation.Adaptation;
 import com.onwbp.adaptation.AdaptationName;
 import com.onwbp.adaptation.AdaptationTable;
 import com.onwbp.adaptation.RequestResult;
+import com.onwbp.base.text.UserMessageString;
 import com.orchestranetworks.addon.daqa.TableContext;
 import com.orchestranetworks.addon.daqa.crosswalk.CrosswalkExecutionResult;
 import com.orchestranetworks.addon.daqa.crosswalk.CrosswalkOperations;
 import com.orchestranetworks.addon.daqa.crosswalk.CrosswalkOperationsFactory;
 import com.orchestranetworks.addon.daqa.crosswalk.CrosswalkResultPaths;
+import com.orchestranetworks.instance.HomeCreationSpec;
 import com.orchestranetworks.instance.HomeKey;
 import com.orchestranetworks.instance.Repository;
 import com.orchestranetworks.service.*;
@@ -131,7 +133,6 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
         LOGGER.info("In writeform");
         String urlForClose = aWriter.getURLForEndingService();
         LOGGER.info("urlForClose=" + urlForClose);
-
         ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil) SpringContext.getApplicationContext().getBean("applicationCacheUtil");
         Map<String,Map<String,String>> lookup = applicationCacheUtil.getLookupValues("BReference");
         Map<String,String> sfdcToMdmMapping = lookup.get("MAPPING_SFDC_TO_MDM");
@@ -343,6 +344,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 }
             }catch (IOException e) {}
 
+            doSfdcProspect(aContext,aWriter,time);
+
             final Path accountPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Account"+time+".csv");
             final Path addressPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Address"+time+".csv");
             Procedure procedure = procedureContext -> {
@@ -504,6 +507,126 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
             aWriter.addJS("window.location.href='"+urlEnding+"';");
         }
     }
+
+    private void doSfdcProspect(UserServicePaneContext aContext, UserServicePaneWriter aWriter, String time) {
+        ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil) SpringContext.getApplicationContext().getBean("applicationCacheUtil");
+        Map<String,Map<String,String>> lookup = applicationCacheUtil.getLookupValues("BReference");
+        Map<String,String> sfdcToMdmMapping = lookup.get("MAPPING_SFDC_TO_MDM");
+        if(sfdcToMdmMapping!=null && !sfdcToMdmMapping.isEmpty()) {
+            try {
+                if(aContext.getRepository().lookupHome(HomeKey.forBranchName("SFDCProspect"))!=null) {
+                    aContext.getRepository().closeHome(aContext.getRepository().lookupHome(HomeKey.forBranchName("SFDCProspect")), aContext.getSession());
+                    aContext.getRepository().getPurgeDelegate().markHomeForHistoryPurge(aContext.getRepository().lookupHome(HomeKey.forBranchName("SFDCProspect")), aContext.getSession());
+                    aContext.getRepository().deleteHome(aContext.getRepository().lookupHome(HomeKey.forBranchName("SFDCProspect")), aContext.getSession());
+                }
+                HomeCreationSpec homeSpec = new HomeCreationSpec();
+                homeSpec.setParent(aContext.getRepository().lookupHome(HomeKey.forBranchName("CMDReference")));
+                homeSpec.setKey(HomeKey.forBranchName("SFDCProspect"));
+                homeSpec.setOwner(Profile.forUser("admin"));
+                UserMessageString label = new UserMessageString();
+                label.setString(Locale.ENGLISH,"SFDC Prospect");
+                homeSpec.setLabel(label);
+                UserMessageString description = new UserMessageString();
+                description.setString(Locale.ENGLISH,"Dataspace for SFDC Prospects");
+                homeSpec.setDescription(description);
+                try {
+                    aContext.getRepository().createHome(homeSpec,aContext.getSession());
+                } catch (OperationException e) {
+                    LOGGER.error("Error creating dataspace",e);
+                }
+            } catch (OperationException e) {
+                LOGGER.error("Error deleting dataspace",e);
+            }
+
+            final Path processPolicyPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), "ProcessPolicy.csv");
+            final Path accountPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Account"+time+".csv");
+            final Path addressPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Address"+time+".csv");
+
+            Procedure procedure = procedureContext -> {
+
+                LOGGER.info("processpolicy csv file exists? " + processPolicyPath.toFile().exists());
+                AdaptationTable table = Repository.getDefault().lookupHome(
+                        HomeKey.forBranchName("ebx-addon-daqa")).findAdaptationOrNull(
+                                AdaptationName.forName("ebx-addon-daqa-configuration-v2")).getTable(
+                                        com.orchestranetworks.schema.Path.parse("/root").add("DataQualityConfiguration").add("MatchingPolicy").add("MatchingPolicy"));
+                LOGGER.info("table=" + table.toString());
+
+                ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
+                csvSpec.setFieldSeparator(';');
+                csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
+                ImportSpec importSpec = new ImportSpec();
+                importSpec.setSourceFile(processPolicyPath.toFile());
+                importSpec.setTargetAdaptationTable(table);
+                importSpec.setImportMode(ImportSpecMode.UPDATE_OR_INSERT);
+                importSpec.setCSVSpec(csvSpec);
+                procedureContext.doImport(importSpec);
+            };
+            ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("ebx-addon-daqa")));
+            ProcedureResult result = null;
+            result = svc.execute(procedure);
+            if (result == null || result.hasFailed()) {
+                LOGGER.info("ProcessPolicy Import Procedure failed");
+            } else {
+                LOGGER.info("ProcessPolicy Import Procedure successful");
+            }
+
+
+            procedure = procedureContext -> {
+
+                LOGGER.info("accountPath csv file exists? " + accountPath.toFile().exists());
+                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
+                LOGGER.info("table=" + table.toString());
+
+                ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
+                csvSpec.setFieldSeparator(';');
+                csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
+                ImportSpec importSpec = new ImportSpec();
+                importSpec.setSourceFile(accountPath.toFile());
+                importSpec.setTargetAdaptationTable(table);
+                importSpec.setImportMode(ImportSpecMode.UPDATE_OR_INSERT);
+                importSpec.setCSVSpec(csvSpec);
+                procedureContext.doImport(importSpec);
+            };
+            svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
+            result = null;
+            result = svc.execute(procedure);
+            if (result == null || result.hasFailed()) {
+                LOGGER.info("Account Import Procedure failed");
+            } else {
+                LOGGER.info("Account Import Procedure successful");
+            }
+
+            procedure = procedureContext -> {
+
+                LOGGER.info("addressPath csv file exists? " + addressPath.toFile().exists());
+                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Address.getPathInSchema());
+                LOGGER.info("table=" + table.toString());
+
+                ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
+                csvSpec.setFieldSeparator(';');
+                csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
+                ImportSpec importSpec = new ImportSpec();
+                importSpec.setSourceFile(addressPath.toFile());
+                importSpec.setTargetAdaptationTable(table);
+                importSpec.setImportMode(ImportSpecMode.UPDATE_OR_INSERT);
+                importSpec.setCSVSpec(csvSpec);
+                procedureContext.doImport(importSpec);
+            };
+            svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect")));
+            result = null;
+            result = svc.execute(procedure);
+            if (result == null || result.hasFailed()) {
+                LOGGER.info("Address Import Procedure failed");
+            } else {
+                LOGGER.info("Address Import Procedure successful");
+            }
+        }else{
+            String urlEnding = aWriter.getURLForEndingService();
+            LOGGER.info("Url for ending service : "+urlEnding);
+            aWriter.addJS("window.location.href='"+urlEnding+"';");
+        }
+    }
+
     public String getObjectName() {
         return objectName;
     }
