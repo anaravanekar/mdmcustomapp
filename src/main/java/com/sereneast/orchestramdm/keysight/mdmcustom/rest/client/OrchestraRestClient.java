@@ -286,6 +286,38 @@ public class OrchestraRestClient {
         }
     }
 
+    public RestResponse delete(final String dataSpace, final String dataSet, final String path, final Map<String,String> parameters) throws IOException {
+        Client client = ClientBuilder.newClient();
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            client.register(feature);
+            WebTarget target = client.target(baseUrl).path(dataSpace).path(dataSet).path(path);
+            if (parameters != null)
+                for (Map.Entry<String, String> entry : parameters.entrySet())
+                    target = target.queryParam(entry.getKey(), entry.getValue());
+            Invocation.Builder request = target.request(MediaType.APPLICATION_JSON);
+            request.property(ClientProperties.CONNECT_TIMEOUT, restProperties.getOrchestra().getConnectTimeout()!=null?
+                    restProperties.getOrchestra().getConnectTimeout():5000);
+            request.property(ClientProperties.READ_TIMEOUT, restProperties.getOrchestra().getReadTimeout()!=null?
+                    restProperties.getOrchestra().getReadTimeout():70000);
+            LOGGER.debug("TIME: {} REST Delete operation begin", LocalTime.now());
+            Response response = request.delete();
+            response.bufferEntity();
+            RestResponse restResponse = new RestResponse();
+            restResponse.setStatus(response.getStatus());
+            try {
+                restResponse.setResponseBody(response.readEntity(new GenericType<HashMap<String, Object>>(){}));
+            }catch(Exception e){
+                restResponse.setResponseBody(mapper.readValue(response.readEntity(String.class), new TypeReference<Map<String, String>>(){}));
+            }
+            LOGGER.debug("REST Delete response: "+response.readEntity(String.class));
+            LOGGER.debug("TIME: {} REST Delete operation end",LocalTime.now());
+            return restResponse;
+        }finally{
+            client.close();
+        }
+    }
+
     public static void main(String[] args){
         try (Stream<Path> paths = Files.walk(Paths.get("E:\\tomcat1\\jscripts"))) {
             paths
