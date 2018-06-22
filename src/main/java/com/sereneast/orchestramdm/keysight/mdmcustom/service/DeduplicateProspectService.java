@@ -15,10 +15,12 @@ import com.orchestranetworks.instance.HomeCreationSpec;
 import com.orchestranetworks.instance.HomeKey;
 import com.orchestranetworks.instance.Repository;
 import com.orchestranetworks.service.*;
+import com.orchestranetworks.ui.UICSSClasses;
 import com.orchestranetworks.ui.selection.TableViewEntitySelection;
 import com.orchestranetworks.userservice.*;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
+import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
@@ -133,6 +135,69 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
         LOGGER.info("In writeform");
         String urlForClose = aWriter.getURLForEndingService();
         LOGGER.info("urlForClose=" + urlForClose);
+
+
+        String divId = "publishMessageDiv";
+        String loadingDivId = "divLoading";
+        aWriter.add("<div ");
+        aWriter.addSafeAttribute("id", divId);
+        aWriter.addSafeAttribute("style", "height:100%;");
+        aWriter.add("></div>");
+        aWriter.add("<div ");
+        aWriter.addSafeAttribute("id", loadingDivId);
+        aWriter.add("></div>");
+
+        aWriter.addJS_cr();
+        aWriter.addJS_cr("function callAjax(url, targetDivId) {");
+        aWriter.addJS_cr("  var ajaxHandler = new EBX_AJAXResponseHandler();");
+
+        aWriter.addJS_cr("  ajaxHandler.handleAjaxResponseSuccess = function(responseContent) {");
+        aWriter.addJS_cr("    var element = document.getElementById(targetDivId);");
+        aWriter.addJS_cr("    element.innerHTML = responseContent;");
+        aWriter.addJS_cr("    document.getElementById(\"divLoading\").classList.remove(\"show\");");
+        aWriter.addJS_cr("  };");
+
+        aWriter.addJS_cr("  ajaxHandler.handleAjaxResponseFailed = function(responseContent) {");
+        aWriter.addJS_cr("    var element = document.getElementById(targetDivId);");
+        aWriter.addJS_cr("    element.innerHTML = \"<span class='" + UICSSClasses.TEXT.ERROR
+                + "'>An error occurred in processing the request.</span>\";");
+        aWriter.addJS_cr("    document.getElementById(\"divLoading\").classList.remove(\"show\");");
+        aWriter.addJS_cr("  }");
+
+        aWriter.addJS_cr("  ajaxHandler.sendRequest(url);");
+        aWriter.addJS_cr("document.getElementById(\"divLoading\").classList.add(\"show\");");
+        aWriter.addJS_cr("}");
+
+        // Generate the URL of the Ajax callback.
+        String url = aWriter.getURLForAjaxRequest((userServiceAjaxContext, userServiceAjaxResponse) -> {
+            DeduplicateProspectService.this.ajaxCallback(userServiceAjaxContext, userServiceAjaxResponse,aContext);
+        });
+
+        aWriter.addJS("callAjax('"+url+"','"+divId+"');");
+    }
+
+    private void ajaxCallback(UserServiceAjaxContext ajaxContext,UserServiceAjaxResponse anAjaxResponse,UserServicePaneContext aContext) {
+        LOGGER.debug("In ajaxCallback");
+        String finalMessage = "";
+        try {
+            deduplicateSfdcProspects(aContext);
+            anAjaxResponse.getWriter().add("<div class=\"custom-error-image\"></div>");
+            anAjaxResponse.getWriter().add("<div class=\"custom-error-header\">Oh No! Something went wrong.</div>");
+            anAjaxResponse.getWriter().add("<div class=\"custom-error-message\">" + finalMessage);
+            anAjaxResponse.getWriter().add("</div>");
+            String urlSfdcDs = anAjaxResponse.getWriter().getURLForSelection(Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")));
+            LOGGER.info("Url for Prospect datset : "+urlSfdcDs);
+            anAjaxResponse.getWriter().addJS("window.location.href='"+urlSfdcDs+"';");
+        }catch(ApplicationRuntimeException e){
+            finalMessage = e.getMessage();
+            anAjaxResponse.getWriter().add("<div class=\"custom-success-image\"></div>");
+            anAjaxResponse.getWriter().add("<div class=\"custom-success-header\">Success!</div>");
+            anAjaxResponse.getWriter().add("<div class=\"custom-success-message\">" + finalMessage);
+            anAjaxResponse.getWriter().add("</div>");
+        }
+    }
+
+    private void deduplicateSfdcProspects(UserServicePaneContext aContext) {
         ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil) SpringContext.getApplicationContext().getBean("applicationCacheUtil");
         Map<String,Map<String,String>> lookup = applicationCacheUtil.getLookupValues("BReference");
         Map<String,String> sfdcToMdmMapping = lookup.get("MAPPING_SFDC_TO_MDM");
@@ -169,6 +234,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     Files.createFile(path);
                 } catch (IOException e) {
                     LOGGER.error("Error creating temporary file",e);
+                    throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",e);
                 }
             }
             tokenUrl = environmentUrl + "/services/oauth2/token?grant_type=password";
@@ -179,11 +245,11 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
             try
             {
                 response = httpclient.execute(httpPost);
-            } catch (IOException ioexception) {}
+            } catch (IOException ioexception) {throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",ioexception);}
             String getResult = null;
             try {
                 getResult = EntityUtils.toString(response.getEntity());
-            } catch (IOException e) {}
+            } catch (IOException e) {throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",e);}
 
             JSONObject jsonObject = null;
             String accessToken = null;
@@ -193,7 +259,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 jsonObject = (JSONObject) new JSONTokener(getResult).nextValue();
                 accessToken = jsonObject.getString("access_token");
                 instanceUrl = jsonObject.getString("instance_url");
-            } catch (JSONException jsonexp) { }
+            } catch (JSONException jsonexp) {throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",jsonexp); }
 
             baseUri = instanceUrl + R_EndPoint + Version ;
             authHeader = new BasicHeader("Authorization", "OAuth " + accessToken) ;
@@ -285,6 +351,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         Files.createFile(path);
                     } catch (IOException e) {
                         LOGGER.error("Error creating temporary file",e);
+                        throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",e);
                     }
                 }
                 sfdcToMdmMapping = lookup.get("MAPPING_SFDC_TO_MDM_ADDRESS");
@@ -342,7 +409,17 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
                     LOGGER.info("Address Record written to file : \n"+record.toString());
                 }
-            }catch (IOException e) {}
+            }catch (IOException e) {throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",e);}
+
+            OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+            LOGGER.info("Deleting existing records in Prospect");
+            try {
+                orchestraRestClient.delete("BCMDReference", "Prospect", "root/Account", null);
+                orchestraRestClient.delete("BCMDReference", "Prospect", "root/Address", null);
+            }catch (Exception e){
+                LOGGER.error("Error deleting records",e);
+                throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",e);
+            }
 
             //doSfdcProspect(aContext,aWriter,time);
 
@@ -426,17 +503,18 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 orchestraObjectList.setRows(rows);
                 try{
                     ObjectMapper mapper = new ObjectMapper();
-                    OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+                    OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
                     Map<String, String> parameters = new HashMap<String, String>();
                     parameters.put("updateOrInsert", "true");
                     RestResponse restResponse = null;
                     LOGGER.info("Updating crosswalk results: \n"+mapper.writeValueAsString(orchestraObjectList));
-                    restResponse = orchestraRestClient.promote("BCMDReference", "Prospect", "root/Account", orchestraObjectList, parameters);
+                    restResponse = restClient.promote("BCMDReference", "Prospect", "root/Account", orchestraObjectList, parameters);
                     if(restResponse.getStatus()!=200 && restResponse.getStatus()!=201){
                         LOGGER.error("Error updating crosswalk results: "+String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
                     }
                 }catch(IOException e){
                     LOGGER.error("Error updating crosswalk results",e);
+                    throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",e);
                 }
             };
             svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
@@ -476,17 +554,18 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 orchestraObjectList.setRows(rows);
                 try{
                     ObjectMapper mapper = new ObjectMapper();
-                    OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+                    OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
                     Map<String, String> parameters = new HashMap<String, String>();
                     parameters.put("updateOrInsert", "true");
                     RestResponse restResponse = null;
                     LOGGER.info("Updating address crosswalk results: \n"+mapper.writeValueAsString(orchestraObjectList));
-                    restResponse = orchestraRestClient.promote("BCMDReference", "Prospect", "root/Address", orchestraObjectList, parameters);
+                    restResponse = restClient.promote("BCMDReference", "Prospect", "root/Address", orchestraObjectList, parameters);
                     if(restResponse.getStatus()!=200 && restResponse.getStatus()!=201){
                         LOGGER.error("Error updating address crosswalk results: "+String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
                     }
                 }catch(IOException e){
                     LOGGER.error("Error updating address crosswalk results",e);
+                    throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",e);
                 }
             };
             svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
@@ -497,16 +576,10 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
             } else {
                 LOGGER.info("Address execute crosswalk Procedure successful");
             }
-           /* String urlSfdcDs = aWriter.getURLForSelection(
-                    Repository.getDefault().lookupHome(HomeKey.forBranchName("SFDCProspect"))).replaceAll("Spaces","");
-            LOGGER.info("Url for sfdc Account datset : "+urlSfdcDs);
-            aWriter.addJS("window.location.href='"+urlSfdcDs+"';");*/
-        }else{
-            String urlEnding = aWriter.getURLForEndingService();
-            LOGGER.info("Url for ending service : "+urlEnding);
-            aWriter.addJS("window.location.href='"+urlEnding+"';");
+
         }
     }
+
 
     private void doSfdcProspect(UserServicePaneContext aContext, UserServicePaneWriter aWriter, String time) {
         ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil) SpringContext.getApplicationContext().getBean("applicationCacheUtil");
@@ -533,9 +606,11 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     aContext.getRepository().createHome(homeSpec,aContext.getSession());
                 } catch (OperationException e) {
                     LOGGER.error("Error creating dataspace",e);
+                    throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",e);
                 }
             } catch (OperationException e) {
                 LOGGER.error("Error deleting dataspace",e);
+                throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",e);
             }
 
             final Path processPolicyPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), "ProcessPolicy.csv");
@@ -547,8 +622,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 LOGGER.info("processpolicy csv file exists? " + processPolicyPath.toFile().exists());
                 AdaptationTable table = Repository.getDefault().lookupHome(
                         HomeKey.forBranchName("ebx-addon-daqa")).findAdaptationOrNull(
-                                AdaptationName.forName("ebx-addon-daqa-configuration-v2")).getTable(
-                                        com.orchestranetworks.schema.Path.parse("/root").add("DataQualityConfiguration").add("MatchingPolicy").add("MatchingPolicy"));
+                        AdaptationName.forName("ebx-addon-daqa-configuration-v2")).getTable(
+                        com.orchestranetworks.schema.Path.parse("/root").add("DataQualityConfiguration").add("MatchingPolicy").add("MatchingPolicy"));
                 LOGGER.info("table=" + table.toString());
 
                 ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
