@@ -297,7 +297,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                             record.append("/"+sfdcToMdmMapping.get(key));
                             record.append(";");
                         }
-                        record.append("/PaymentStartDate;");
+                        //record.append("/PaymentStartDate;");
                         record.append("/SystemName;");
                         record.deleteCharAt(record.length()-1);
                         record.append('\r');
@@ -335,7 +335,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     }
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                     String today = sdf.format(new Date());
-                    record.append(today+";");
+                    //record.append(today+";");
                     record.append("SFDC;");
                     record.deleteCharAt(record.length()-1);
                     record.append('\r');
@@ -384,7 +384,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                             record.append("/"+sfdcToMdmMapping.get(key));
                             record.append(";");
                         }
-                        record.append("/RPLCheck;");
+                        //record.append("/RPLCheck;");
                         record.append("/SystemName;");
                         record.deleteCharAt(record.length()-1);
                         record.append('\r');
@@ -401,7 +401,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         }
                         record.append(";");
                     }
-                    record.append("rplcheck;");
+                    //record.append("rplcheck;");
                     record.append("SFDC;");
                     record.deleteCharAt(record.length()-1);
                     record.append('\r');
