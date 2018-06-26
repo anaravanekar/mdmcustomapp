@@ -508,7 +508,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     parameters.put("updateOrInsert", "true");
                     RestResponse restResponse = null;
                     LOGGER.info("Updating crosswalk results: \n"+mapper.writeValueAsString(orchestraObjectList));
-                    restResponse = restClient.promote("BCMDReference", "Prospect", "root/Account", orchestraObjectList, parameters);
+                    restResponse = restClient.post("BCMDReference", "Prospect", "root/Account", orchestraObjectList, parameters, 300000, null);
                     if(restResponse.getStatus()!=200 && restResponse.getStatus()!=201){
                         LOGGER.error("Error updating crosswalk results: "+String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
                     }
@@ -559,7 +559,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     parameters.put("updateOrInsert", "true");
                     RestResponse restResponse = null;
                     LOGGER.info("Updating address crosswalk results: \n"+mapper.writeValueAsString(orchestraObjectList));
-                    restResponse = restClient.promote("BCMDReference", "Prospect", "root/Address", orchestraObjectList, parameters);
+                    restResponse = restClient.post("BCMDReference", "Prospect", "root/Address", orchestraObjectList, parameters,300000,null);
                     if(restResponse.getStatus()!=200 && restResponse.getStatus()!=201){
                         LOGGER.error("Error updating address crosswalk results: "+String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
                     }
