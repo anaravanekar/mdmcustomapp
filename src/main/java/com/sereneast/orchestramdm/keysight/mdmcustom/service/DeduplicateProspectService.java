@@ -501,21 +501,24 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     requestResult.close();
                 }
                 orchestraObjectList.setRows(rows);
-                try{
-                    ObjectMapper mapper = new ObjectMapper();
-                    OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
-                    Map<String, String> parameters = new HashMap<String, String>();
-                    parameters.put("updateOrInsert", "true");
-                    RestResponse restResponse = null;
-                    LOGGER.info("Updating crosswalk results: \n"+mapper.writeValueAsString(orchestraObjectList));
-                    restResponse = restClient.post("BCMDReference", "Prospect", "root/Account", orchestraObjectList, parameters, 300000, null);
-                    if(restResponse.getStatus()!=200 && restResponse.getStatus()!=201){
-                        LOGGER.error("Error updating crosswalk results: "+String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
+                Runnable updateCrosswalkResultsAccount = () -> {
+                    try{
+                        ObjectMapper mapper = new ObjectMapper();
+                        OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+                        Map<String, String> parameters = new HashMap<String, String>();
+                        parameters.put("updateOrInsert", "true");
+                        RestResponse restResponse = null;
+                        LOGGER.info("Updating crosswalk results: \n"+mapper.writeValueAsString(orchestraObjectList));
+                        restResponse = restClient.post("BCMDReference", "Prospect", "root/Account", orchestraObjectList, parameters, 300000, null);
+                        if(restResponse.getStatus()!=200 && restResponse.getStatus()!=201){
+                            LOGGER.error("Error updating crosswalk results: "+String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
+                        }
+                    }catch(IOException e){
+                        LOGGER.error("Error updating crosswalk results",e);
+                        throw new ApplicationRuntimeException("Error updating crosswalk results",e);
                     }
-                }catch(IOException e){
-                    LOGGER.error("Error updating crosswalk results",e);
-                    throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",e);
-                }
+                };
+                new Thread(updateCrosswalkResultsAccount).start();
             };
             svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
             result = null;
@@ -552,21 +555,24 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     requestResult.close();
                 }
                 orchestraObjectList.setRows(rows);
-                try{
-                    ObjectMapper mapper = new ObjectMapper();
-                    OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
-                    Map<String, String> parameters = new HashMap<String, String>();
-                    parameters.put("updateOrInsert", "true");
-                    RestResponse restResponse = null;
-                    LOGGER.info("Updating address crosswalk results: \n"+mapper.writeValueAsString(orchestraObjectList));
-                    restResponse = restClient.post("BCMDReference", "Prospect", "root/Address", orchestraObjectList, parameters,300000,null);
-                    if(restResponse.getStatus()!=200 && restResponse.getStatus()!=201){
-                        LOGGER.error("Error updating address crosswalk results: "+String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
+                Runnable updateCrosswalkResultsAddress = () -> {
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+                        OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+                        Map<String, String> parameters = new HashMap<String, String>();
+                        parameters.put("updateOrInsert", "true");
+                        RestResponse restResponse = null;
+                        LOGGER.info("Updating address crosswalk results: \n" + mapper.writeValueAsString(orchestraObjectList));
+                        restResponse = restClient.post("BCMDReference", "Prospect", "root/Address", orchestraObjectList, parameters, 300000, null);
+                        if (restResponse.getStatus() != 200 && restResponse.getStatus() != 201) {
+                            LOGGER.error("Error updating address crosswalk results: " + String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
+                        }
+                    } catch (IOException e) {
+                        LOGGER.error("Error updating address crosswalk results", e);
+                        throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service", e);
                     }
-                }catch(IOException e){
-                    LOGGER.error("Error updating address crosswalk results",e);
-                    throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",e);
-                }
+                };
+                new Thread(updateCrosswalkResultsAddress).start();
             };
             svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
             result = null;
