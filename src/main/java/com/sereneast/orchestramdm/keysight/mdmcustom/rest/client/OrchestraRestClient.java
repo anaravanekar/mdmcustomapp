@@ -286,6 +286,50 @@ public class OrchestraRestClient {
         }
     }
 
+    public RestResponse post(final String dataSpace, final String dataSet, final String path, OrchestraObjectList requestObject,
+                                final Map<String,String> parameters, Integer readTimeout, Integer connectTimeout) throws IOException {
+        Client client = ClientBuilder.newClient();
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.setDateFormat(df);
+        try {
+            client.register(feature);
+            WebTarget target = client.target(baseUrl).path(dataSpace).path(dataSet).path(path);
+            if (parameters != null)
+                for (Map.Entry<String, String> entry : parameters.entrySet())
+                    target = target.queryParam(entry.getKey(), entry.getValue());
+            Invocation.Builder request = target.request(MediaType.APPLICATION_JSON);
+            if(readTimeout==null){
+                readTimeout = restProperties.getOrchestra().getReadTimeout()!=null?
+                        restProperties.getOrchestra().getReadTimeout():70000;
+            }
+            if(connectTimeout==null){
+                connectTimeout = restProperties.getOrchestra().getConnectTimeout()!=null?
+                        restProperties.getOrchestra().getConnectTimeout():5000;
+            }
+            request.property(ClientProperties.CONNECT_TIMEOUT, connectTimeout);
+            request.property(ClientProperties.READ_TIMEOUT, readTimeout);
+            LOGGER.debug("TIME: {} Orchestra POST begin", LocalTime.now());
+            LOGGER.debug("Orchestra POST request: "+mapper.writeValueAsString(requestObject));
+            Response response = request.post(Entity.json(mapper.writeValueAsString(requestObject)));
+            response.bufferEntity();
+            RestResponse restResponse = new RestResponse();
+            restResponse.setStatus(response.getStatus());
+            try {
+                restResponse.setResponseBody(response.readEntity(new GenericType<HashMap<String, Object>>(){}));
+            }catch(Exception e){
+                restResponse.setResponseBody(mapper.readValue(response.readEntity(String.class), new TypeReference<Map<String, String>>(){}));
+            }
+            LOGGER.debug("Orchestra POST response: "+response.readEntity(String.class));
+            LOGGER.debug("TIME: {} Orchestra POST end",LocalTime.now());
+
+            return restResponse;
+        }finally{
+            client.close();
+        }
+    }
+
     public RestResponse delete(final String dataSpace, final String dataSet, final String path, final Map<String,String> parameters) throws IOException {
         Client client = ClientBuilder.newClient();
         ObjectMapper mapper = new ObjectMapper();
