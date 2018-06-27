@@ -271,8 +271,9 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 builder.append("+,+");
             }
             //String uri = baseUri + "/query?q=Select+Id+,+Name+,+AccountNumber+,+Site+From+Account+WHERE+CreatedDate+=+LAST_N_MONTHS:1";
-            String uri = baseUri + "/query?q=Select+"+builder.toString().substring(0,builder.toString().length()-3)+"+From+Account+WHERE+Status__c+=+'Prospect'+And+CreatedDate+=+LAST_N_MONTHS:1";
-            LOGGER.info("uri="+uri);
+            //String uri = baseUri + "/query?q=Select+"+builder.toString().substring(0,builder.toString().length()-3)+"+From+Account+WHERE+Status__c+=+'Prospect'+And+CreatedDate+=+LAST_N_MONTHS:1";
+            String uri = baseUri + "/query?q=Select+"+builder.toString().substring(0,builder.toString().length()-3)+"+From+Account+WHERE+"+String.valueOf(lookup.get("SFDC_FILTER_ACCOUNT").get("SFDC_FILTER_ACCOUNT"));
+            LOGGER.info("Account query url ="+uri);
             try{
 
                 HttpGet httpget = new HttpGet(uri);
@@ -360,8 +361,9 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     builder.append(key);
                     builder.append("+,+");
                 }
-                uri = baseUri + "/query?q=Select+"+builder.toString().substring(0,builder.toString().length()-3)+"+From+Address__c+WHERE+Status__c+=+'Prospect'+And+CreatedDate+=+LAST_N_MONTHS:1";
-                LOGGER.info("address uri="+uri);
+                //uri = baseUri + "/query?q=Select+"+builder.toString().substring(0,builder.toString().length()-3)+"+From+Address__c+WHERE+Status__c+=+'Prospect'+And+CreatedDate+=+LAST_N_MONTHS:1";
+                uri = baseUri + "/query?q=Select+"+builder.toString().substring(0,builder.toString().length()-3)+"+From+Address__c+WHERE+"+String.valueOf(lookup.get("SFDC_FILTER_ADDRESS").get("SFDC_FILTER_ADDRESS"));
+                LOGGER.info("Address query url ="+uri);
                 httpget = new HttpGet(uri);
                 httpget.addHeader(authHeader);
                 httpget.addHeader(ppHeader);

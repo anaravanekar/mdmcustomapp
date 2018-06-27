@@ -3,6 +3,7 @@
  */
 package com.sereneast.orchestramdm.keysight.mdmcustom;
 
+import com.onwbp.adaptation.AdaptationName;
 import com.orchestranetworks.module.ModuleContextOnRepositoryStartup;
 import com.orchestranetworks.module.ModuleRegistrationServlet;
 import com.orchestranetworks.module.ModuleServiceRegistrationContext;
@@ -41,6 +42,7 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Promote and Publish",
 				"Promote and Publish",
 				"",1,
+				AdaptationName.forName("Account"),
 				toPath("/root/Account")));
 		aContext.registerUserService(new TableViewSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",AddressPublishService.class.getSimpleName()),
@@ -48,6 +50,7 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Promote and Publish",
 				"Promote and Publish",
 				"",1,
+				AdaptationName.forName("Account"),
 				toPath("/root/Address")));
 		aContext.registerUserService(new TableViewSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",AccountPublishServiceBulk.class.getSimpleName()),
@@ -55,6 +58,7 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Batch Promote and Publish",
 				"Batch Promote and Publish",
 				"",-1,
+				AdaptationName.forName("Account"),
 				toPath("/root/Account")));
 		aContext.registerUserService(new TableViewSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",AddressPublishServiceBulk.class.getSimpleName()),
@@ -62,6 +66,7 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Batch Promote and Publish",
 				"Batch Promote and Publish",
 				"",-1,
+				AdaptationName.forName("Account"),
 				toPath("/root/Address")));
 		aContext.registerUserService(new TableViewSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",AlignForeignKeysAccountService.class.getSimpleName()),
@@ -69,6 +74,7 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Align foreign keys",
 				"Align foreign keys",
 				"",-1,
+				AdaptationName.forName("Account"),
 				toPath("/root/Account")));
 		aContext.registerUserService(new TableViewSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",AlignForeignKeysAddressService.class.getSimpleName()),
@@ -76,6 +82,7 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Align foreign keys",
 				"Align foreign keys",
 				"",-1,
+				AdaptationName.forName("Account"),
 				toPath("/root/Address")));
 		aContext.registerUserService(new TableViewSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",ClusterViewService.class.getSimpleName()),
@@ -83,6 +90,7 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Cluster View",
 				"Cluster View",
 				"",1,
+				AdaptationName.forName("Account"),
 				toPath("/root/Account")));
 		aContext.registerUserService(new TableViewSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",CustomMasterDataViewService.class.getSimpleName()),
@@ -90,6 +98,7 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Custom Master Data View",
 				"Custom Master Data View",
 				"",-2,
+				AdaptationName.forName("Account"),
 				new Path[]{Paths._Account.getPathInSchema(),Paths._Address.getPathInSchema()}));
 		aContext.registerUserService(new TableViewSampleServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",DeduplicateProspectService.class.getSimpleName()),
@@ -97,6 +106,7 @@ public class RegistrationServlet extends ModuleRegistrationServlet {
 				"Deduplicate Prospect",
 				"Deduplicate Prospect",
 				"",-2,
+				AdaptationName.forName("Prospect"),
 				new Path[]{Paths._Account.getPathInSchema()}));
 		aContext.registerUserService(new DatasetViewUserServiceDeclaration(
 				ServiceKey.forModuleServiceName("mdmcustomapp",RefreshCacheService.class.getSimpleName()),
