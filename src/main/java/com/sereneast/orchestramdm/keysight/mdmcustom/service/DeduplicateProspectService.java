@@ -183,7 +183,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
         try {
             deduplicateSfdcProspects(aContext);
             anAjaxResponse.getWriter().add("<div class=\"custom-success-image\"></div>");
-            anAjaxResponse.getWriter().add("<div class=\"custom-success-header\">Oh No! Something went wrong.</div>");
+            anAjaxResponse.getWriter().add("<div class=\"custom-success-header\">Success!</div>");
             anAjaxResponse.getWriter().add("<div class=\"custom-success-message\">" + finalMessage);
             anAjaxResponse.getWriter().add("</div>");
             String urlSfdcDs = anAjaxResponse.getWriter().getURLForSelection(Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")));
@@ -192,7 +192,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
         }catch(ApplicationRuntimeException e){
             finalMessage = e.getMessage();
             anAjaxResponse.getWriter().add("<div class=\"custom-error-image\"></div>");
-            anAjaxResponse.getWriter().add("<div class=\"custom-error-header\">Success!</div>");
+            anAjaxResponse.getWriter().add("<div class=\"custom-error-header\">Oh No! Something went wrong.</div>");
             anAjaxResponse.getWriter().add("<div class=\"custom-error-message\">" + finalMessage);
             anAjaxResponse.getWriter().add("<br> Stack trace : <br>" + ExceptionUtils.getStackTrace(e));
             anAjaxResponse.getWriter().add("</div>");
