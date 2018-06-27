@@ -183,16 +183,16 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
         try {
             deduplicateSfdcProspects(aContext);
             anAjaxResponse.getWriter().add("<div class=\"custom-error-image\"></div>");
-            anAjaxResponse.getWriter().add("<div class=\"custom-error-header\">Oh No! Something went wrong.</div>");
+            anAjaxResponse.getWriter().add("<div class=\"custom-error-header\">Success!</div>");
             anAjaxResponse.getWriter().add("<div class=\"custom-error-message\">" + finalMessage);
             anAjaxResponse.getWriter().add("</div>");
             String urlSfdcDs = anAjaxResponse.getWriter().getURLForSelection(Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")));
             LOGGER.info("Url for Prospect datset : "+urlSfdcDs);
-            anAjaxResponse.getWriter().addJS("window.location.href='"+urlSfdcDs+"';");
+            //anAjaxResponse.getWriter().addJS("window.location.href='"+urlSfdcDs+"';");
         }catch(ApplicationRuntimeException e){
             finalMessage = e.getMessage();
             anAjaxResponse.getWriter().add("<div class=\"custom-success-image\"></div>");
-            anAjaxResponse.getWriter().add("<div class=\"custom-success-header\">Success!</div>");
+            anAjaxResponse.getWriter().add("<div class=\"custom-success-header\">Oh No! Something went wrong.</div>");
             anAjaxResponse.getWriter().add("<div class=\"custom-success-message\">" + finalMessage);
             anAjaxResponse.getWriter().add("<br> Stack trace : <br>" + ExceptionUtils.getStackTrace(e));
             anAjaxResponse.getWriter().add("</div>");
@@ -352,8 +352,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         record.append('\r');
                         record.append('\n');
                         Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
-                        if (jarr.getJSONObject(i).get("Account_Number__c") != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get("Account_Number__c")))) {
-                            sfdcAccountIds.add(String.valueOf(jarr.getJSONObject(i).get("Account_Number__c")));
+                        if (jarr.getJSONObject(i).get("Id") != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get("Id")))) {
+                            sfdcAccountIds.add(String.valueOf(jarr.getJSONObject(i).get("Id")));
                         }
                         LOGGER.info("Record written to file : \n" + record.toString());
                     }
@@ -424,8 +424,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         record.append('\r');
                         record.append('\n');
                         Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
-                        if (jarr.getJSONObject(i).get("Address_Number__c") != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get("Address_Number__c")))) {
-                            sfdcAddressIds.add(String.valueOf(jarr.getJSONObject(i).get("Address_Number__c")));
+                        if (jarr.getJSONObject(i).get("Id") != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get("Id")))) {
+                            sfdcAddressIds.add(String.valueOf(jarr.getJSONObject(i).get("Id")));
                         }
                         LOGGER.info("Address Record written to file : \n" + record.toString());
                     }
