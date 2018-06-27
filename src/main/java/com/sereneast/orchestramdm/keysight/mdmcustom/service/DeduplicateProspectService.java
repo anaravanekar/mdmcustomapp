@@ -28,6 +28,7 @@ import com.sereneast.orchestramdm.keysight.mdmcustom.model.RestResponse;
 import com.sereneast.orchestramdm.keysight.mdmcustom.rest.client.OrchestraRestClient;
 import com.sereneast.orchestramdm.keysight.mdmcustom.util.ApplicationCacheUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -193,6 +194,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
             anAjaxResponse.getWriter().add("<div class=\"custom-success-image\"></div>");
             anAjaxResponse.getWriter().add("<div class=\"custom-success-header\">Success!</div>");
             anAjaxResponse.getWriter().add("<div class=\"custom-success-message\">" + finalMessage);
+            anAjaxResponse.getWriter().add("<br> Stack trace : <br>" + ExceptionUtils.getStackTrace(e));
             anAjaxResponse.getWriter().add("</div>");
         }
     }
@@ -202,6 +204,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
         Map<String,Map<String,String>> lookup = applicationCacheUtil.getLookupValues("BReference");
         Map<String,String> sfdcToMdmMapping = lookup.get("MAPPING_SFDC_TO_MDM");
         if(sfdcToMdmMapping!=null && !sfdcToMdmMapping.isEmpty()) {
+            try {
 /*            try {
                 if(aContext.getRepository().lookupHome(HomeKey.forBranchName("SFDCProspect"))!=null) {
                     aContext.getRepository().closeHome(aContext.getRepository().lookupHome(HomeKey.forBranchName("SFDCProspect")), aContext.getSession());
@@ -227,364 +230,387 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 LOGGER.error("Error deleting dataspace",e);
             }*/
 
-            String time = String.valueOf((new Date()).getTime());
-            java.nio.file.Path path = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Account"+time+".csv");
-            if(!Files.exists(path)){
-                try {
-                    Files.createFile(path);
-                } catch (IOException e) {
-                    LOGGER.error("Error creating temporary file",e);
-                    throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",e);
-                }
-            }
-            tokenUrl = environmentUrl + "/services/oauth2/token?grant_type=password";
-            String loginUrl = tokenUrl + "&client_id=" + clientId + "&client_secret=" + clientSecret + "&username=" + userName + "&password=" + passWord;
-            HttpPost httpPost = new HttpPost(loginUrl);
-            DefaultHttpClient httpclient = new DefaultHttpClient();
-            HttpResponse response = null;
-            try
-            {
-                response = httpclient.execute(httpPost);
-            } catch (IOException ioexception) {throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",ioexception);}
-            String getResult = null;
-            try {
-                getResult = EntityUtils.toString(response.getEntity());
-            } catch (IOException e) {throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",e);}
-
-            JSONObject jsonObject = null;
-            String accessToken = null;
-            String instanceUrl = null;
-
-            try {
-                jsonObject = (JSONObject) new JSONTokener(getResult).nextValue();
-                accessToken = jsonObject.getString("access_token");
-                instanceUrl = jsonObject.getString("instance_url");
-            } catch (JSONException jsonexp) {throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",jsonexp); }
-
-            baseUri = instanceUrl + R_EndPoint + Version ;
-            authHeader = new BasicHeader("Authorization", "OAuth " + accessToken) ;
-            httpPost.releaseConnection();
-            HttpClient httpClient = HttpClientBuilder.create().build();
-            StringBuilder builder = new StringBuilder();
-            for (String key : sfdcToMdmMapping.keySet()) {
-                builder.append(key);
-                builder.append("+,+");
-            }
-            //String uri = baseUri + "/query?q=Select+Id+,+Name+,+AccountNumber+,+Site+From+Account+WHERE+CreatedDate+=+LAST_N_MONTHS:1";
-            //String uri = baseUri + "/query?q=Select+"+builder.toString().substring(0,builder.toString().length()-3)+"+From+Account+WHERE+Status__c+=+'Prospect'+And+CreatedDate+=+LAST_N_MONTHS:1";
-            String uri = baseUri + "/query?q=Select+"+builder.toString().substring(0,builder.toString().length()-3)+"+From+Account+WHERE+"+String.valueOf(lookup.get("SFDC_FILTER_ACCOUNT").get("SFDC_FILTER_ACCOUNT"));
-            LOGGER.info("Account query url ="+uri);
-            try{
-
-                HttpGet httpget = new HttpGet(uri);
-                httpget.addHeader(authHeader);
-                httpget.addHeader(ppHeader);
-
-                response = httpClient.execute(httpget);
-                getResult = EntityUtils.toString(response.getEntity());
-                JSONObject json = new JSONObject(getResult);
-
-                JSONArray jarr = json.getJSONArray("records");
-                LOGGER.info("Records fetched from SFDC : "+jarr.length());
-                boolean header = false;
-                for(int i = 0 ; i < jarr.length(); i++){
-                    /*System.out.println("REC\n"+json.getJSONArray("records").getJSONObject(i));
-                    accountid = json.getJSONArray("records").getJSONObject(i).getString("Id");
-                    accountname = json.getJSONArray("records").getJSONObject(i).getString("Name");
-                    System.out.println("The Returned Account Details are " + i + ". " + accountid + " Account Name is " + accountname);*/
-                    StringBuilder record = new StringBuilder();
-                    if(!header) {
-                        for (String key : sfdcToMdmMapping.keySet()) {
-                            record.append("/"+sfdcToMdmMapping.get(key));
-                            record.append(";");
-                        }
-                        //record.append("/PaymentStartDate;");
-                        record.append("/SystemName;");
-                        record.deleteCharAt(record.length()-1);
-                        record.append('\r');
-                        record.append('\n');
-                        Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
-                        header = true;
-                        record = new StringBuilder();
-                    }
-                    for (String key : sfdcToMdmMapping.keySet()) {
-                        if("Profile_Class__c".equals(key)){
-                            Map<String,Map<String,String>> countryReferenceFieldsMap = applicationCacheUtil.CountryReferenceFieldsMap("BReference");
-                            Map<String,String> resultItem = countryReferenceFieldsMap!=null?
-                                    countryReferenceFieldsMap.get(String.valueOf(jarr.getJSONObject(i).get("Country_Code__c"))):null;
-                            String value = jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"";
-                            if(StringUtils.isNotBlank(value) || resultItem==null) {
-                                record.append(jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"");
-                            }else{
-                                record.append(resultItem.get("ProfileClass"));
-                            }
-                        }else if("Type".equals(key)){
-                            String value = jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"";
-                            if("INTERNAL".equals(value.toUpperCase())){
-                                record.append("I");
-                            }else{
-                                record.append("R");
-                            }
-                        }else if("Status__c".equals(key)){
-                            record.append("Prospect");
-                        }else if(jarr.getJSONObject(i).get(key)!=null && StringUtils.contains(jarr.getJSONObject(i).get(key).toString(),';')){
-                            record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"",'"'));
-                        }else{
-                            record.append(jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"");
-                        }
-                        record.append(";");
-                    }
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                    String today = sdf.format(new Date());
-                    //record.append(today+";");
-                    record.append("SFDC;");
-                    record.deleteCharAt(record.length()-1);
-                    record.append('\r');
-                    record.append('\n');
-                    Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
-                    LOGGER.info("Record written to file : \n"+record.toString());
-                }
-
-                //Address
-                path = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Address"+time+".csv");
-                if(!Files.exists(path)){
+                String time = String.valueOf((new Date()).getTime());
+                java.nio.file.Path path = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Account" + time + ".csv");
+                if (!Files.exists(path)) {
                     try {
                         Files.createFile(path);
                     } catch (IOException e) {
-                        LOGGER.error("Error creating temporary file",e);
-                        throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",e);
+                        LOGGER.error("Error creating temporary file", e);
+                        throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service", e);
                     }
                 }
-                sfdcToMdmMapping = lookup.get("MAPPING_SFDC_TO_MDM_ADDRESS");
-                builder = new StringBuilder();
+                tokenUrl = environmentUrl + "/services/oauth2/token?grant_type=password";
+                String loginUrl = tokenUrl + "&client_id=" + clientId + "&client_secret=" + clientSecret + "&username=" + userName + "&password=" + passWord;
+                HttpPost httpPost = new HttpPost(loginUrl);
+                DefaultHttpClient httpclient = new DefaultHttpClient();
+                HttpResponse response = null;
+                try {
+                    response = httpclient.execute(httpPost);
+                } catch (IOException ioexception) {
+                    throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service", ioexception);
+                }
+                String getResult = null;
+                try {
+                    getResult = EntityUtils.toString(response.getEntity());
+                } catch (IOException e) {
+                    throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service", e);
+                }
+
+                JSONObject jsonObject = null;
+                String accessToken = null;
+                String instanceUrl = null;
+
+                try {
+                    jsonObject = (JSONObject) new JSONTokener(getResult).nextValue();
+                    accessToken = jsonObject.getString("access_token");
+                    instanceUrl = jsonObject.getString("instance_url");
+                } catch (JSONException jsonexp) {
+                    throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service", jsonexp);
+                }
+
+                baseUri = instanceUrl + R_EndPoint + Version;
+                authHeader = new BasicHeader("Authorization", "OAuth " + accessToken);
+                httpPost.releaseConnection();
+                HttpClient httpClient = HttpClientBuilder.create().build();
+                StringBuilder builder = new StringBuilder();
                 for (String key : sfdcToMdmMapping.keySet()) {
                     builder.append(key);
                     builder.append("+,+");
                 }
-                //uri = baseUri + "/query?q=Select+"+builder.toString().substring(0,builder.toString().length()-3)+"+From+Address__c+WHERE+Status__c+=+'Prospect'+And+CreatedDate+=+LAST_N_MONTHS:1";
-                uri = baseUri + "/query?q=Select+"+builder.toString().substring(0,builder.toString().length()-3)+"+From+Address__c+WHERE+"+String.valueOf(lookup.get("SFDC_FILTER_ADDRESS").get("SFDC_FILTER_ADDRESS"));
-                LOGGER.info("Address query url ="+uri);
-                httpget = new HttpGet(uri);
-                httpget.addHeader(authHeader);
-                httpget.addHeader(ppHeader);
+                HashSet<String> sfdcAccountIds = new HashSet<>();
+                HashSet<String> sfdcAddressIds = new HashSet<>();
+                //String uri = baseUri + "/query?q=Select+Id+,+Name+,+AccountNumber+,+Site+From+Account+WHERE+CreatedDate+=+LAST_N_MONTHS:1";
+                //String uri = baseUri + "/query?q=Select+"+builder.toString().substring(0,builder.toString().length()-3)+"+From+Account+WHERE+Status__c+=+'Prospect'+And+CreatedDate+=+LAST_N_MONTHS:1";
+                String uri = baseUri + "/query?q=Select+" + builder.toString().substring(0, builder.toString().length() - 3) + "+From+Account+WHERE+" + String.valueOf(lookup.get("SFDC_FILTER_ACCOUNT").get("SFDC_FILTER_ACCOUNT"));
+                LOGGER.info("Account query url =" + uri);
+                try {
 
-                response = httpClient.execute(httpget);
-                getResult = EntityUtils.toString(response.getEntity());
-                json = new JSONObject(getResult);
+                    HttpGet httpget = new HttpGet(uri);
+                    httpget.addHeader(authHeader);
+                    httpget.addHeader(ppHeader);
 
-                jarr = json.getJSONArray("records");
-                LOGGER.info("Address Records fetched from SFDC : "+jarr.length());
-                header = false;
-                for(int i = 0 ; i < jarr.length(); i++){
+                    response = httpClient.execute(httpget);
+                    getResult = EntityUtils.toString(response.getEntity());
+                    JSONObject json = new JSONObject(getResult);
+
+                    JSONArray jarr = json.getJSONArray("records");
+                    LOGGER.info("Records fetched from SFDC : " + jarr.length());
+                    boolean header = false;
+                    for (int i = 0; i < jarr.length(); i++) {
                     /*System.out.println("REC\n"+json.getJSONArray("records").getJSONObject(i));
                     accountid = json.getJSONArray("records").getJSONObject(i).getString("Id");
                     accountname = json.getJSONArray("records").getJSONObject(i).getString("Name");
                     System.out.println("The Returned Account Details are " + i + ". " + accountid + " Account Name is " + accountname);*/
-                    StringBuilder record = new StringBuilder();
-                    if(!header) {
+                        StringBuilder record = new StringBuilder();
+                        if (!header) {
+                            for (String key : sfdcToMdmMapping.keySet()) {
+                                record.append("/" + sfdcToMdmMapping.get(key));
+                                record.append(";");
+                            }
+                            //record.append("/PaymentStartDate;");
+                            record.append("/SystemName;");
+                            record.deleteCharAt(record.length() - 1);
+                            record.append('\r');
+                            record.append('\n');
+                            Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
+                            header = true;
+                            record = new StringBuilder();
+                        }
                         for (String key : sfdcToMdmMapping.keySet()) {
-                            record.append("/"+sfdcToMdmMapping.get(key));
+                            if ("Profile_Class__c".equals(key)) {
+                                Map<String, Map<String, String>> countryReferenceFieldsMap = applicationCacheUtil.CountryReferenceFieldsMap("BReference");
+                                Map<String, String> resultItem = countryReferenceFieldsMap != null ?
+                                        countryReferenceFieldsMap.get(String.valueOf(jarr.getJSONObject(i).get("Country_Code__c"))) : null;
+                                String value = jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "";
+                                if (StringUtils.isNotBlank(value) || resultItem == null) {
+                                    record.append(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "");
+                                } else {
+                                    record.append(resultItem.get("ProfileClass"));
+                                }
+                            } else if ("Type".equals(key)) {
+                                String value = jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "";
+                                if ("INTERNAL".equals(value.toUpperCase())) {
+                                    record.append("I");
+                                } else {
+                                    record.append("R");
+                                }
+                            } else if ("Status__c".equals(key)) {
+                                record.append("Prospect");
+                            } else if (jarr.getJSONObject(i).get(key) != null && StringUtils.contains(jarr.getJSONObject(i).get(key).toString(), ';')) {
+                                record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "", '"'));
+                            } else {
+                                record.append(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "");
+                            }
                             record.append(";");
                         }
-                        //record.append("/RPLCheck;");
-                        record.append("/SystemName;");
-                        record.deleteCharAt(record.length()-1);
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        String today = sdf.format(new Date());
+                        //record.append(today+";");
+                        record.append("SFDC;");
+                        record.deleteCharAt(record.length() - 1);
                         record.append('\r');
                         record.append('\n');
                         Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
-                        header = true;
-                        record = new StringBuilder();
+                        if (jarr.getJSONObject(i).get("Account_Number__c") != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get("Account_Number__c")))) {
+                            sfdcAccountIds.add(String.valueOf(jarr.getJSONObject(i).get("Account_Number__c")));
+                        }
+                        LOGGER.info("Record written to file : \n" + record.toString());
                     }
+
+                    //Address
+                    path = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Address" + time + ".csv");
+                    if (!Files.exists(path)) {
+                        try {
+                            Files.createFile(path);
+                        } catch (IOException e) {
+                            LOGGER.error("Error creating temporary file", e);
+                            throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service", e);
+                        }
+                    }
+                    sfdcToMdmMapping = lookup.get("MAPPING_SFDC_TO_MDM_ADDRESS");
+                    builder = new StringBuilder();
                     for (String key : sfdcToMdmMapping.keySet()) {
-                        if(jarr.getJSONObject(i).get(key)!=null && StringUtils.contains(jarr.getJSONObject(i).get(key).toString(),';')){
-                            record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"",'"'));
-                        }else{
-                            record.append(jarr.getJSONObject(i).get(key)!=null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key)))?String.valueOf(jarr.getJSONObject(i).get(key)):"");
+                        builder.append(key);
+                        builder.append("+,+");
+                    }
+                    //uri = baseUri + "/query?q=Select+"+builder.toString().substring(0,builder.toString().length()-3)+"+From+Address__c+WHERE+Status__c+=+'Prospect'+And+CreatedDate+=+LAST_N_MONTHS:1";
+                    uri = baseUri + "/query?q=Select+" + builder.toString().substring(0, builder.toString().length() - 3) + "+From+Address__c+WHERE+" + String.valueOf(lookup.get("SFDC_FILTER_ADDRESS").get("SFDC_FILTER_ADDRESS"));
+                    LOGGER.info("Address query url =" + uri);
+                    httpget = new HttpGet(uri);
+                    httpget.addHeader(authHeader);
+                    httpget.addHeader(ppHeader);
+
+                    response = httpClient.execute(httpget);
+                    getResult = EntityUtils.toString(response.getEntity());
+                    json = new JSONObject(getResult);
+
+                    jarr = json.getJSONArray("records");
+                    LOGGER.info("Address Records fetched from SFDC : " + jarr.length());
+                    header = false;
+                    for (int i = 0; i < jarr.length(); i++) {
+                    /*System.out.println("REC\n"+json.getJSONArray("records").getJSONObject(i));
+                    accountid = json.getJSONArray("records").getJSONObject(i).getString("Id");
+                    accountname = json.getJSONArray("records").getJSONObject(i).getString("Name");
+                    System.out.println("The Returned Account Details are " + i + ". " + accountid + " Account Name is " + accountname);*/
+                        StringBuilder record = new StringBuilder();
+                        if (!header) {
+                            for (String key : sfdcToMdmMapping.keySet()) {
+                                record.append("/" + sfdcToMdmMapping.get(key));
+                                record.append(";");
+                            }
+                            //record.append("/RPLCheck;");
+                            record.append("/SystemName;");
+                            record.append("/Address");
+//                        record.deleteCharAt(record.length()-1);
+                            record.append('\r');
+                            record.append('\n');
+                            Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
+                            header = true;
+                            record = new StringBuilder();
                         }
-                        record.append(";");
-                    }
-                    //record.append("rplcheck;");
-                    record.append("SFDC;");
-                    record.deleteCharAt(record.length()-1);
-                    record.append('\r');
-                    record.append('\n');
-                    Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
-                    LOGGER.info("Address Record written to file : \n"+record.toString());
-                }
-            }catch (IOException e) {throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",e);}
-
-            OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
-            LOGGER.info("Deleting existing records in Prospect");
-            try {
-                orchestraRestClient.delete("BCMDReference", "Prospect", "root/Account", null);
-                orchestraRestClient.delete("BCMDReference", "Prospect", "root/Address", null);
-            }catch (Exception e){
-                LOGGER.error("Error deleting records",e);
-                throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service",e);
-            }
-
-            //doSfdcProspect(aContext,aWriter,time);
-
-            final Path accountPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Account"+time+".csv");
-            final Path addressPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Address"+time+".csv");
-            Procedure procedure = procedureContext -> {
-
-                LOGGER.info("accountPath csv file exists? " + accountPath.toFile().exists());
-                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Account.getPathInSchema());
-                LOGGER.info("table=" + table.toString());
-
-                ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
-                csvSpec.setFieldSeparator(';');
-                csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
-                ImportSpec importSpec = new ImportSpec();
-                importSpec.setSourceFile(accountPath.toFile());
-                importSpec.setTargetAdaptationTable(table);
-                importSpec.setImportMode(ImportSpecMode.UPDATE_OR_INSERT);
-                importSpec.setCSVSpec(csvSpec);
-                procedureContext.doImport(importSpec);
-            };
-            ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
-            ProcedureResult result = null;
-            result = svc.execute(procedure);
-            if (result == null || result.hasFailed()) {
-                LOGGER.info("Account Import Procedure failed");
-            } else {
-                LOGGER.info("Account Import Procedure successful");
-            }
-
-            procedure = procedureContext -> {
-
-                LOGGER.info("addressPath csv file exists? " + addressPath.toFile().exists());
-                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Address.getPathInSchema());
-                LOGGER.info("table=" + table.toString());
-
-                ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
-                csvSpec.setFieldSeparator(';');
-                csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
-                ImportSpec importSpec = new ImportSpec();
-                importSpec.setSourceFile(addressPath.toFile());
-                importSpec.setTargetAdaptationTable(table);
-                importSpec.setImportMode(ImportSpecMode.UPDATE_OR_INSERT);
-                importSpec.setCSVSpec(csvSpec);
-                procedureContext.doImport(importSpec);
-            };
-            svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
-            result = null;
-            result = svc.execute(procedure);
-            if (result == null || result.hasFailed()) {
-                LOGGER.info("Address Import Procedure failed");
-            } else {
-                LOGGER.info("Address Import Procedure successful");
-            }
-            procedure = procedureContext -> {
-                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Account.getPathInSchema());
-                AdaptationTable targetTable = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
-                TableContext context = new TableContext(table, procedureContext);
-                CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
-                List<AdaptationTable> tableList = new ArrayList<>();
-                tableList.add(targetTable);
-                CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context,tableList);
-                RequestResult requestResult = crosswalkResult.getCrosswalkResults();
-                LOGGER.info("Account crosswalk result size : "+requestResult.getSize());
-                OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
-                List<OrchestraObject> rows = new ArrayList<>();
-                try{
-                    Adaptation record;
-                    while((record = requestResult.nextAdaptation()) != null){
-                        OrchestraObject orchestraObject = new OrchestraObject();
-                        Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
-                        jsonFieldsMap.put("SystemId",new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
-                        jsonFieldsMap.put("MDMAccountId",new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)));
-                        jsonFieldsMap.put("Score",new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Score)));
-                        orchestraObject.setContent(jsonFieldsMap);
-                        rows.add(orchestraObject);
-                    }
-                }finally{
-                    requestResult.close();
-                }
-                orchestraObjectList.setRows(rows);
-                Runnable updateCrosswalkResultsAccount = () -> {
-                    try{
-                        ObjectMapper mapper = new ObjectMapper();
-                        OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
-                        Map<String, String> parameters = new HashMap<String, String>();
-                        parameters.put("updateOrInsert", "true");
-                        RestResponse restResponse = null;
-                        LOGGER.info("Updating crosswalk results: \n"+mapper.writeValueAsString(orchestraObjectList));
-                        restResponse = restClient.post("BCMDReference", "Prospect", "root/Account", orchestraObjectList, parameters, 300000, null);
-                        if(restResponse.getStatus()!=200 && restResponse.getStatus()!=201){
-                            LOGGER.error("Error updating crosswalk results: "+String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
+                        for (String key : sfdcToMdmMapping.keySet()) {
+                            if (jarr.getJSONObject(i).get(key) != null && StringUtils.contains(jarr.getJSONObject(i).get(key).toString(), ';')) {
+                                record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "", '"'));
+                            } else {
+                                record.append(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "");
+                            }
+                            record.append(";");
                         }
-                    }catch(IOException e){
-                        LOGGER.error("Error updating crosswalk results",e);
-                        throw new ApplicationRuntimeException("Error updating crosswalk results",e);
+                        //record.append("rplcheck;");
+                        record.append("SFDC;");
+                        record.append(getConcatenatedAddress(jarr.getJSONObject(i)));
+//                    record.deleteCharAt(record.length()-1);
+                        record.append('\r');
+                        record.append('\n');
+                        Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
+                        if (jarr.getJSONObject(i).get("Address_Number__c") != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get("Address_Number__c")))) {
+                            sfdcAddressIds.add(String.valueOf(jarr.getJSONObject(i).get("Address_Number__c")));
+                        }
+                        LOGGER.info("Address Record written to file : \n" + record.toString());
                     }
+                } catch (IOException e) {
+                    throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service", e);
+                }
+
+                OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+                LOGGER.info("Deleting existing records in Prospect");
+                try {
+                    orchestraRestClient.delete("BCMDReference", "Prospect", "root/Account", null);
+                    orchestraRestClient.delete("BCMDReference", "Prospect", "root/Address", null);
+                } catch (Exception e) {
+                    LOGGER.error("Error deleting records", e);
+                    throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service", e);
+                }
+
+                //doSfdcProspect(aContext,aWriter,time);
+
+                final Path accountPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Account" + time + ".csv");
+                final Path addressPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Address" + time + ".csv");
+                Procedure procedure = procedureContext -> {
+
+                    LOGGER.info("accountPath csv file exists? " + accountPath.toFile().exists());
+                    AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Account.getPathInSchema());
+                    LOGGER.info("table=" + table.toString());
+
+                    ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
+                    csvSpec.setFieldSeparator(';');
+                    csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
+                    ImportSpec importSpec = new ImportSpec();
+                    importSpec.setSourceFile(accountPath.toFile());
+                    importSpec.setTargetAdaptationTable(table);
+                    importSpec.setImportMode(ImportSpecMode.UPDATE_OR_INSERT);
+                    importSpec.setCSVSpec(csvSpec);
+                    procedureContext.doImport(importSpec);
                 };
-                new Thread(updateCrosswalkResultsAccount).start();
-            };
-            svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
-            result = null;
-            result = svc.execute(procedure);
-            if (result == null || result.hasFailed()) {
-                LOGGER.info("Account execute crosswalk Procedure failed");
-            } else {
-                LOGGER.info("Account execute crosswalk Procedure successful");
-            }
-            procedure = procedureContext -> {
-                AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Address.getPathInSchema());
-                AdaptationTable targetTable = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Address.getPathInSchema());
-                TableContext context = new TableContext(table, procedureContext);
-                CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
-                List<AdaptationTable> tableList = new ArrayList<>();
-                tableList.add(targetTable);
-                CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context,tableList);
-                RequestResult requestResult = crosswalkResult.getCrosswalkResults();
-                LOGGER.info("Address crosswalk result size : "+requestResult.getSize());
-                OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
-                List<OrchestraObject> rows = new ArrayList<>();
-                try{
-                    Adaptation record;
-                    while((record = requestResult.nextAdaptation()) != null){
-                        OrchestraObject orchestraObject = new OrchestraObject();
-                        Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
-                        jsonFieldsMap.put("SystemId",new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
-                        jsonFieldsMap.put("MDMAddressId",new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)));
-                        jsonFieldsMap.put("Score",new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Score)));
-                        orchestraObject.setContent(jsonFieldsMap);
-                        rows.add(orchestraObject);
-                    }
-                }finally{
-                    requestResult.close();
+                ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
+                ProcedureResult result = null;
+                result = svc.execute(procedure);
+                if (result == null || result.hasFailed()) {
+                    LOGGER.info("Account Import Procedure failed");
+                } else {
+                    LOGGER.info("Account Import Procedure successful");
                 }
-                orchestraObjectList.setRows(rows);
-                Runnable updateCrosswalkResultsAddress = () -> {
+
+                procedure = procedureContext -> {
+
+                    LOGGER.info("addressPath csv file exists? " + addressPath.toFile().exists());
+                    AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Address.getPathInSchema());
+                    LOGGER.info("table=" + table.toString());
+
+                    ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
+                    csvSpec.setFieldSeparator(';');
+                    csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
+                    ImportSpec importSpec = new ImportSpec();
+                    importSpec.setSourceFile(addressPath.toFile());
+                    importSpec.setTargetAdaptationTable(table);
+                    importSpec.setImportMode(ImportSpecMode.UPDATE_OR_INSERT);
+                    importSpec.setCSVSpec(csvSpec);
+                    procedureContext.doImport(importSpec);
+                };
+                svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
+                result = null;
+                result = svc.execute(procedure);
+                if (result == null || result.hasFailed()) {
+                    LOGGER.info("Address Import Procedure failed");
+                } else {
+                    LOGGER.info("Address Import Procedure successful");
+                }
+                procedure = procedureContext -> {
+                    AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Account.getPathInSchema());
+                    AdaptationTable targetTable = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
+                    TableContext context = new TableContext(table, procedureContext);
+                    CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
+                    List<AdaptationTable> tableList = new ArrayList<>();
+                    tableList.add(targetTable);
+                    CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context, tableList);
+                    RequestResult requestResult = crosswalkResult.getCrosswalkResults();
+                    LOGGER.info("Account crosswalk result size : " + requestResult.getSize());
+                    OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
+                    List<OrchestraObject> rows = new ArrayList<>();
                     try {
-                        ObjectMapper mapper = new ObjectMapper();
-                        OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
-                        Map<String, String> parameters = new HashMap<String, String>();
-                        parameters.put("updateOrInsert", "true");
-                        RestResponse restResponse = null;
-                        LOGGER.info("Updating address crosswalk results: \n" + mapper.writeValueAsString(orchestraObjectList));
-                        restResponse = restClient.post("BCMDReference", "Prospect", "root/Address", orchestraObjectList, parameters, 300000, null);
-                        if (restResponse.getStatus() != 200 && restResponse.getStatus() != 201) {
-                            LOGGER.error("Error updating address crosswalk results: " + String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
+                        Adaptation record;
+                        while ((record = requestResult.nextAdaptation()) != null) {
+                            if (sfdcAccountIds.contains(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)))) {
+                                OrchestraObject orchestraObject = new OrchestraObject();
+                                Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
+                                jsonFieldsMap.put("SystemId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
+                                jsonFieldsMap.put("MDMAccountId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)));
+                                jsonFieldsMap.put("Score", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Score)));
+                                orchestraObject.setContent(jsonFieldsMap);
+                                rows.add(orchestraObject);
+                            }
                         }
-                    } catch (IOException e) {
-                        LOGGER.error("Error updating address crosswalk results", e);
-                        throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service", e);
+                    } finally {
+                        requestResult.close();
                     }
+                    orchestraObjectList.setRows(rows);
+                    Runnable updateCrosswalkResultsAccount = () -> {
+                        try {
+                            ObjectMapper mapper = new ObjectMapper();
+                            OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+                            Map<String, String> parameters = new HashMap<String, String>();
+                            parameters.put("updateOrInsert", "true");
+                            RestResponse restResponse = null;
+                            LOGGER.info("Updating crosswalk results: \n" + mapper.writeValueAsString(orchestraObjectList));
+                            restResponse = restClient.post("BCMDReference", "Prospect", "root/Account", orchestraObjectList, parameters, 300000, null);
+                            if (restResponse.getStatus() != 200 && restResponse.getStatus() != 201) {
+                                LOGGER.error("Error updating crosswalk results: " + String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
+                            }
+                        } catch (IOException e) {
+                            LOGGER.error("Error updating crosswalk results", e);
+                            throw new ApplicationRuntimeException("Error updating crosswalk results", e);
+                        }
+                    };
+                    new Thread(updateCrosswalkResultsAccount).start();
                 };
-                new Thread(updateCrosswalkResultsAddress).start();
-            };
-            svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
-            result = null;
-            result = svc.execute(procedure);
-            if (result == null || result.hasFailed()) {
-                LOGGER.info("Address execute crosswalk Procedure failed");
-            } else {
-                LOGGER.info("Address execute crosswalk Procedure successful");
+                svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
+                result = null;
+                result = svc.execute(procedure);
+                if (result == null || result.hasFailed()) {
+                    LOGGER.info("Account execute crosswalk Procedure failed");
+                } else {
+                    LOGGER.info("Account execute crosswalk Procedure successful");
+                }
+                procedure = procedureContext -> {
+                    AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Address.getPathInSchema());
+                    AdaptationTable targetTable = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Address.getPathInSchema());
+                    TableContext context = new TableContext(table, procedureContext);
+                    CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
+                    List<AdaptationTable> tableList = new ArrayList<>();
+                    tableList.add(targetTable);
+                    CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context, tableList);
+                    RequestResult requestResult = crosswalkResult.getCrosswalkResults();
+                    LOGGER.info("Address crosswalk result size : " + requestResult.getSize());
+                    OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
+                    List<OrchestraObject> rows = new ArrayList<>();
+                    try {
+                        Adaptation record;
+                        while ((record = requestResult.nextAdaptation()) != null) {
+                            if (sfdcAddressIds.contains(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)))) {
+                                OrchestraObject orchestraObject = new OrchestraObject();
+                                Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
+                                jsonFieldsMap.put("SystemId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
+                                jsonFieldsMap.put("MDMAddressId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)));
+                                jsonFieldsMap.put("Score", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Score)));
+                                orchestraObject.setContent(jsonFieldsMap);
+                                rows.add(orchestraObject);
+                            }
+                        }
+                    } finally {
+                        requestResult.close();
+                    }
+                    orchestraObjectList.setRows(rows);
+                    Runnable updateCrosswalkResultsAddress = () -> {
+                        try {
+                            ObjectMapper mapper = new ObjectMapper();
+                            OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+                            Map<String, String> parameters = new HashMap<String, String>();
+                            parameters.put("updateOrInsert", "true");
+                            RestResponse restResponse = null;
+                            LOGGER.info("Updating address crosswalk results: \n" + mapper.writeValueAsString(orchestraObjectList));
+                            restResponse = restClient.post("BCMDReference", "Prospect", "root/Address", orchestraObjectList, parameters, 300000, null);
+                            if (restResponse.getStatus() != 200 && restResponse.getStatus() != 201) {
+                                LOGGER.error("Error updating address crosswalk results: " + String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
+                            }
+                        } catch (IOException e) {
+                            LOGGER.error("Error updating address crosswalk results", e);
+                            throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service", e);
+                        }
+                    };
+                    new Thread(updateCrosswalkResultsAddress).start();
+                };
+                svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
+                result = null;
+                result = svc.execute(procedure);
+                if (result == null || result.hasFailed()) {
+                    LOGGER.info("Address execute crosswalk Procedure failed");
+                } else {
+                    LOGGER.info("Address execute crosswalk Procedure successful");
+                }
+            } catch (Exception ex) {
+                throw new ApplicationRuntimeException("Error while deduplicating prospects", ex);
             }
-
         }
     }
 
@@ -731,5 +757,20 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
 
     public void setObjectKey(ObjectKey objectKey) {
         this.objectKey = objectKey;
+    }
+
+    private String getConcatenatedAddress(JSONObject jsonObject) {
+        List<String> addresses = new ArrayList<>();
+        for(int i=1;i<=4;i++){
+            if(StringUtils.isNotBlank(String.valueOf(jsonObject.get("Address_Line_"+i+"__c")))
+                    && !"null".equals(String.valueOf(jsonObject.get("Address_Line_"+i+"__c")))){
+                addresses.add(String.valueOf(jsonObject.get("Address_Line_"+i+"__c")));
+            }
+        }
+        if(!addresses.isEmpty()){
+            return StringUtils.join(addresses, " ");
+        }else{
+            return "";
+        }
     }
 }
