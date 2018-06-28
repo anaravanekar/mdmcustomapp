@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectList;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObjectListResponse;
-import com.sereneast.orchestramdm.keysight.mdmcustom.model.RestResponse;
+import com.sereneast.orchestramdm.keysight.mdmcustom.model.*;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
@@ -103,6 +100,41 @@ public class OrchestraRestClient {
             client.close();
         }
         return null;
+    }
+
+    public OrchestraObject getById(final String dataSpace, final String dataSet, final String path, final String encodedRecordId, final Map<String,String> parameters) throws IOException {
+        Client client = ClientBuilder.newClient();
+        try {
+            client.register(feature);
+            WebTarget target = client.target(baseUrl).path(dataSpace).path(dataSet).path(path).path(encodedRecordId);
+            if (parameters != null)
+                for (Map.Entry<String, String> entry : parameters.entrySet())
+                    target = target.queryParam(entry.getKey(), entry.getValue());
+            Invocation.Builder request = target.request(MediaType.APPLICATION_JSON);
+            request.property(ClientProperties.CONNECT_TIMEOUT, restProperties.getOrchestra().getConnectTimeout()!=null?
+                    restProperties.getOrchestra().getConnectTimeout():5000);
+            request.property(ClientProperties.READ_TIMEOUT, restProperties.getOrchestra().getReadTimeout()!=null?
+                    restProperties.getOrchestra().getReadTimeout():70000);
+            Response response = request.get();
+
+            LOGGER.trace(String.valueOf(response.getStatus()));
+            LOGGER.trace(response.getStatusInfo().toString());
+
+            if (response.getStatus() == 200) {
+                response.bufferEntity();
+                ObjectMapper mapper = new ObjectMapper();
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                mapper.setDateFormat(df);
+                OrchestraObject responseJson = mapper.readValue(response.readEntity(String.class), OrchestraObject.class);
+                LOGGER.trace("getById response : " + mapper.writeValueAsString(responseJson));
+                return responseJson;
+            }else{
+                throw new ApplicationRuntimeException("Received "+response.getStatus()+" response while fetching "+path+"/"+encodedRecordId+". JSON : "+response.readEntity(String.class));
+            }
+        }finally{
+            client.close();
+        }
     }
 
     public Response insert(final String dataSpace, final String dataSet, final String path, OrchestraObjectList requestObject, final Map<String,String> parameters) throws IOException {

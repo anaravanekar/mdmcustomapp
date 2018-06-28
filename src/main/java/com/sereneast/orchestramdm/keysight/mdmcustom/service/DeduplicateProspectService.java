@@ -1,16 +1,14 @@
 package com.sereneast.orchestramdm.keysight.mdmcustom.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.onwbp.adaptation.Adaptation;
-import com.onwbp.adaptation.AdaptationName;
-import com.onwbp.adaptation.AdaptationTable;
-import com.onwbp.adaptation.RequestResult;
+import com.onwbp.adaptation.*;
 import com.onwbp.base.text.UserMessageString;
 import com.orchestranetworks.addon.daqa.TableContext;
 import com.orchestranetworks.addon.daqa.crosswalk.CrosswalkExecutionResult;
 import com.orchestranetworks.addon.daqa.crosswalk.CrosswalkOperations;
 import com.orchestranetworks.addon.daqa.crosswalk.CrosswalkOperationsFactory;
 import com.orchestranetworks.addon.daqa.crosswalk.CrosswalkResultPaths;
+import com.orchestranetworks.dataservices.rest.RESTEncodingHelper;
 import com.orchestranetworks.instance.HomeCreationSpec;
 import com.orchestranetworks.instance.HomeKey;
 import com.orchestranetworks.instance.Repository;
@@ -515,8 +513,12 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                 OrchestraObject orchestraObject = new OrchestraObject();
                                 Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
                                 jsonFieldsMap.put("SystemId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
+                                OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+                                OrchestraObject mdmAccount = restClient.getById("BCMDReference", "Account", "root/Account", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)))),null);
                                 jsonFieldsMap.put("MDMAccountId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)));
                                 jsonFieldsMap.put("Score", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Score)));
+                                jsonFieldsMap.put("MDMAccountName",mdmAccount.getContent().get("AccountName"));
+                                jsonFieldsMap.put("MDMAlternateAccountName",mdmAccount.getContent().get("NameLocalLanguage"));
                                 orchestraObject.setContent(jsonFieldsMap);
                                 rows.add(orchestraObject);
                             }
@@ -570,9 +572,14 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                             if (sfdcAddressIds.contains(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)))) {
                                 OrchestraObject orchestraObject = new OrchestraObject();
                                 Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
+                                OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+                                OrchestraObject mdmAddress = restClient.getById("BCMDReference", "Account", "root/Address", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)))),null);
                                 jsonFieldsMap.put("SystemId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
                                 jsonFieldsMap.put("MDMAddressId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)));
                                 jsonFieldsMap.put("Score", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Score)));
+                                jsonFieldsMap.put("MDMAccountId",mdmAddress.getContent().get("MDMAccountId"));
+                                jsonFieldsMap.put("MDMAccountName",mdmAddress.getContent().get("MDMAccountName"));
+                                jsonFieldsMap.put("MDMAddress",mdmAddress.getContent().get("Address"));
                                 orchestraObject.setContent(jsonFieldsMap);
                                 rows.add(orchestraObject);
                             }
