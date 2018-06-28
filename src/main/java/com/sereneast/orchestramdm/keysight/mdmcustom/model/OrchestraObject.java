@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 import java.util.Map;
 
-@JsonIgnoreProperties(value = { "childObjects","dbPrimaryKey" })
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class OrchestraObject {
     private Map<String,OrchestraContent> content;
 
