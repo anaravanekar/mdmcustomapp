@@ -513,12 +513,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                 OrchestraObject orchestraObject = new OrchestraObject();
                                 Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
                                 jsonFieldsMap.put("SystemId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
-                                OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
-                                OrchestraObject mdmAccount = restClient.getById("BCMDReference", "Account", "root/Account", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)))),null);
                                 jsonFieldsMap.put("MDMAccountId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)));
                                 jsonFieldsMap.put("Score", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Score)));
-                                jsonFieldsMap.put("MDMAccountName",mdmAccount.getContent().get("AccountName"));
-                                jsonFieldsMap.put("MDMAlternateAccountName",mdmAccount.getContent().get("NameLocalLanguage"));
                                 orchestraObject.setContent(jsonFieldsMap);
                                 rows.add(orchestraObject);
                             }
@@ -531,6 +527,12 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         try {
                             ObjectMapper mapper = new ObjectMapper();
                             OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+                            for(OrchestraObject orchestraObject: orchestraObjectList.getRows()){
+                                Map<String, OrchestraContent> jsonFieldsMap = orchestraObject.getContent();
+                                OrchestraObject mdmAccount = restClient.getById("BCMDReference", "Account", "root/Account", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(String.valueOf(jsonFieldsMap.get("MDMAccountId").getContent()))),null);
+                                jsonFieldsMap.put("MDMAccountName",mdmAccount.getContent().get("AccountName"));
+                                jsonFieldsMap.put("MDMAlternateAccountName",mdmAccount.getContent().get("NameLocalLanguage"));
+                            }
                             Map<String, String> parameters = new HashMap<String, String>();
                             parameters.put("updateOrInsert", "true");
                             RestResponse restResponse = null;
@@ -577,9 +579,6 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                 jsonFieldsMap.put("SystemId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
                                 jsonFieldsMap.put("MDMAddressId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)));
                                 jsonFieldsMap.put("Score", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Score)));
-                                jsonFieldsMap.put("MDMAccountId",mdmAddress.getContent().get("MDMAccountId"));
-                                jsonFieldsMap.put("MDMAccountName",mdmAddress.getContent().get("MDMAccountName"));
-                                jsonFieldsMap.put("MDMAddress",mdmAddress.getContent().get("Address"));
                                 orchestraObject.setContent(jsonFieldsMap);
                                 rows.add(orchestraObject);
                             }
@@ -592,6 +591,13 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         try {
                             ObjectMapper mapper = new ObjectMapper();
                             OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+                            for(OrchestraObject orchestraObject: orchestraObjectList.getRows()){
+                                Map<String, OrchestraContent> jsonFieldsMap = orchestraObject.getContent();
+                                OrchestraObject mdmAddress = restClient.getById("BCMDReference", "Account", "root/Address", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(String.valueOf(jsonFieldsMap.get("MDMAddressId").getContent()))),null);
+                                jsonFieldsMap.put("MDMAccountId",mdmAddress.getContent().get("MDMAccountId"));
+                                jsonFieldsMap.put("MDMAccountName",mdmAddress.getContent().get("MDMAccountName"));
+                                jsonFieldsMap.put("MDMAddress",mdmAddress.getContent().get("Address"));
+                            }
                             Map<String, String> parameters = new HashMap<String, String>();
                             parameters.put("updateOrInsert", "true");
                             RestResponse restResponse = null;
