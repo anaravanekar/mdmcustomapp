@@ -552,7 +552,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 result = null;
                 result = svc.execute(procedure);
                 if (result == null || result.hasFailed()) {
-                    LOGGER.info("Account execute crosswalk Procedure failed");
+                    throw new ApplicationRuntimeException("Execute crosswalk Procedure failed for Account",result.getException());
                 } else {
                     LOGGER.info("Account execute crosswalk Procedure successful");
                 }
@@ -615,12 +615,12 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 result = null;
                 result = svc.execute(procedure);
                 if (result == null || result.hasFailed()) {
-                    LOGGER.info("Address execute crosswalk Procedure failed");
+                    throw new ApplicationRuntimeException("Execute crosswalk Procedure failed for Address",result.getException());
                 } else {
                     LOGGER.info("Address execute crosswalk Procedure successful");
                 }
             } catch (Exception ex) {
-                throw new ApplicationRuntimeException("Error while deduplicating prospects", ex);
+                throw new ApplicationRuntimeException("Error in de-duplicate prospects", ex);
             }
         }
     }
