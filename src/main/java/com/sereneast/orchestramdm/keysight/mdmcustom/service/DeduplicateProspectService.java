@@ -494,6 +494,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 } else {
                     LOGGER.info("Address Import Procedure successful");
                 }
+                OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
+                OrchestraObjectList orchestraObjectListAddress = new OrchestraObjectList();
                 procedure = procedureContext -> {
                     AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Account.getPathInSchema());
                     AdaptationTable targetTable = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
@@ -504,7 +506,6 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context, tableList);
                     RequestResult requestResult = crosswalkResult.getCrosswalkResults();
                     LOGGER.info("Account crosswalk result size : " + requestResult.getSize());
-                    OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
                     List<OrchestraObject> rows = new ArrayList<>();
                     try {
                         Adaptation record;
@@ -523,8 +524,17 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         requestResult.close();
                     }
                     orchestraObjectList.setRows(rows);
+                };
+                svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
+                result = null;
+                result = svc.execute(procedure);
+                if (result == null || result.hasFailed()) {
+                    throw new ApplicationRuntimeException("Execute crosswalk Procedure failed for Account",result.getException());
+                } else {
+                    LOGGER.info("Account execute crosswalk Procedure successful");
                     Runnable updateCrosswalkResultsAccount = () -> {
                         try {
+                            LOGGER.info("Update crosswalk results Account Begin");
                             ObjectMapper mapper = new ObjectMapper();
                             OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
                             for(OrchestraObject orchestraObject: orchestraObjectList.getRows()){
@@ -547,14 +557,6 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         }
                     };
                     new Thread(updateCrosswalkResultsAccount).start();
-                };
-                svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
-                result = null;
-                result = svc.execute(procedure);
-                if (result == null || result.hasFailed()) {
-                    throw new ApplicationRuntimeException("Execute crosswalk Procedure failed for Account",result.getException());
-                } else {
-                    LOGGER.info("Account execute crosswalk Procedure successful");
                 }
                 procedure = procedureContext -> {
                     AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Address.getPathInSchema());
@@ -566,7 +568,6 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context, tableList);
                     RequestResult requestResult = crosswalkResult.getCrosswalkResults();
                     LOGGER.info("Address crosswalk result size : " + requestResult.getSize());
-                    OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
                     List<OrchestraObject> rows = new ArrayList<>();
                     try {
                         Adaptation record;
@@ -584,12 +585,21 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     } finally {
                         requestResult.close();
                     }
-                    orchestraObjectList.setRows(rows);
+                    orchestraObjectListAddress.setRows(rows);
+                };
+                svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
+                result = null;
+                result = svc.execute(procedure);
+                if (result == null || result.hasFailed()) {
+                    throw new ApplicationRuntimeException("Execute crosswalk Procedure failed for Address",result.getException());
+                } else {
+                    LOGGER.info("Address execute crosswalk Procedure successful");
                     Runnable updateCrosswalkResultsAddress = () -> {
                         try {
+                            LOGGER.info("Update crosswalk results Address Begin");
                             ObjectMapper mapper = new ObjectMapper();
                             OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
-                            for(OrchestraObject orchestraObject: orchestraObjectList.getRows()){
+                            for(OrchestraObject orchestraObject: orchestraObjectListAddress.getRows()){
                                 Map<String, OrchestraContent> jsonFieldsMap = orchestraObject.getContent();
                                 OrchestraObject mdmAddress = restClient.getById("BCMDReference", "Account", "root/Address", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(String.valueOf(jsonFieldsMap.get("MDMAddressId").getContent()))),null);
                                 jsonFieldsMap.put("MDMAccountId",mdmAddress.getContent().get("MDMAccountId"));
@@ -599,8 +609,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                             Map<String, String> parameters = new HashMap<String, String>();
                             parameters.put("updateOrInsert", "true");
                             RestResponse restResponse = null;
-                            LOGGER.info("Updating address crosswalk results: \n" + mapper.writeValueAsString(orchestraObjectList));
-                            restResponse = restClient.post("BCMDReference", "Prospect", "root/Address", orchestraObjectList, parameters, 300000, null);
+                            LOGGER.info("Updating address crosswalk results: \n" + mapper.writeValueAsString(orchestraObjectListAddress));
+                            restResponse = restClient.post("BCMDReference", "Prospect", "root/Address", orchestraObjectListAddress, parameters, 300000, null);
                             if (restResponse.getStatus() != 200 && restResponse.getStatus() != 201) {
                                 LOGGER.error("Error updating address crosswalk results: " + String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
                             }
@@ -610,14 +620,6 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         }
                     };
                     new Thread(updateCrosswalkResultsAddress).start();
-                };
-                svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
-                result = null;
-                result = svc.execute(procedure);
-                if (result == null || result.hasFailed()) {
-                    throw new ApplicationRuntimeException("Execute crosswalk Procedure failed for Address",result.getException());
-                } else {
-                    LOGGER.info("Address execute crosswalk Procedure successful");
                 }
             } catch (Exception ex) {
                 throw new ApplicationRuntimeException("Error in de-duplicate prospects", ex);
