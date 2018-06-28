@@ -574,8 +574,6 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                             if (sfdcAddressIds.contains(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)))) {
                                 OrchestraObject orchestraObject = new OrchestraObject();
                                 Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
-                                OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
-                                OrchestraObject mdmAddress = restClient.getById("BCMDReference", "Account", "root/Address", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)))),null);
                                 jsonFieldsMap.put("SystemId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
                                 jsonFieldsMap.put("MDMAddressId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)));
                                 jsonFieldsMap.put("Score", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Score)));
