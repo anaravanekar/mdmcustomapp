@@ -29,6 +29,7 @@ public class ProspectTrigger extends TableTrigger {
                 && "Prospect".equalsIgnoreCase(aContext.getAdaptationOccurrence().getAdaptationName().getStringName())) {
             aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName()).setValue(
                     aContext.getSession().getUserReference().getUserId(), Path.parse("./LastActionBy"));
+            aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName()));
         }
     }
 }
