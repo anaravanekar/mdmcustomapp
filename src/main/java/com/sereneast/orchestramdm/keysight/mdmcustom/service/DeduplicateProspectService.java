@@ -70,7 +70,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
     private static String tokenUrl = null;
     private static final String environmentUrl = "https://test.salesforce.com";
     private static final String userName = "mstr_user@keysight.com.prd.test1";
-    private static final String passWord = "Keysight123gOJm2KPTPV0c7hFjAVdaE5ccW";
+    private static final String passWord = "Keysight123LT5xWyT8y3dqjp9FBKBFSzdON";//"Keysight123gOJm2KPTPV0c7hFjAVdaE5ccW";
     private static final String accessToken = null;
     private static final String instanceUrl= null;
     private static String R_EndPoint = "/services/data" ;
@@ -306,9 +306,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                 record.append("/" + sfdcToMdmMapping.get(key));
                                 record.append(";");
                             }
-                            //record.append("/PaymentStartDate;");
                             record.append("/SystemName;");
-                            record.deleteCharAt(record.length() - 1);
+                            record.append("/MatchExclusion");
                             record.append('\r');
                             record.append('\n');
                             Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
@@ -346,7 +345,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         String today = sdf.format(new Date());
                         //record.append(today+";");
                         record.append("SFDC;");
-                        record.deleteCharAt(record.length() - 1);
+                        record.append("N");
                         record.append('\r');
                         record.append('\n');
                         Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
@@ -397,10 +396,9 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                 record.append("/" + sfdcToMdmMapping.get(key));
                                 record.append(";");
                             }
-                            //record.append("/RPLCheck;");
                             record.append("/SystemName;");
-                            record.append("/Address");
-//                        record.deleteCharAt(record.length()-1);
+                            record.append("/Address;");
+                            record.append("/MatchExclusion");
                             record.append('\r');
                             record.append('\n');
                             Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
@@ -415,10 +413,9 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                             }
                             record.append(";");
                         }
-                        //record.append("rplcheck;");
                         record.append("SFDC;");
-                        record.append(getConcatenatedAddress(jarr.getJSONObject(i)));
-//                    record.deleteCharAt(record.length()-1);
+                        record.append(getConcatenatedAddress(jarr.getJSONObject(i))+";");
+                        record.append("N");
                         record.append('\r');
                         record.append('\n');
                         Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
