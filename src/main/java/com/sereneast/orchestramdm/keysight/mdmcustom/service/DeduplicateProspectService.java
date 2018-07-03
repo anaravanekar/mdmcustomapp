@@ -468,6 +468,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 result = svc.execute(procedure);
                 if (result == null || result.hasFailed()) {
                     LOGGER.info("Account Import Procedure failed");
+                    throw new ApplicationRuntimeException("Account file import failed",result.getException());
                 } else {
                     LOGGER.info("Account Import Procedure successful");
                 }
@@ -493,6 +494,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 result = svc.execute(procedure);
                 if (result == null || result.hasFailed()) {
                     LOGGER.info("Address Import Procedure failed");
+                    throw new ApplicationRuntimeException("Address file import failed",result.getException());
                 } else {
                     LOGGER.info("Address Import Procedure successful");
                 }
