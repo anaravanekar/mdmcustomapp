@@ -414,7 +414,12 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                             record.append(";");
                         }
                         record.append("SFDC;");
-                        record.append(getConcatenatedAddress(jarr.getJSONObject(i))+";");
+                        String concatenated = getConcatenatedAddress(jarr.getJSONObject(i));
+                        if(StringUtils.contains(concatenated, ';')){
+                            concatenated = StringUtils.wrap(concatenated,'"');
+                        }
+                        record.append(concatenated);
+                        record.append(";");
                         record.append("N");
                         record.append('\r');
                         record.append('\n');
