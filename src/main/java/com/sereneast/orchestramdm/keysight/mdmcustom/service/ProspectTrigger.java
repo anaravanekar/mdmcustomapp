@@ -28,7 +28,7 @@ public class ProspectTrigger extends TableTrigger {
         LOGGER.info("in handleAfterModify");
         LOGGER.info("dataset name : "+aContext.getAdaptationOccurrence().getAdaptationName().getStringName());
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())
-                && "Prospect".equalsIgnoreCase(aContext.getAdaptationOccurrence().getAdaptationName().getStringName())) {
+                && "Prospect".equalsIgnoreCase(aContext.getOccurrenceContext().getAdaptationInstance().getAdaptationName().getStringName())) {
             LOGGER.info("in if updating record...");
             aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName()).setValue(
                     aContext.getSession().getUserReference().getUserId(), Path.parse("./LastActionBy"));

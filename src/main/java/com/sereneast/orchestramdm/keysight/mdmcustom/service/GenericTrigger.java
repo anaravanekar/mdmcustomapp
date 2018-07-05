@@ -74,7 +74,7 @@ public class GenericTrigger extends TableTrigger {
 
     public void handleAfterCreate(AfterCreateOccurrenceContext aContext) throws OperationException{
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())
-                && "Account".equalsIgnoreCase(aContext.getAdaptationOccurrence().getAdaptationName().getStringName())) {
+                && "Account".equalsIgnoreCase(aContext.getOccurrenceContext().getAdaptationInstance().getAdaptationName().getStringName())) {
             initialize();
             ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil) SpringContext.getApplicationContext().getBean("applicationCacheUtil");
             ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
@@ -374,7 +374,7 @@ public class GenericTrigger extends TableTrigger {
     public void handleAfterModify(AfterModifyOccurrenceContext aContext) throws OperationException {
         LOGGER.debug(objectName+" GenericTrigger handleAfterModify called...");
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())
-                && "Account".equalsIgnoreCase(aContext.getAdaptationOccurrence().getAdaptationName().getStringName())) {
+                && "Account".equalsIgnoreCase(aContext.getOccurrenceContext().getAdaptationInstance().getAdaptationName().getStringName())) {
             initialize();
             ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil) SpringContext.getApplicationContext().getBean("applicationCacheUtil");
             ValueChanges changes = aContext.getChanges();
