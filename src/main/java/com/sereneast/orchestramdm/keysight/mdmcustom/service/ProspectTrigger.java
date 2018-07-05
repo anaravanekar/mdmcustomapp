@@ -6,6 +6,7 @@ import com.orchestranetworks.schema.trigger.AfterModifyOccurrenceContext;
 import com.orchestranetworks.schema.trigger.TableTrigger;
 import com.orchestranetworks.schema.trigger.TriggerSetupContext;
 import com.orchestranetworks.service.OperationException;
+import com.orchestranetworks.service.ValueContextForUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +31,9 @@ public class ProspectTrigger extends TableTrigger {
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())
                 && "Prospect".equalsIgnoreCase(aContext.getOccurrenceContext().getAdaptationInstance().getAdaptationName().getStringName())) {
             LOGGER.info("in if updating record...");
-            aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName()).setValue(
-                    aContext.getSession().getUserReference().getUserId(), Path.parse("./LastActionBy"));
-            aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName()));
+            ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
+            valueContextForUpdate.setValue(aContext.getSession().getUserReference().getUserId(), Path.parse("./LastActionBy"));
+            aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
         }
     }
 }
