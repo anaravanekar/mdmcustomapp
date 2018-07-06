@@ -436,7 +436,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
                 LOGGER.info("Deleting existing records in Prospect");
                 try {
-                    if("Y".equals(applicationCacheUtil.getLookupValues("BReference").get("DeleteExistingProspect").get("DeleteExistingProspect"))) {
+                    if(applicationCacheUtil.getLookupValues("BReference").get("DeleteExistingProspect")!=null && "Y".equals(applicationCacheUtil.getLookupValues("BReference").get("DeleteExistingProspect").get("DeleteExistingProspect"))) {
                         LOGGER.info("Deleting existing records in Prospect");
                         orchestraRestClient.delete("BCMDReference", "Prospect", "root/Account", null);
                         orchestraRestClient.delete("BCMDReference", "Prospect", "root/Address", null);
