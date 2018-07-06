@@ -334,8 +334,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                 }
                             } else if ("Status__c".equals(key)) {
                                 record.append("Prospect");
-                            } else if (jarr.getJSONObject(i).get(key) != null && StringUtils.containsAny(jarr.getJSONObject(i).get(key).toString(), ';','"','\r','\n')) {
-                                record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "", '"'));
+                            } else if (jarr.getJSONObject(i).get(key) != null && StringUtils.containsAny(jarr.getJSONObject(i).get(key).toString(), ';','^','\r','\n')) {
+                                record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "", '^'));
                             } else {
                                 record.append(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "");
                             }
@@ -406,8 +406,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                             record = new StringBuilder();
                         }
                         for (String key : sfdcToMdmMapping.keySet()) {
-                            if (jarr.getJSONObject(i).get(key) != null && StringUtils.containsAny(jarr.getJSONObject(i).get(key).toString(), ';','"','\r','\n')) {
-                                record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "", '"'));
+                            if (jarr.getJSONObject(i).get(key) != null && StringUtils.containsAny(jarr.getJSONObject(i).get(key).toString(), ';','^','\r','\n')) {
+                                record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "", '^'));
                             } else {
                                 record.append(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "");
                             }
@@ -415,8 +415,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         }
                         record.append("SFDC;");
                         String concatenated = getConcatenatedAddress(jarr.getJSONObject(i));
-                        if(StringUtils.containsAny(concatenated, ';','"','\r','\n')){
-                            concatenated = StringUtils.wrap(concatenated,'"');
+                        if(StringUtils.containsAny(concatenated, ';','^','\r','\n')){
+                            concatenated = StringUtils.wrap(concatenated,'^');
                         }
                         record.append(concatenated);
                         record.append(";");
@@ -457,6 +457,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
 
                     ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
                     csvSpec.setFieldSeparator(';');
+                    csvSpec.setTextDelimiter('^');
                     csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
                     ImportSpec importSpec = new ImportSpec();
                     importSpec.setSourceFile(accountPath.toFile());
@@ -483,6 +484,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
 
                     ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
                     csvSpec.setFieldSeparator(';');
+                    csvSpec.setTextDelimiter('^');
                     csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
                     ImportSpec importSpec = new ImportSpec();
                     importSpec.setSourceFile(addressPath.toFile());
@@ -681,6 +683,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
 
                 ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
                 csvSpec.setFieldSeparator(';');
+                csvSpec.setTextDelimiter('^');
                 csvSpec.setHeader(ExportImportCSVSpec.Header.LABEL);
                 ImportSpec importSpec = new ImportSpec();
                 importSpec.setSourceFile(processPolicyPath.toFile());
@@ -707,6 +710,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
 
                 ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
                 csvSpec.setFieldSeparator(';');
+                csvSpec.setTextDelimiter('^');
                 csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
                 ImportSpec importSpec = new ImportSpec();
                 importSpec.setSourceFile(accountPath.toFile());
@@ -732,6 +736,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
 
                 ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
                 csvSpec.setFieldSeparator(';');
+                csvSpec.setTextDelimiter('^');
                 csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
                 ImportSpec importSpec = new ImportSpec();
                 importSpec.setSourceFile(addressPath.toFile());
