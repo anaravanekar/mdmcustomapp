@@ -334,10 +334,18 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                 }
                             } else if ("Status__c".equals(key)) {
                                 record.append("Prospect");
-                            } else if (jarr.getJSONObject(i).get(key) != null && StringUtils.containsAny(jarr.getJSONObject(i).get(key).toString(), ';','^','\r','\n')) {
-                                record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "", '^'));
+                            } else if (jarr.getJSONObject(i).get(key) != null && StringUtils.containsAny(jarr.getJSONObject(i).get(key).toString(), ';', '^', '\r', '\n')) {
+                                if("Address_C".equals(key)){
+                                    record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)).replaceAll("<br>","\n") : "", '^'));
+                                }else{
+                                    record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "", '^'));
+                                }
                             } else {
-                                record.append(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "");
+                                if("Address_C".equals(key)) {
+                                    record.append(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)).replaceAll("<br>","\n") : "");
+                                }else{
+                                    record.append(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "");
+                                }
                             }
                             record.append(";");
                         }
@@ -406,7 +414,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                             record = new StringBuilder();
                         }
                         for (String key : sfdcToMdmMapping.keySet()) {
-                            if (jarr.getJSONObject(i).get(key) != null && StringUtils.containsAny(jarr.getJSONObject(i).get(key).toString(), ';','^','\r','\n')) {
+                            if (jarr.getJSONObject(i).get(key) != null && StringUtils.containsAny(jarr.getJSONObject(i).get(key).toString(), ';', '^', '\r', '\n')) {
                                 record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "", '^'));
                             } else {
                                 record.append(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "");
@@ -415,8 +423,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         }
                         record.append("SFDC;");
                         String concatenated = getConcatenatedAddress(jarr.getJSONObject(i));
-                        if(StringUtils.containsAny(concatenated, ';','^','\r','\n')){
-                            concatenated = StringUtils.wrap(concatenated,'^');
+                        if (StringUtils.containsAny(concatenated, ';', '^', '\r', '\n')) {
+                            concatenated = StringUtils.wrap(concatenated, '^');
                         }
                         record.append(concatenated);
                         record.append(";");
@@ -436,7 +444,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
                 LOGGER.info("Deleting existing records in Prospect");
                 try {
-                    if(applicationCacheUtil.getLookupValues("BReference").get("DeleteExistingProspect")!=null && "Y".equals(applicationCacheUtil.getLookupValues("BReference").get("DeleteExistingProspect").get("DeleteExistingProspect"))) {
+                    if (applicationCacheUtil.getLookupValues("BReference").get("DeleteExistingProspect") != null && "Y".equals(applicationCacheUtil.getLookupValues("BReference").get("DeleteExistingProspect").get("DeleteExistingProspect"))) {
                         LOGGER.info("Deleting existing records in Prospect");
                         orchestraRestClient.delete("BCMDReference", "Prospect", "root/Account", null);
                         orchestraRestClient.delete("BCMDReference", "Prospect", "root/Address", null);
@@ -471,7 +479,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 result = svc.execute(procedure);
                 if (result == null || result.hasFailed()) {
                     LOGGER.info("Account Import Procedure failed");
-                    throw new ApplicationRuntimeException("Account file import failed",result.getException());
+                    throw new ApplicationRuntimeException("Account file import failed", result.getException());
                 } else {
                     LOGGER.info("Account Import Procedure successful");
                 }
@@ -498,138 +506,142 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 result = svc.execute(procedure);
                 if (result == null || result.hasFailed()) {
                     LOGGER.info("Address Import Procedure failed");
-                    throw new ApplicationRuntimeException("Address file import failed",result.getException());
+                    throw new ApplicationRuntimeException("Address file import failed", result.getException());
                 } else {
                     LOGGER.info("Address Import Procedure successful");
                 }
                 OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
                 OrchestraObjectList orchestraObjectListAddress = new OrchestraObjectList();
-                procedure = procedureContext -> {
-                    AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Account.getPathInSchema());
-                    AdaptationTable targetTable = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
-                    TableContext context = new TableContext(table, procedureContext);
-                    CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
-                    List<AdaptationTable> tableList = new ArrayList<>();
-                    tableList.add(targetTable);
-                    CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context, tableList);
-                    RequestResult requestResult = crosswalkResult.getCrosswalkResults();
-                    LOGGER.info("Account crosswalk result size : " + requestResult.getSize());
-                    List<OrchestraObject> rows = new ArrayList<>();
-                    try {
-                        Adaptation record;
-                        while ((record = requestResult.nextAdaptation()) != null) {
-                            if (sfdcAccountIds.contains(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)))) {
-                                OrchestraObject orchestraObject = new OrchestraObject();
-                                Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
-                                jsonFieldsMap.put("SystemId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
-                                jsonFieldsMap.put("MDMAccountId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)));
-                                jsonFieldsMap.put("Score", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Score)));
-                                orchestraObject.setContent(jsonFieldsMap);
-                                rows.add(orchestraObject);
-                            }
-                        }
-                    } finally {
-                        requestResult.close();
-                    }
-                    orchestraObjectList.setRows(rows);
-                };
-                svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
-                result = null;
-                result = svc.execute(procedure);
-                if (result == null || result.hasFailed()) {
-                    throw new ApplicationRuntimeException("Execute crosswalk Procedure failed for Account",result.getException());
-                } else {
-                    LOGGER.info("Account execute crosswalk Procedure successful");
-                }
-                procedure = procedureContext -> {
-                    AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Address.getPathInSchema());
-                    AdaptationTable targetTable = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Address.getPathInSchema());
-                    TableContext context = new TableContext(table, procedureContext);
-                    CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
-                    List<AdaptationTable> tableList = new ArrayList<>();
-                    tableList.add(targetTable);
-                    CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context, tableList);
-                    RequestResult requestResult = crosswalkResult.getCrosswalkResults();
-                    LOGGER.info("Address crosswalk result size : " + requestResult.getSize());
-                    List<OrchestraObject> rows = new ArrayList<>();
-                    try {
-                        Adaptation record;
-                        while ((record = requestResult.nextAdaptation()) != null) {
-                            if (sfdcAddressIds.contains(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)))) {
-                                OrchestraObject orchestraObject = new OrchestraObject();
-                                Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
-                                jsonFieldsMap.put("SystemId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
-                                jsonFieldsMap.put("MDMAddressId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)));
-                                jsonFieldsMap.put("Score", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Score)));
-                                orchestraObject.setContent(jsonFieldsMap);
-                                rows.add(orchestraObject);
-                            }
-                        }
-                    } finally {
-                        requestResult.close();
-                    }
-                    orchestraObjectListAddress.setRows(rows);
-                };
-                svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
-                result = null;
-                result = svc.execute(procedure);
-                if (result == null || result.hasFailed()) {
-                    throw new ApplicationRuntimeException("Execute crosswalk Procedure failed for Address",result.getException());
-                } else {
-                    LOGGER.info("Address execute crosswalk Procedure successful");
-                    Runnable updateCrosswalkResultsAccount = () -> {
+                if (!sfdcAccountIds.isEmpty()) {
+                    procedure = procedureContext -> {
+                        AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Account.getPathInSchema());
+                        AdaptationTable targetTable = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
+                        TableContext context = new TableContext(table, procedureContext);
+                        CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
+                        List<AdaptationTable> tableList = new ArrayList<>();
+                        tableList.add(targetTable);
+                        CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context, tableList);
+                        RequestResult requestResult = crosswalkResult.getCrosswalkResults();
+                        LOGGER.info("Account crosswalk result size : " + requestResult.getSize());
+                        List<OrchestraObject> rows = new ArrayList<>();
                         try {
-                            LOGGER.info("Update crosswalk results Account Begin");
-                            ObjectMapper mapper = new ObjectMapper();
-                            OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
-                            for(OrchestraObject orchestraObject: orchestraObjectList.getRows()){
-                                Map<String, OrchestraContent> jsonFieldsMap = orchestraObject.getContent();
-                                OrchestraObject mdmAccount = restClient.getById("BCMDReference", "Account", "root/Account", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(String.valueOf(jsonFieldsMap.get("MDMAccountId").getContent()))),null);
-                                jsonFieldsMap.put("MDMAccountName",mdmAccount.getContent().get("AccountName"));
-                                jsonFieldsMap.put("MDMAlternateAccountName",mdmAccount.getContent().get("NameLocalLanguage"));
+                            Adaptation record;
+                            while ((record = requestResult.nextAdaptation()) != null) {
+                                if (sfdcAccountIds.contains(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)))) {
+                                    OrchestraObject orchestraObject = new OrchestraObject();
+                                    Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
+                                    jsonFieldsMap.put("SystemId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
+                                    jsonFieldsMap.put("MDMAccountId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)));
+                                    jsonFieldsMap.put("Score", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Score)));
+                                    orchestraObject.setContent(jsonFieldsMap);
+                                    rows.add(orchestraObject);
+                                }
                             }
-                            Map<String, String> parameters = new HashMap<String, String>();
-                            parameters.put("updateOrInsert", "true");
-                            RestResponse restResponse = null;
-                            LOGGER.info("Updating crosswalk results: \n" + mapper.writeValueAsString(orchestraObjectList));
-                            restResponse = restClient.post("BCMDReference", "Prospect", "root/Account", orchestraObjectList, parameters, 300000, null);
-                            if (restResponse.getStatus() != 200 && restResponse.getStatus() != 201) {
-                                LOGGER.error("Error updating crosswalk results: " + String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
-                            }
-                        } catch (IOException e) {
-                            LOGGER.error("Error updating crosswalk results", e);
-                            throw new ApplicationRuntimeException("Error updating crosswalk results", e);
+                        } finally {
+                            requestResult.close();
                         }
+                        orchestraObjectList.setRows(rows);
                     };
-                    new Thread(updateCrosswalkResultsAccount).start();
-                    Runnable updateCrosswalkResultsAddress = () -> {
-                        try {
-                            LOGGER.info("Update crosswalk results Address Begin");
-                            ObjectMapper mapper = new ObjectMapper();
-                            OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
-                            for(OrchestraObject orchestraObject: orchestraObjectListAddress.getRows()){
-                                Map<String, OrchestraContent> jsonFieldsMap = orchestraObject.getContent();
-                                OrchestraObject mdmAddress = restClient.getById("BCMDReference", "Account", "root/Address", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(String.valueOf(jsonFieldsMap.get("MDMAddressId").getContent()))),null);
-                                jsonFieldsMap.put("MDMAccountId",mdmAddress.getContent().get("MDMAccountId"));
-                                jsonFieldsMap.put("MDMAccountName",mdmAddress.getContent().get("MDMAccountName"));
-                                jsonFieldsMap.put("MDMAddress",mdmAddress.getContent().get("Address"));
-                            }
-                            Map<String, String> parameters = new HashMap<String, String>();
-                            parameters.put("updateOrInsert", "true");
-                            RestResponse restResponse = null;
-                            LOGGER.info("Updating address crosswalk results: \n" + mapper.writeValueAsString(orchestraObjectListAddress));
-                            restResponse = restClient.post("BCMDReference", "Prospect", "root/Address", orchestraObjectListAddress, parameters, 300000, null);
-                            if (restResponse.getStatus() != 200 && restResponse.getStatus() != 201) {
-                                LOGGER.error("Error updating address crosswalk results: " + String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
-                            }
-                        } catch (IOException e) {
-                            LOGGER.error("Error updating address crosswalk results", e);
-                            throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service", e);
-                        }
-                    };
-                    new Thread(updateCrosswalkResultsAddress).start();
+                    svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
+                    result = null;
+                    result = svc.execute(procedure);
+                    if (result == null || result.hasFailed()) {
+                        throw new ApplicationRuntimeException("Execute crosswalk Procedure failed for Account", result.getException());
+                    } else {
+                        LOGGER.info("Account execute crosswalk Procedure successful");
+                    }
                 }
-            } catch (Exception ex) {
+                if (!sfdcAddressIds.isEmpty()) {
+                    procedure = procedureContext -> {
+                        AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Address.getPathInSchema());
+                        AdaptationTable targetTable = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Address.getPathInSchema());
+                        TableContext context = new TableContext(table, procedureContext);
+                        CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
+                        List<AdaptationTable> tableList = new ArrayList<>();
+                        tableList.add(targetTable);
+                        CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context, tableList);
+                        RequestResult requestResult = crosswalkResult.getCrosswalkResults();
+                        LOGGER.info("Address crosswalk result size : " + requestResult.getSize());
+                        List<OrchestraObject> rows = new ArrayList<>();
+                        try {
+                            Adaptation record;
+                            while ((record = requestResult.nextAdaptation()) != null) {
+                                if (sfdcAddressIds.contains(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)))) {
+                                    OrchestraObject orchestraObject = new OrchestraObject();
+                                    Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
+                                    jsonFieldsMap.put("SystemId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
+                                    jsonFieldsMap.put("MDMAddressId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)));
+                                    jsonFieldsMap.put("Score", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Score)));
+                                    orchestraObject.setContent(jsonFieldsMap);
+                                    rows.add(orchestraObject);
+                                }
+                            }
+                        } finally {
+                            requestResult.close();
+                        }
+                        orchestraObjectListAddress.setRows(rows);
+                    };
+                    svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
+                    result = null;
+                    result = svc.execute(procedure);
+                    if (result == null || result.hasFailed()) {
+                        throw new ApplicationRuntimeException("Execute crosswalk Procedure failed for Address", result.getException());
+                    } else {
+                        LOGGER.info("Address execute crosswalk Procedure successful");
+                        Runnable updateCrosswalkResultsAccount = () -> {
+                            try {
+                                LOGGER.info("Update crosswalk results Account Begin");
+                                ObjectMapper mapper = new ObjectMapper();
+                                OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+                                for (OrchestraObject orchestraObject : orchestraObjectList.getRows()) {
+                                    Map<String, OrchestraContent> jsonFieldsMap = orchestraObject.getContent();
+                                    OrchestraObject mdmAccount = restClient.getById("BCMDReference", "Account", "root/Account", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(String.valueOf(jsonFieldsMap.get("MDMAccountId").getContent()))), null);
+                                    jsonFieldsMap.put("MDMAccountName", mdmAccount.getContent().get("AccountName"));
+                                    jsonFieldsMap.put("MDMAlternateAccountName", mdmAccount.getContent().get("NameLocalLanguage"));
+                                }
+                                Map<String, String> parameters = new HashMap<String, String>();
+                                parameters.put("updateOrInsert", "true");
+                                RestResponse restResponse = null;
+                                LOGGER.info("Updating crosswalk results: \n" + mapper.writeValueAsString(orchestraObjectList));
+                                restResponse = restClient.post("BCMDReference", "Prospect", "root/Account", orchestraObjectList, parameters, 300000, null);
+                                if (restResponse.getStatus() != 200 && restResponse.getStatus() != 201) {
+                                    LOGGER.error("Error updating crosswalk results: " + String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
+                                }
+                            } catch (IOException e) {
+                                LOGGER.error("Error updating crosswalk results", e);
+                                throw new ApplicationRuntimeException("Error updating crosswalk results", e);
+                            }
+                        };
+                        new Thread(updateCrosswalkResultsAccount).start();
+                        Runnable updateCrosswalkResultsAddress = () -> {
+                            try {
+                                LOGGER.info("Update crosswalk results Address Begin");
+                                ObjectMapper mapper = new ObjectMapper();
+                                OrchestraRestClient restClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+                                for (OrchestraObject orchestraObject : orchestraObjectListAddress.getRows()) {
+                                    Map<String, OrchestraContent> jsonFieldsMap = orchestraObject.getContent();
+                                    OrchestraObject mdmAddress = restClient.getById("BCMDReference", "Account", "root/Address", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(String.valueOf(jsonFieldsMap.get("MDMAddressId").getContent()))), null);
+                                    jsonFieldsMap.put("MDMAccountId", mdmAddress.getContent().get("MDMAccountId"));
+                                    jsonFieldsMap.put("MDMAccountName", mdmAddress.getContent().get("MDMAccountName"));
+                                    jsonFieldsMap.put("MDMAddress", mdmAddress.getContent().get("Address"));
+                                }
+                                Map<String, String> parameters = new HashMap<String, String>();
+                                parameters.put("updateOrInsert", "true");
+                                RestResponse restResponse = null;
+                                LOGGER.info("Updating address crosswalk results: \n" + mapper.writeValueAsString(orchestraObjectListAddress));
+                                restResponse = restClient.post("BCMDReference", "Prospect", "root/Address", orchestraObjectListAddress, parameters, 300000, null);
+                                if (restResponse.getStatus() != 200 && restResponse.getStatus() != 201) {
+                                    LOGGER.error("Error updating address crosswalk results: " + String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
+                                }
+                            } catch (IOException e) {
+                                LOGGER.error("Error updating address crosswalk results", e);
+                                throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service", e);
+                            }
+                        };
+                        new Thread(updateCrosswalkResultsAddress).start();
+                    }
+                }
+            } catch(Exception ex){
                 throw new ApplicationRuntimeException("Error in de-duplicate prospects", ex);
             }
         }
