@@ -542,9 +542,13 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     throw new ApplicationRuntimeException("Address file import failed", result.getException());
                 } else {
                     LOGGER.info("Address Import Procedure successful");
-                    /*if(!sfdcAddressIds.isEmpty()){
-                        orchestraRestClient.get("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy",)
-                    }*/
+                    if(!sfdcAddressIds.isEmpty()){
+                        OrchestraObject resultObject = orchestraRestClient.getById("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy",RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString("Prospect_Address")),null);
+                        if((resultObject != null) && (resultObject.getContent() != null)
+                                && "true".equals(resultObject.getContent().get("active").getContent())){
+                            runCrosswalkAddress(aContext,sfdcAddressIds);
+                        }
+                    }
                 }
             } catch(Exception ex){
                 throw new ApplicationRuntimeException("Error in de-duplicate prospects", ex);
