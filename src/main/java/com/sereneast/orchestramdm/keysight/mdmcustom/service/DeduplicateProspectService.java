@@ -495,14 +495,14 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                         OrchestraObject otherPolicyObject = orchestraRestClient.getById("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(policy)), null);
                                         if(otherPolicyObject!=null && otherPolicyObject.getContent()!=null) {
                                             LOGGER.info("Policy " + policy + " exists. Disabling it ...");
-                                            javax.ws.rs.core.Response response1 = orchestraRestClient.updateField("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy/" + RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(policy)) + "/active", new OrchestraContent("false"), null);
+                                            javax.ws.rs.core.Response response1 = orchestraRestClient.updateField("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy/" + RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(policy)) + "/active", new OrchestraContent(false), null);
                                             if (response1.getStatus() >= 300) {
                                                 throw new ApplicationRuntimeException("Error deactivating crosswalk policy " + policy + ". Response JSON : " + mapper.writeValueAsString(response1.readEntity(String.class)));
                                             }
                                         }
                                     }else{
                                         LOGGER.info("Activating Policy - " + policy);
-                                        javax.ws.rs.core.Response response1 = orchestraRestClient.updateField("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy/" + RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(policy)) + "/active", new OrchestraContent("true"), null);
+                                        javax.ws.rs.core.Response response1 = orchestraRestClient.updateField("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy/" + RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(policy)) + "/active", new OrchestraContent(true), null);
                                         if (response1.getStatus() >= 300) {
                                             throw new ApplicationRuntimeException("Error activating crosswalk policy " + policy + ". Response JSON : " + mapper.writeValueAsString(response1.readEntity(String.class)));
                                         }
