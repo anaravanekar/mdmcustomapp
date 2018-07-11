@@ -111,10 +111,10 @@ public class OrchestraRestClient {
                 for (Map.Entry<String, String> entry : parameters.entrySet())
                     target = target.queryParam(entry.getKey(), entry.getValue());
             Invocation.Builder request = target.request(MediaType.APPLICATION_JSON);
-            request.property(ClientProperties.CONNECT_TIMEOUT, restProperties.getOrchestra().getConnectTimeout()!=null?
-                    restProperties.getOrchestra().getConnectTimeout():5000);
-            request.property(ClientProperties.READ_TIMEOUT, restProperties.getOrchestra().getReadTimeout()!=null?
-                    restProperties.getOrchestra().getReadTimeout():70000);
+            request.property(ClientProperties.CONNECT_TIMEOUT, restProperties.getOrchestra().getConnectTimeout() != null ?
+                    restProperties.getOrchestra().getConnectTimeout() : 5000);
+            request.property(ClientProperties.READ_TIMEOUT, restProperties.getOrchestra().getReadTimeout() != null ?
+                    restProperties.getOrchestra().getReadTimeout() : 70000);
             Response response = request.get();
 
             LOGGER.trace(String.valueOf(response.getStatus()));
@@ -129,6 +129,8 @@ public class OrchestraRestClient {
                 OrchestraObject responseJson = mapper.readValue(response.readEntity(String.class), OrchestraObject.class);
                 LOGGER.trace("getById response : " + mapper.writeValueAsString(responseJson));
                 return responseJson;
+            }else if(response.getStatus() == 404){
+                return new OrchestraObject();
             }else{
                 throw new ApplicationRuntimeException("Received "+response.getStatus()+" response while fetching "+path+"/"+encodedRecordId+". JSON : "+response.readEntity(String.class));
             }
