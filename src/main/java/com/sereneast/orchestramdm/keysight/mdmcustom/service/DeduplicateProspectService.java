@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onwbp.adaptation.*;
 import com.onwbp.base.text.UserMessageString;
 import com.orchestranetworks.addon.daqa.TableContext;
-import com.orchestranetworks.addon.daqa.crosswalk.CrosswalkExecutionResult;
-import com.orchestranetworks.addon.daqa.crosswalk.CrosswalkOperations;
-import com.orchestranetworks.addon.daqa.crosswalk.CrosswalkOperationsFactory;
-import com.orchestranetworks.addon.daqa.crosswalk.CrosswalkResultPaths;
+import com.orchestranetworks.addon.daqa.crosswalk.*;
 import com.orchestranetworks.dataservices.rest.RESTEncodingHelper;
 import com.orchestranetworks.instance.HomeCreationSpec;
 import com.orchestranetworks.instance.HomeKey;
@@ -509,7 +506,10 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                     }
                                 }
                                 LOGGER.info("Running crosswalk for "+accountPolicies[i]);
-                                runCrosswalkAccount(aContext,sfdcAccountIds);
+                                if(i==1)
+                                    runCrosswalkAccount(aContext,sfdcAccountIds,true);
+                                else
+                                    runCrosswalkAccount(aContext,sfdcAccountIds,false);
                             }else{
                                 LOGGER.info("Policy "+accountPolicies[i]+" not found.");
                             }
@@ -556,16 +556,20 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
         }
     }
 
-    private void runCrosswalkAccount(UserServicePaneContext aContext, HashSet<String> sfdcAccountIds){
+    private void runCrosswalkAccount(UserServicePaneContext aContext, HashSet<String> sfdcAccountIds,boolean japan){
         OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
         Procedure procedure = procedureContext -> {
             AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Account.getPathInSchema());
             AdaptationTable targetTable = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
             TableContext context = new TableContext(table, procedureContext);
+            AdaptationFilter sourceFilterClass = new JapanFilter();
+            List<String> targetDataspaces = new ArrayList<>(Collections.singletonList("CMDReference"));
+            List<String> targetDatasets = new ArrayList<>(Collections.singletonList("Account"));
+            CrosswalkContext crosswalkContext = new CrosswalkContext(null,sourceFilterClass,targetDataspaces,targetDatasets);
             CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
             List<AdaptationTable> tableList = new ArrayList<>();
             tableList.add(targetTable);
-            CrosswalkExecutionResult crosswalkResult = operations.executeCrosswalk(context, tableList);
+            CrosswalkExecutionResult crosswalkResult = japan?operations.executeCrosswalk(context,crosswalkContext):operations.executeCrosswalk(context, tableList);
             RequestResult requestResult = crosswalkResult.getCrosswalkResults();
             LOGGER.info("Account crosswalk result size : " + requestResult.getSize());
             List<OrchestraObject> rows = new ArrayList<>();
