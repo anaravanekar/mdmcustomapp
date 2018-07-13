@@ -482,7 +482,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     LOGGER.info("Account Import Procedure successful");
                     if(!sfdcAccountIds.isEmpty()){
                         ObjectMapper mapper = new ObjectMapper();
-                        String[] accountPolicies = {"Prospect_Asian","Prospect_JP","Prospect"};
+                        String[] accountPolicies = {"Prospect","Prospect_JP","Prospect_Asian"};
+                        AdaptationFilter[] filters = {new NonAsianFilter(),new JapanFilter(),new AsianFilter()};
                         for(int i=0;i<3;i++) {
                             OrchestraObject orchestraObject = orchestraRestClient.getById("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(accountPolicies[i])), null);
                             if(orchestraObject!=null && orchestraObject.getContent()!=null){
@@ -506,10 +507,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                     }
                                 }
                                 LOGGER.info("Running crosswalk for "+accountPolicies[i]);
-                                if(i==1)
-                                    runCrosswalkAccount(aContext,sfdcAccountIds,true);
-                                else
-                                    runCrosswalkAccount(aContext,sfdcAccountIds,false);
+                                runCrosswalkAccount(aContext,sfdcAccountIds,filters[i]);
                             }else{
                                 LOGGER.info("Policy "+accountPolicies[i]+" not found.");
                             }
@@ -556,20 +554,19 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
         }
     }
 
-    private void runCrosswalkAccount(UserServicePaneContext aContext, HashSet<String> sfdcAccountIds,boolean japan){
+    private void runCrosswalkAccount(UserServicePaneContext aContext, HashSet<String> sfdcAccountIds,AdaptationFilter filter){
         OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
         Procedure procedure = procedureContext -> {
             AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Account.getPathInSchema());
             AdaptationTable targetTable = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
             TableContext context = new TableContext(table, procedureContext);
-            AdaptationFilter sourceFilterClass = new JapanFilter();
             List<String> targetDataspaces = new ArrayList<>(Collections.singletonList("CMDReference"));
             List<String> targetDatasets = new ArrayList<>(Collections.singletonList("Account"));
-            CrosswalkContext crosswalkContext = new CrosswalkContext(null,sourceFilterClass,targetDataspaces,targetDatasets);
+            CrosswalkContext crosswalkContext = new CrosswalkContext(null,filter,targetDataspaces,targetDatasets);
             CrosswalkOperations operations = CrosswalkOperationsFactory.getCrosswalkOperations();
             List<AdaptationTable> tableList = new ArrayList<>();
             tableList.add(targetTable);
-            CrosswalkExecutionResult crosswalkResult = japan?operations.executeCrosswalk(context,crosswalkContext):operations.executeCrosswalk(context, tableList);
+            CrosswalkExecutionResult crosswalkResult = filter!=null?operations.executeCrosswalk(context,crosswalkContext):operations.executeCrosswalk(context, tableList);
             RequestResult requestResult = crosswalkResult.getCrosswalkResults();
             LOGGER.info("Account crosswalk result size : " + requestResult.getSize());
             List<OrchestraObject> rows = new ArrayList<>();
