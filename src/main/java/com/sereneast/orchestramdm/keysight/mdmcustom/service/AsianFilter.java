@@ -13,7 +13,7 @@ public class AsianFilter implements AdaptationFilter {
     private List<String> asianCountries;
 
     public AsianFilter(){
-        asianCountries = new ArrayList<String>(Arrays.asList("KR", "TW", "CH", "MO"));
+        asianCountries = new ArrayList<String>(Arrays.asList("KR", "TW", "CN", "MO"));
     }
 
     @Override
