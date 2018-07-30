@@ -199,6 +199,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
         ApplicationCacheUtil applicationCacheUtil = (ApplicationCacheUtil) SpringContext.getApplicationContext().getBean("applicationCacheUtil");
         Map<String,Map<String,String>> lookup = applicationCacheUtil.getLookupValues("BReference");
         Map<String,String> sfdcToMdmMapping = lookup.get("MAPPING_SFDC_TO_MDM");
+        int sfdcCountAccount = 0;
+        int sfdcCountAddress = 0;
         if(sfdcToMdmMapping!=null && !sfdcToMdmMapping.isEmpty()) {
             try {
 /*            try {
@@ -292,6 +294,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
 
                     JSONArray jarr = json.getJSONArray("records");
                     LOGGER.info("Records fetched from SFDC : " + jarr.length());
+                    sfdcCountAccount = jarr.length();
                     boolean header = false;
                     for (int i = 0; i < jarr.length(); i++) {
                     /*System.out.println("REC\n"+json.getJSONArray("records").getJSONObject(i));
@@ -390,6 +393,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
 
                     jarr = json.getJSONArray("records");
                     LOGGER.info("Address Records fetched from SFDC : " + jarr.length());
+                    sfdcCountAddress = jarr.length();
                     header = false;
                     for (int i = 0; i < jarr.length(); i++) {
                     /*System.out.println("REC\n"+json.getJSONArray("records").getJSONObject(i));
@@ -455,96 +459,99 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
 
                 final Path accountPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Account" + time + ".csv");
                 final Path addressPath = java.nio.file.Paths.get(System.getProperty("ebx.home"), "Address" + time + ".csv");
-                Procedure procedure = procedureContext -> {
+                if(sfdcCountAccount>0) {
+                    Procedure procedure = procedureContext -> {
 
-                    LOGGER.info("accountPath csv file exists? " + accountPath.toFile().exists());
-                    AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Account.getPathInSchema());
-                    LOGGER.info("table=" + table.toString());
+                        LOGGER.info("accountPath csv file exists? " + accountPath.toFile().exists());
+                        AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Account.getPathInSchema());
+                        LOGGER.info("table=" + table.toString());
 
-                    ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
-                    csvSpec.setFieldSeparator(';');
-                    csvSpec.setTextDelimiter('^');
-                    csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
-                    ImportSpec importSpec = new ImportSpec();
-                    importSpec.setSourceFile(accountPath.toFile());
-                    importSpec.setTargetAdaptationTable(table);
-                    importSpec.setImportMode(ImportSpecMode.UPDATE_OR_INSERT);
-                    importSpec.setCSVSpec(csvSpec);
-                    procedureContext.doImport(importSpec);
-                };
-                ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
-                ProcedureResult result = null;
-                result = svc.execute(procedure);
-                if (result == null || result.hasFailed()) {
-                    LOGGER.info("Account Import Procedure failed");
-                    throw new ApplicationRuntimeException("Account file import failed", result.getException());
-                } else {
-                    LOGGER.info("Account Import Procedure successful");
-                    if(!sfdcAccountIds.isEmpty()){
-                        ObjectMapper mapper = new ObjectMapper();
-                        String[] accountPolicies = {"Prospect","Prospect_JP","Prospect_Asian"};
-                        AdaptationFilter[] filters = {new NonAsianFilter(),new JapanFilter(),new AsianFilter()};
-                        for(int i=0;i<3;i++) {
-                            OrchestraObject orchestraObject = orchestraRestClient.getById("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(accountPolicies[i])), null);
-                            if(orchestraObject!=null && orchestraObject.getContent()!=null){
-                                LOGGER.info("Policy "+accountPolicies[i]+" exists.");
-                                for(String policy: accountPolicies){
-                                    if(!policy.equals(accountPolicies[i])) {
-                                        OrchestraObject otherPolicyObject = orchestraRestClient.getById("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(policy)), null);
-                                        if(otherPolicyObject!=null && otherPolicyObject.getContent()!=null) {
-                                            LOGGER.info("Policy " + policy + " exists. Disabling it ...");
-                                            javax.ws.rs.core.Response response1 = orchestraRestClient.updateField("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy/" + RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(policy)) + "/active", new OrchestraContent(false), null);
+                        ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
+                        csvSpec.setFieldSeparator(';');
+                        csvSpec.setTextDelimiter('^');
+                        csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
+                        ImportSpec importSpec = new ImportSpec();
+                        importSpec.setSourceFile(accountPath.toFile());
+                        importSpec.setTargetAdaptationTable(table);
+                        importSpec.setImportMode(ImportSpecMode.UPDATE_OR_INSERT);
+                        importSpec.setCSVSpec(csvSpec);
+                        procedureContext.doImport(importSpec);
+                    };
+                    ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
+                    ProcedureResult result = null;
+                    result = svc.execute(procedure);
+                    if (result == null || result.hasFailed()) {
+                        LOGGER.info("Account Import Procedure failed");
+                        throw new ApplicationRuntimeException("Account file import failed", result.getException());
+                    } else {
+                        LOGGER.info("Account Import Procedure successful");
+                        if (!sfdcAccountIds.isEmpty()) {
+                            ObjectMapper mapper = new ObjectMapper();
+                            String[] accountPolicies = {"Prospect", "Prospect_JP", "Prospect_Asian"};
+                            AdaptationFilter[] filters = {new NonAsianFilter(), new JapanFilter(), new AsianFilter()};
+                            for (int i = 0; i < 3; i++) {
+                                OrchestraObject orchestraObject = orchestraRestClient.getById("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(accountPolicies[i])), null);
+                                if (orchestraObject != null && orchestraObject.getContent() != null) {
+                                    LOGGER.info("Policy " + accountPolicies[i] + " exists.");
+                                    for (String policy : accountPolicies) {
+                                        if (!policy.equals(accountPolicies[i])) {
+                                            OrchestraObject otherPolicyObject = orchestraRestClient.getById("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(policy)), null);
+                                            if (otherPolicyObject != null && otherPolicyObject.getContent() != null) {
+                                                LOGGER.info("Policy " + policy + " exists. Disabling it ...");
+                                                javax.ws.rs.core.Response response1 = orchestraRestClient.updateField("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy/" + RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(policy)) + "/active", new OrchestraContent(false), null);
+                                                if (response1.getStatus() >= 300) {
+                                                    throw new ApplicationRuntimeException("Error deactivating crosswalk policy " + policy + ". Response JSON : " + mapper.writeValueAsString(response1.readEntity(String.class)));
+                                                }
+                                            }
+                                        } else {
+                                            LOGGER.info("Activating Policy - " + policy);
+                                            javax.ws.rs.core.Response response1 = orchestraRestClient.updateField("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy/" + RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(policy)) + "/active", new OrchestraContent(true), null);
                                             if (response1.getStatus() >= 300) {
-                                                throw new ApplicationRuntimeException("Error deactivating crosswalk policy " + policy + ". Response JSON : " + mapper.writeValueAsString(response1.readEntity(String.class)));
+                                                throw new ApplicationRuntimeException("Error activating crosswalk policy " + policy + ". Response JSON : " + mapper.writeValueAsString(response1.readEntity(String.class)));
                                             }
                                         }
-                                    }else{
-                                        LOGGER.info("Activating Policy - " + policy);
-                                        javax.ws.rs.core.Response response1 = orchestraRestClient.updateField("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy/" + RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(policy)) + "/active", new OrchestraContent(true), null);
-                                        if (response1.getStatus() >= 300) {
-                                            throw new ApplicationRuntimeException("Error activating crosswalk policy " + policy + ". Response JSON : " + mapper.writeValueAsString(response1.readEntity(String.class)));
-                                        }
                                     }
+                                    LOGGER.info("Running crosswalk for " + accountPolicies[i]);
+                                    runCrosswalkAccount(aContext, sfdcAccountIds, filters[i]);
+                                } else {
+                                    LOGGER.info("Policy " + accountPolicies[i] + " not found.");
                                 }
-                                LOGGER.info("Running crosswalk for "+accountPolicies[i]);
-                                runCrosswalkAccount(aContext,sfdcAccountIds,filters[i]);
-                            }else{
-                                LOGGER.info("Policy "+accountPolicies[i]+" not found.");
                             }
                         }
                     }
                 }
+                if(sfdcCountAddress>0) {
+                    Procedure procedure = procedureContext -> {
 
-                procedure = procedureContext -> {
+                        LOGGER.info("addressPath csv file exists? " + addressPath.toFile().exists());
+                        AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Address.getPathInSchema());
+                        LOGGER.info("table=" + table.toString());
 
-                    LOGGER.info("addressPath csv file exists? " + addressPath.toFile().exists());
-                    AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Address.getPathInSchema());
-                    LOGGER.info("table=" + table.toString());
-
-                    ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
-                    csvSpec.setFieldSeparator(';');
-                    csvSpec.setTextDelimiter('^');
-                    csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
-                    ImportSpec importSpec = new ImportSpec();
-                    importSpec.setSourceFile(addressPath.toFile());
-                    importSpec.setTargetAdaptationTable(table);
-                    importSpec.setImportMode(ImportSpecMode.UPDATE_OR_INSERT);
-                    importSpec.setCSVSpec(csvSpec);
-                    procedureContext.doImport(importSpec);
-                };
-                svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
-                result = null;
-                result = svc.execute(procedure);
-                if (result == null || result.hasFailed()) {
-                    LOGGER.info("Address Import Procedure failed");
-                    throw new ApplicationRuntimeException("Address file import failed", result.getException());
-                } else {
-                    LOGGER.info("Address Import Procedure successful");
-                    if(!sfdcAddressIds.isEmpty()){
-                        OrchestraObject resultObject = orchestraRestClient.getById("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy",RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString("Prospect_Address")),null);
-                        if((resultObject != null) && (resultObject.getContent() != null)
-                                && "true".equals(resultObject.getContent().get("active").getContent())){
-                            runCrosswalkAddress(aContext,sfdcAddressIds);
+                        ExportImportCSVSpec csvSpec = new ExportImportCSVSpec();
+                        csvSpec.setFieldSeparator(';');
+                        csvSpec.setTextDelimiter('^');
+                        csvSpec.setHeader(ExportImportCSVSpec.Header.PATH_IN_TABLE);
+                        ImportSpec importSpec = new ImportSpec();
+                        importSpec.setSourceFile(addressPath.toFile());
+                        importSpec.setTargetAdaptationTable(table);
+                        importSpec.setImportMode(ImportSpecMode.UPDATE_OR_INSERT);
+                        importSpec.setCSVSpec(csvSpec);
+                        procedureContext.doImport(importSpec);
+                    };
+                    ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
+                    ProcedureResult result = null;
+                    result = svc.execute(procedure);
+                    if (result == null || result.hasFailed()) {
+                        LOGGER.info("Address Import Procedure failed");
+                        throw new ApplicationRuntimeException("Address file import failed", result.getException());
+                    } else {
+                        LOGGER.info("Address Import Procedure successful");
+                        if (!sfdcAddressIds.isEmpty()) {
+                            OrchestraObject resultObject = orchestraRestClient.getById("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString("Prospect_Address")), null);
+                            if ((resultObject != null) && (resultObject.getContent() != null)
+                                    && "true".equals(resultObject.getContent().get("active").getContent())) {
+                                runCrosswalkAddress(aContext, sfdcAddressIds);
+                            }
                         }
                     }
                 }
@@ -574,13 +581,17 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                 Adaptation record;
                 while ((record = requestResult.nextAdaptation()) != null) {
                     if (sfdcAccountIds.contains(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)))) {
-                        OrchestraObject orchestraObject = new OrchestraObject();
-                        Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
-                        jsonFieldsMap.put("SystemId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
-                        jsonFieldsMap.put("MDMAccountId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Record)));
-                        jsonFieldsMap.put("Score", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._MatchingDetail01_Score)));
-                        orchestraObject.setContent(jsonFieldsMap);
-                        rows.add(orchestraObject);
+                        for(int i=1;i<=20;i++) {
+                            if(record.get((com.orchestranetworks.schema.Path)CrosswalkResultPaths._Crosswalk.class.getDeclaredField("_MatchingDetail"+String.format("%02d", i)+"_Record").get(null))!=null) {
+                                OrchestraObject orchestraObject = new OrchestraObject();
+                                Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
+                                jsonFieldsMap.put("SystemId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
+                                jsonFieldsMap.put("MDMAccountId", new OrchestraContent(record.get((com.orchestranetworks.schema.Path)CrosswalkResultPaths._Crosswalk.class.getDeclaredField("_MatchingDetail" + String.format("%02d", i) + "_Record").get(null))));
+                                jsonFieldsMap.put("Score", new OrchestraContent(record.get((com.orchestranetworks.schema.Path)CrosswalkResultPaths._Crosswalk.class.getDeclaredField("_MatchingDetail" + String.format("%02d", i) + "_Score").get(null))));
+                                orchestraObject.setContent(jsonFieldsMap);
+                                rows.add(orchestraObject);
+                            }
+                        }
                     }
                 }
             } finally {
@@ -610,7 +621,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     parameters.put("updateOrInsert", "true");
                     RestResponse restResponse = null;
                     LOGGER.info("Updating crosswalk results: \n" + mapper.writeValueAsString(orchestraObjectList));
-                    restResponse = restClient.post("BCMDReference", "Prospect", "root/Account", orchestraObjectList, parameters, 300000, null);
+                    restResponse = restClient.post("BCMDReference", "Prospect", "root/MDMMatch", orchestraObjectList, parameters, 300000, null);
                     if (restResponse.getStatus() != 200 && restResponse.getStatus() != 201) {
                         LOGGER.error("Error updating crosswalk results: " + String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
                     }
