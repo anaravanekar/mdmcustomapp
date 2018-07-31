@@ -19,6 +19,6 @@ public class AsianFilter implements AdaptationFilter {
 
     @Override
     public boolean accept(Adaptation adaptation) {
-        return asianCountries.contains(adaptation.getString(Paths._Account._Country)) && adaptation.getString(Path.parse("./AlternateAccountName"))!=null;
+        return asianCountries.contains(adaptation.getString(Paths._Account._Country));
     }
 }
