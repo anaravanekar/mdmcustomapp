@@ -578,6 +578,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
             RequestResult requestResult = crosswalkResult.getCrosswalkResults();
             LOGGER.info("Account crosswalk result size : " + requestResult.getSize());
             List<OrchestraObject> rows = new ArrayList<>();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
             try {
                 Adaptation record;
                 while ((record = requestResult.nextAdaptation()) != null) {
@@ -587,7 +588,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                 OrchestraObject orchestraObject = new OrchestraObject();
                                 Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
                                 jsonFieldsMap.put("SystemId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
-                                jsonFieldsMap.put("ExecutionDate", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._ExecutionDate)));
+                                jsonFieldsMap.put("ExecutionDate", new OrchestraContent(sdf.format(record.get(CrosswalkResultPaths._Crosswalk._ExecutionDate))));
                                 jsonFieldsMap.put("MDMAccountId", new OrchestraContent(record.get((com.orchestranetworks.schema.Path)CrosswalkResultPaths._Crosswalk.class.getDeclaredField("_MatchingDetail" + String.format("%02d", i) + "_Record").get(null))));
                                 jsonFieldsMap.put("Score", new OrchestraContent(record.get((com.orchestranetworks.schema.Path)CrosswalkResultPaths._Crosswalk.class.getDeclaredField("_MatchingDetail" + String.format("%02d", i) + "_Score").get(null))));
                                 orchestraObject.setContent(jsonFieldsMap);
