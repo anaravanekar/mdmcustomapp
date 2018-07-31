@@ -450,6 +450,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         LOGGER.info("Deleting existing records in Prospect");
                         orchestraRestClient.delete("BCMDReference", "Prospect", "root/Account", null);
                         orchestraRestClient.delete("BCMDReference", "Prospect", "root/Address", null);
+                        orchestraRestClient.delete("BCMDReference", "Prospect", "root/MDMMatch", null);
                     }
                 } catch (Exception e) {
                     throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service. Error deleting existing records in Prospect", e);
@@ -586,6 +587,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                 OrchestraObject orchestraObject = new OrchestraObject();
                                 Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
                                 jsonFieldsMap.put("SystemId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
+                                jsonFieldsMap.put("ExecutionDate", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._ExecutionDate)));
                                 jsonFieldsMap.put("MDMAccountId", new OrchestraContent(record.get((com.orchestranetworks.schema.Path)CrosswalkResultPaths._Crosswalk.class.getDeclaredField("_MatchingDetail" + String.format("%02d", i) + "_Record").get(null))));
                                 jsonFieldsMap.put("Score", new OrchestraContent(record.get((com.orchestranetworks.schema.Path)CrosswalkResultPaths._Crosswalk.class.getDeclaredField("_MatchingDetail" + String.format("%02d", i) + "_Score").get(null))));
                                 orchestraObject.setContent(jsonFieldsMap);
