@@ -516,6 +516,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                             ObjectMapper mapper = new ObjectMapper();
                             String[] accountPolicies = {"Prospect", "Prospect_JP", "Prospect_Asian"};
                             AdaptationFilter[] filters = {new NonAsianFilter(), new JapanFilter(), new AsianFilter()};
+                            Map<String,Integer> countMap = new HashMap<>();
+                            Map<String,Set<String>> matchIdsMap = new HashMap<>();
                             for (int i = 0; i < 3; i++) {
                                 OrchestraObject orchestraObject = orchestraRestClient.getById("Bebx-addon-daqa", "ebx-addon-daqa-configuration-v2", "root/DataQualityConfiguration/CrosswalkPolicy/CrosswalkMatchingPolicy", RESTEncodingHelper.encodePrimaryKey(PrimaryKey.parseString(accountPolicies[i])), null);
                                 if (orchestraObject != null && orchestraObject.getContent() != null) {
@@ -539,7 +541,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                         }
                                     }
                                     LOGGER.info("Running crosswalk for " + accountPolicies[i]);
-                                    runCrosswalkAccount(aContext, sfdcAccountIds, filters[i]);
+                                    runCrosswalkAccount(aContext, sfdcAccountIds, filters[i],countMap,matchIdsMap);
                                 } else {
                                     LOGGER.info("Policy " + accountPolicies[i] + " not found.");
                                 }
@@ -588,7 +590,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
         }
     }
 
-    private void runCrosswalkAccount(UserServicePaneContext aContext, HashSet<String> sfdcAccountIds,AdaptationFilter filter){
+    private void runCrosswalkAccount(UserServicePaneContext aContext, HashSet<String> sfdcAccountIds,
+                                     AdaptationFilter filter,Map<String, Integer> countMap, Map<String,Set<String>> matchIdsMap){
         OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
         OrchestraObjectList orchestraAccountObjectList = new OrchestraObjectList();
         Procedure procedure = procedureContext -> {
@@ -622,13 +625,34 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                 jsonFieldsMap.put("Score", new OrchestraContent(record.get((com.orchestranetworks.schema.Path)CrosswalkResultPaths._Crosswalk.class.getDeclaredField("_MatchingDetail" + String.format("%02d", i) + "_Score").get(null))));
                                 orchestraObject.setContent(jsonFieldsMap);
                                 rows.add(orchestraObject);
-                                count = count+1;
+                                if(matchIdsMap.get(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)))==null){
+                                    Set matchIdSet = new HashSet();
+                                    String matchedId = String.valueOf(record.get((com.orchestranetworks.schema.Path)CrosswalkResultPaths._Crosswalk.class.getDeclaredField("_MatchingDetail" + String.format("%02d", i) + "_Record").get(null)));
+                                    matchIdSet.add(matchedId);
+                                    matchIdsMap.put(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)),matchIdSet);
+                                    count = count+1;
+                                }else{
+                                    Set matchIdSet = matchIdsMap.get(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
+                                    String matchedId = String.valueOf(record.get((com.orchestranetworks.schema.Path)CrosswalkResultPaths._Crosswalk.class.getDeclaredField("_MatchingDetail" + String.format("%02d", i) + "_Record").get(null)));
+                                    if(!matchIdSet.contains(matchedId)) {
+                                        matchIdSet.add(matchedId);
+                                        matchIdsMap.put(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)), matchIdSet);
+                                        count = count+1;
+                                    }
+                                }
                             }
                         }
                         OrchestraObject orchestraObject = new OrchestraObject();
                         Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
                         jsonFieldsMap.put("SystemId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
-                        jsonFieldsMap.put("MDMMatchCount", new OrchestraContent(count));
+                        int finalCount = 0;
+                        if(countMap.get(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)))==null){
+                            finalCount = count;
+                        }else{
+                            finalCount = count + countMap.get(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
+                        }
+                        jsonFieldsMap.put("MDMMatchCount", new OrchestraContent(finalCount));
+                        countMap.put(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)),finalCount);
                         orchestraObject.setContent(jsonFieldsMap);
                         accountRows.add(orchestraObject);
                     }
