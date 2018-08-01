@@ -65,6 +65,7 @@ public class ProspectTrigger extends TableTrigger {
         LOGGER.info("in handleAfterModify");
         LOGGER.info("dataset name : "+aContext.getAdaptationOccurrence().getAdaptationName().getStringName());
         ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
+        boolean update = false;
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())
                 && "Prospect".equalsIgnoreCase(aContext.getOccurrenceContext().getAdaptationInstance().getAdaptationName().getStringName())) {
             LOGGER.info("in if updating record...");
@@ -83,10 +84,16 @@ public class ProspectTrigger extends TableTrigger {
                         .build();
                 String locale = getLocale(languageDetector, String.valueOf(aContext.getOccurrenceContext().getValue(Path.parse("./AccountName"))));
                 valueContextForUpdate.setValue(locale, Path.parse("./Locale"));
+                update = true;
             }
-            valueContextForUpdate.setValue(aContext.getSession().getUserReference().getUserId(), Path.parse("./LastActionBy"));
-            valueContextForUpdate.setValue(Date.from(utc.toInstant()), Path.parse("./LastModifiedDate"));
-            aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
+            if(aContext.getChanges().getChange(Path.parse("./LastActionBy"))==null && aContext.getChanges().getChange(Path.parse("./LastModifiedDate"))==null) {
+                valueContextForUpdate.setValue(aContext.getSession().getUserReference().getUserId(), Path.parse("./LastActionBy"));
+                valueContextForUpdate.setValue(Date.from(utc.toInstant()), Path.parse("./LastModifiedDate"));
+                update = true;
+            }
+            if(update) {
+                aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
+            }
         }
     }
 
