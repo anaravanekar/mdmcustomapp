@@ -317,7 +317,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                 record.append(";");
                             }
                             record.append("/SystemName;");
-                            record.append("/MatchExclusion");
+                            record.append("/MatchExclusion;");
                             record.append("/Locale");
                             record.append('\r');
                             record.append('\n');
@@ -379,7 +379,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         String today = sdf.format(new Date());
                         //record.append(today+";");
                         record.append("SFDC;");
-                        record.append("N");
+                        record.append("N;");
                         record.append(locale!=null?locale:"");
                         record.append('\r');
                         record.append('\n');
