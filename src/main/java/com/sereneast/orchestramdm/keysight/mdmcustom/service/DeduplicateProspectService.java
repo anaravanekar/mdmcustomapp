@@ -3,6 +3,15 @@ package com.sereneast.orchestramdm.keysight.mdmcustom.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onwbp.adaptation.*;
 import com.onwbp.base.text.UserMessageString;
+import com.optimaize.langdetect.LanguageDetector;
+import com.optimaize.langdetect.LanguageDetectorBuilder;
+import com.optimaize.langdetect.i18n.LdLocale;
+import com.optimaize.langdetect.ngram.NgramExtractors;
+import com.optimaize.langdetect.profiles.LanguageProfile;
+import com.optimaize.langdetect.profiles.LanguageProfileReader;
+import com.optimaize.langdetect.text.CommonTextObjectFactories;
+import com.optimaize.langdetect.text.TextObject;
+import com.optimaize.langdetect.text.TextObjectFactory;
 import com.orchestranetworks.addon.daqa.TableContext;
 import com.orchestranetworks.addon.daqa.crosswalk.*;
 import com.orchestranetworks.dataservices.rest.RESTEncodingHelper;
@@ -309,12 +318,15 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                             }
                             record.append("/SystemName;");
                             record.append("/MatchExclusion");
+                            record.append("/Locale");
                             record.append('\r');
                             record.append('\n');
                             Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
                             header = true;
                             record = new StringBuilder();
                         }
+                        String name = null;
+                        String locale = null;
                         for (String key : sfdcToMdmMapping.keySet()) {
                             if ("Profile_Class__c".equals(key)) {
                                 Map<String, Map<String, String>> countryReferenceFieldsMap = applicationCacheUtil.CountryReferenceFieldsMap("BReference");
@@ -335,6 +347,19 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                 }
                             } else if ("Status__c".equals(key)) {
                                 record.append("Prospect");
+                            } else if ("Name".equals(key)) {
+                                name = jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "";
+                                List<LanguageProfile> languageProfiles = null;
+                                try {
+                                    languageProfiles = new LanguageProfileReader().readAllBuiltIn();
+                                } catch (IOException e) {
+                                    throw new ApplicationRuntimeException("Error initializing language detector",e);
+                                }
+                                LanguageDetector languageDetector = LanguageDetectorBuilder.create(NgramExtractors.standard())
+                                        .withProfiles(languageProfiles)
+                                        .build();
+                                locale = getLocale(languageDetector,name);
+                                record.append(name);
                             } else if (jarr.getJSONObject(i).get(key) != null && StringUtils.containsAny(jarr.getJSONObject(i).get(key).toString(), ';', '^', '\r', '\n')) {
                                 if("Address__c".equals(key)){
                                     record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)).replaceAll("<br>"," ") : "", '^'));
@@ -355,6 +380,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         //record.append(today+";");
                         record.append("SFDC;");
                         record.append("N");
+                        record.append(locale!=null?locale:"");
                         record.append('\r');
                         record.append('\n');
                         Files.write(path, record.toString().getBytes(), StandardOpenOption.APPEND);
@@ -564,6 +590,7 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
 
     private void runCrosswalkAccount(UserServicePaneContext aContext, HashSet<String> sfdcAccountIds,AdaptationFilter filter){
         OrchestraObjectList orchestraObjectList = new OrchestraObjectList();
+        OrchestraObjectList orchestraAccountObjectList = new OrchestraObjectList();
         Procedure procedure = procedureContext -> {
             AdaptationTable table = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Prospect")).getTable(Paths._Account.getPathInSchema());
             AdaptationTable targetTable = Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")).findAdaptationOrNull(AdaptationName.forName("Account")).getTable(Paths._Account.getPathInSchema());
@@ -578,11 +605,13 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
             RequestResult requestResult = crosswalkResult.getCrosswalkResults();
             LOGGER.info("Account crosswalk result size : " + requestResult.getSize());
             List<OrchestraObject> rows = new ArrayList<>();
+            List<OrchestraObject> accountRows = new ArrayList<>();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
             try {
                 Adaptation record;
                 while ((record = requestResult.nextAdaptation()) != null) {
                     if (sfdcAccountIds.contains(String.valueOf(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)))) {
+                        int count = 0;
                         for(int i=1;i<=20;i++) {
                             if(record.get((com.orchestranetworks.schema.Path)CrosswalkResultPaths._Crosswalk.class.getDeclaredField("_MatchingDetail"+String.format("%02d", i)+"_Record").get(null))!=null) {
                                 OrchestraObject orchestraObject = new OrchestraObject();
@@ -593,14 +622,22 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                 jsonFieldsMap.put("Score", new OrchestraContent(record.get((com.orchestranetworks.schema.Path)CrosswalkResultPaths._Crosswalk.class.getDeclaredField("_MatchingDetail" + String.format("%02d", i) + "_Score").get(null))));
                                 orchestraObject.setContent(jsonFieldsMap);
                                 rows.add(orchestraObject);
+                                count = count+1;
                             }
                         }
+                        OrchestraObject orchestraObject = new OrchestraObject();
+                        Map<String, OrchestraContent> jsonFieldsMap = new HashMap<>();
+                        jsonFieldsMap.put("SystemId", new OrchestraContent(record.get(CrosswalkResultPaths._Crosswalk._SourceRecord)));
+                        jsonFieldsMap.put("MDMMatchCount", new OrchestraContent(count));
+                        orchestraObject.setContent(jsonFieldsMap);
+                        accountRows.add(orchestraObject);
                     }
                 }
             } finally {
                 requestResult.close();
             }
             orchestraObjectList.setRows(rows);
+            orchestraAccountObjectList.setRows(accountRows);
         };
         ProgrammaticService svc = ProgrammaticService.createForSession(aContext.getSession(), Repository.getDefault().lookupHome(HomeKey.forBranchName("CMDReference")));
         ProcedureResult result = null;
@@ -625,8 +662,13 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     RestResponse restResponse = null;
                     LOGGER.info("Updating crosswalk results: \n" + mapper.writeValueAsString(orchestraObjectList));
                     restResponse = restClient.post("BCMDReference", "Prospect", "root/MDMMatch", orchestraObjectList, parameters, 300000, null);
-                    if (restResponse.getStatus() != 200 && restResponse.getStatus() != 201) {
+                    if (restResponse.getStatus() >= 300) {
                         LOGGER.error("Error updating crosswalk results: " + String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
+                    }else{
+                        restResponse = restClient.post("BCMDReference", "Prospect", "root/Account", orchestraAccountObjectList, parameters, 300000, null);
+                        if (restResponse.getStatus() >= 300) {
+                            LOGGER.error("Error updating crosswalk count in account table: " + String.valueOf(mapper.writeValueAsString(restResponse.getResponseBody())));
+                        }
                     }
                 } catch (IOException e) {
                     LOGGER.error("Error updating crosswalk results", e);
@@ -869,4 +911,25 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
         }
     }
 
+    private String getLocale(LanguageDetector languageDetector, String text) {
+        LOGGER.debug("in getLocale text="+text);
+        String detectedLanguage = null;
+        TextObjectFactory textObjectFactory = CommonTextObjectFactories.forDetectingOnLargeText();
+        TextObject textObject = textObjectFactory.forText(text);
+        com.google.common.base.Optional<LdLocale> lang = languageDetector.detectWithMinimalConfidence(0,textObject);
+        if(lang.isPresent()){
+            LdLocale ldLocale = lang.get();
+            detectedLanguage = ldLocale.getLanguage();
+            if("ja".equalsIgnoreCase(detectedLanguage)||"ko".equalsIgnoreCase(detectedLanguage) || "zh".equalsIgnoreCase(detectedLanguage)
+                    || "zh-CN".equalsIgnoreCase(detectedLanguage) || "zh-TW".equalsIgnoreCase(detectedLanguage)){
+                detectedLanguage="ja";
+            }else{
+                detectedLanguage=null;
+            }
+            LOGGER.info("Detected Locale: "+ ldLocale);
+        }else{
+            LOGGER.error("Language could not be detected. May be because of probability of detected language is less than minimal confidence 0.999");
+        }
+        return detectedLanguage;
+    }
 }

@@ -35,10 +35,12 @@ public class ProspectTrigger extends TableTrigger {
 
     @Override
     public void handleAfterCreate(AfterCreateOccurrenceContext aContext) throws OperationException{
+        ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())
                 && "Prospect".equalsIgnoreCase(aContext.getOccurrenceContext().getAdaptationInstance().getAdaptationName().getStringName())) {
             LOGGER.info("in handleAfterCreate is Prospect dataset");
-            if(aContext.getTable().getTablePath().format().contains("Account")
+            ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
+            /*if(aContext.getTable().getTablePath().format().contains("Account")
                     && StringUtils.isNotBlank(String.valueOf(aContext.getOccurrenceContext().getValue(Path.parse("./AccountName"))))){
                 LOGGER.info("in handleAfterCreate is Account path");
                 List<LanguageProfile> languageProfiles = null;
@@ -53,10 +55,11 @@ public class ProspectTrigger extends TableTrigger {
                 LOGGER.info("Prospect Account name is "+String.valueOf(aContext.getOccurrenceContext().getValue(Path.parse("./AccountName"))));
                 String locale = getLocale(languageDetector, String.valueOf(aContext.getOccurrenceContext().getValue(Path.parse("./AccountName"))));
                 LOGGER.info("Prospect Account Locale is "+locale);
-                ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());
                 valueContextForUpdate.setValue(locale, Path.parse("./Locale"));
-                aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
-            }
+            }*/
+            valueContextForUpdate.setValue(aContext.getSession().getUserReference().getUserId(), Path.parse("./LastActionBy"));
+            valueContextForUpdate.setValue(Date.from(utc.toInstant()), Path.parse("./LastModifiedDate"));
+            aContext.getProcedureContext().doModifyContent(aContext.getAdaptationOccurrence(), valueContextForUpdate);
         }
     }
 
