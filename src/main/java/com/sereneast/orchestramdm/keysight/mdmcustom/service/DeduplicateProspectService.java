@@ -336,13 +336,13 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                             } else if ("Status__c".equals(key)) {
                                 record.append("Prospect");
                             } else if (jarr.getJSONObject(i).get(key) != null && StringUtils.containsAny(jarr.getJSONObject(i).get(key).toString(), ';', '^', '\r', '\n')) {
-                                if("Address__C".equals(key)){
+                                if("Address__c".equals(key)){
                                     record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)).replaceAll("<br>"," ") : "", '^'));
                                 }else{
                                     record.append(StringUtils.wrap(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "", '^'));
                                 }
                             } else {
-                                if("Address__C".equals(key)) {
+                                if("Address__c".equals(key)) {
                                     record.append(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)).replaceAll("<br>"," ") : "");
                                 }else{
                                     record.append(jarr.getJSONObject(i).get(key) != null && !"null".equals(String.valueOf(jarr.getJSONObject(i).get(key))) ? String.valueOf(jarr.getJSONObject(i).get(key)) : "");
