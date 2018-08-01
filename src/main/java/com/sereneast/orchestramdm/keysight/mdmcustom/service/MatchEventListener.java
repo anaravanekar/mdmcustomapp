@@ -69,7 +69,6 @@ public class MatchEventListener implements MatchingEventListener {
         LOGGER.debug("On create new pivot");
     }
 
-    @Override
     public void onUnmerge(RecordContext recordContext) {
 
     }
