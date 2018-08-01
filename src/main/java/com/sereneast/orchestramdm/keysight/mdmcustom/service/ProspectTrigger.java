@@ -36,7 +36,8 @@ public class ProspectTrigger extends TableTrigger {
     @Override
     public void handleAfterCreate(AfterCreateOccurrenceContext aContext) throws OperationException{
         if("CMDReference".equalsIgnoreCase(aContext.getAdaptationHome().getKey().getName())
-                && "Prospect".equalsIgnoreCase(aContext.getAdaptationOccurrence().getAdaptationName().getStringName())) {
+                && "Prospect".equalsIgnoreCase(aContext.getOccurrenceContext().getAdaptationInstance().getAdaptationName().getStringName())) {
+            LOGGER.info("in handleAfterCreate is Prospect dataset");
             if(aContext.getTable().getTablePath().format().contains("Account")
                     && StringUtils.isNotBlank(String.valueOf(aContext.getOccurrenceContext().getValue(Path.parse("./AccountName"))))){
                 LOGGER.info("in handleAfterCreate is Account path");
@@ -49,6 +50,7 @@ public class ProspectTrigger extends TableTrigger {
                 LanguageDetector languageDetector = LanguageDetectorBuilder.create(NgramExtractors.standard())
                         .withProfiles(languageProfiles)
                         .build();
+                LOGGER.info("Prospect Account name is "+String.valueOf(aContext.getOccurrenceContext().getValue(Path.parse("./AccountName"))));
                 String locale = getLocale(languageDetector, String.valueOf(aContext.getOccurrenceContext().getValue(Path.parse("./AccountName"))));
                 LOGGER.info("Prospect Account Locale is "+locale);
                 ValueContextForUpdate valueContextForUpdate = aContext.getProcedureContext().getContext(aContext.getAdaptationOccurrence().getAdaptationName());

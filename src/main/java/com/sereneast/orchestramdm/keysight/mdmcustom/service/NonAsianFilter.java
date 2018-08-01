@@ -2,6 +2,7 @@ package com.sereneast.orchestramdm.keysight.mdmcustom.service;
 
 import com.onwbp.adaptation.Adaptation;
 import com.onwbp.adaptation.AdaptationFilter;
+import com.orchestranetworks.schema.Path;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 
 import java.util.ArrayList;
@@ -18,6 +19,6 @@ public class NonAsianFilter implements AdaptationFilter {
 
     @Override
     public boolean accept(Adaptation adaptation) {
-        return !asianCountries.contains(adaptation.getString(Paths._Account._Country));
+        return !asianCountries.contains(adaptation.getString(Paths._Account._Country)) && !"ja".equalsIgnoreCase(adaptation.getString(Path.parse("./Locale")));
     }
 }
