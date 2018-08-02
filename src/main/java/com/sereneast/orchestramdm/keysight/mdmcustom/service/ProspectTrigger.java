@@ -10,10 +10,7 @@ import com.optimaize.langdetect.text.CommonTextObjectFactories;
 import com.optimaize.langdetect.text.TextObject;
 import com.optimaize.langdetect.text.TextObjectFactory;
 import com.orchestranetworks.schema.Path;
-import com.orchestranetworks.schema.trigger.AfterCreateOccurrenceContext;
-import com.orchestranetworks.schema.trigger.AfterModifyOccurrenceContext;
-import com.orchestranetworks.schema.trigger.TableTrigger;
-import com.orchestranetworks.schema.trigger.TriggerSetupContext;
+import com.orchestranetworks.schema.trigger.*;
 import com.orchestranetworks.service.OperationException;
 import com.orchestranetworks.service.ValueContextForUpdate;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +21,9 @@ import java.io.IOException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 public class ProspectTrigger extends TableTrigger {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProspectTrigger.class);
@@ -66,6 +65,12 @@ public class ProspectTrigger extends TableTrigger {
     @Override
     public void handleAfterModify(AfterModifyOccurrenceContext aContext) throws OperationException {
         LOGGER.info("in handleAfterModify");
+        Iterator<ValueChange> iterator = aContext.getChanges().getChangesIterator();
+        while(iterator.hasNext()){
+            ValueChange valueChange = iterator.next();
+            LOGGER.info("Field: "+valueChange.getModifiedNode().getLabel(Locale.ENGLISH)+" Before: "+String.valueOf(valueChange.getValueBefore())+" After: "
+                    +String.valueOf(valueChange.getValueAfter()));
+        }
         LOGGER.info("dataset name : "+aContext.getAdaptationOccurrence().getAdaptationName().getStringName());
         ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
         boolean update = false;
@@ -90,6 +95,7 @@ public class ProspectTrigger extends TableTrigger {
                 update = true;
             }
             if(aContext.getChanges().getChange(Path.parse("./LastActionBy"))==null && aContext.getChanges().getChange(Path.parse("./LastModifiedDate"))==null) {
+                LOGGER.info("actionby and modifieddate not updated");
                 valueContextForUpdate.setValue(aContext.getSession().getUserReference().getUserId(), Path.parse("./LastActionBy"));
                 valueContextForUpdate.setValue(Date.from(utc.toInstant()), Path.parse("./LastModifiedDate"));
                 update = true;
