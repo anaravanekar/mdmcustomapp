@@ -65,6 +65,7 @@ public class ProspectTrigger extends TableTrigger {
     @Override
     public void handleAfterModify(AfterModifyOccurrenceContext aContext) throws OperationException {
         LOGGER.info("in handleAfterModify");
+        LOGGER.info("Session UserId: "+aContext.getSession().getUserReference().getUserId());
         Iterator<ValueChange> iterator = aContext.getChanges().getChangesIterator();
         while(iterator.hasNext()){
             ValueChange valueChange = iterator.next();
