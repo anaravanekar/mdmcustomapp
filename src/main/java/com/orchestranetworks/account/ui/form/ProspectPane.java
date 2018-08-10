@@ -42,7 +42,6 @@ public class ProspectPane implements UIFormPane {
 			String mdmdAccountId = String.valueOf(context.getCurrentRecord().get(_SystemId));
 			String dataSpace = context.getCurrentRecord().getHome().getKey().format();
 			writer.startFormRow(Paths._Account._AssignedTo);
-			writer.addLabel(Paths._Account._AssignedTo);
 			writer.add("<td class=\"ebx_Input\" colspan=\"1\">");writer.addWidget(_AssignedTo);writer.add("</td>");
 			writer.add("<td colspan=\"5\"");writer.addButtonJavaScript(new UIButtonSpecJSAction(buttonLabel,"saveAssignmentProspect('"+dataSpace+"',ebx_form_getValue(\""+writer.getPrefixedPath(_AssignedTo).format()+"\"),'account',"+mdmdAccountId+")"));writer.add("</td>");
 			writer.endFormRow();
