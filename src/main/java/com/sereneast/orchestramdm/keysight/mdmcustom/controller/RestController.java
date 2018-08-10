@@ -73,6 +73,16 @@ public class RestController {
         }
     }
 
+    @RequestMapping(value = "/account/updateAssignmentProspect/{dataSpace}/{dataSet}/{primaryKey}/{newAssignedTo}", method = RequestMethod.POST)
+    public void updateAssignmentProspect(@PathVariable("primaryKey") String primaryKey,@PathVariable("dataSpace") String dataSpace,@PathVariable("dataSet") String dataSet,@PathVariable("newAssignedTo") String newAssignedTo){
+        OrchestraRestClient orchestraRestClient = (OrchestraRestClient) SpringContext.getApplicationContext().getBean("orchestraRestClient");
+        try {
+            orchestraRestClient.updateField(dataSpace,dataSet,"root/Account/"+primaryKey+"/AssignedTo",new OrchestraContent(newAssignedTo),null);
+        } catch (IOException e) {
+            throw new ApplicationRuntimeException("Error udpating Assinged To field for Account in Prospect");
+        }
+    }
+
     @RequestMapping(value = "/crossReferences/{dataSpace}/{dataSet}/{table}/{mdmId}", method = RequestMethod.GET)
     public String getCrossReferences(@PathVariable("dataSpace") String dataSpace, @PathVariable("dataSet") String dataSet, @PathVariable("table") String table, @PathVariable("mdmId") String mdmId) throws JsonProcessingException {
         LOGGER.debug("In getCrossReferences.......");
