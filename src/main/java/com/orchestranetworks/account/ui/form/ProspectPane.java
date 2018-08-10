@@ -44,14 +44,13 @@ public class ProspectPane implements UIFormPane {
 			buttonLabel.setString(Locale.ENGLISH, "Save Assigned To");
 			String systemId = String.valueOf(context.getCurrentRecord().get(_SystemId));
 			String dataSpace = context.getCurrentRecord().getHome().getKey().format();
-//			writer.startFormRow(new UIFormLabelSpec("Assigned To"));
-			UIFormRow uiFormRow = writer.newFormRow();
-			uiFormRow.setLabel(new UIFormLabelSpec("Assigned To"));
+			writer.startFormRow(Path.parse("./AssignedTo"));
+/*			UIFormRow uiFormRow = writer.newFormRow();
 			Size size = new Size(0,Size.Unit.PIXEL);
 			uiFormRow.setWidgetWidth(size);
 			writer.startFormRow(uiFormRow);
-			writer.add("<td class=\"ebx_Input\" colspan=\"1\">");writer.addWidget(_AssignedTo);writer.add("</td>");
-			writer.add("<td colspan=\"5\" style=\"width:25%;  vertical-align:top;\" nowrap=\"nowrap\" color=\"#606060\">");writer.addButtonJavaScript(new UIButtonSpecJSAction(buttonLabel,"saveAssignmentProspect('"+dataSpace+"',ebx_form_getValue(\""+writer.getPrefixedPath(_AssignedTo).format()+"\"),'account','"+systemId+"')"));writer.add("</td>");
+			writer.add("<td class=\"ebx_Input\" colspan=\"1\">");writer.addWidget(_AssignedTo);writer.add("</td>");*/
+			writer.add("<td colspan=\"2\" style=\"width:25%;  vertical-align:top;\" nowrap=\"nowrap\" color=\"#606060\">");writer.addButtonJavaScript(new UIButtonSpecJSAction(buttonLabel,"saveAssignmentProspect('"+dataSpace+"',ebx_form_getValue(\""+writer.getPrefixedPath(_AssignedTo).format()+"\"),'account','"+systemId+"')"));writer.add("</td>");
 			writer.endFormRow();
 		}else{
 			writer.addFormRow(Path.parse("./AssignedTo"));
