@@ -3,6 +3,7 @@ package com.orchestranetworks.account.ui.form;
 import com.onwbp.base.text.UserMessageString;
 import com.orchestranetworks.schema.Path;
 import com.orchestranetworks.ui.UIButtonSpecJSAction;
+import com.orchestranetworks.ui.UIFormLabelSpec;
 import com.orchestranetworks.ui.form.UIFormContext;
 import com.orchestranetworks.ui.form.UIFormPane;
 import com.orchestranetworks.ui.form.UIFormPaneWriter;
@@ -39,11 +40,11 @@ public class ProspectPane implements UIFormPane {
 		if(!context.isCreatingRecord() && StringUtils.isNotBlank(openedByUser) && !currentUserId.equalsIgnoreCase(openedByUser)) {
 			UserMessageString buttonLabel = new UserMessageString();
 			buttonLabel.setString(Locale.ENGLISH, "Save Assigned To");
-			String mdmdAccountId = String.valueOf(context.getCurrentRecord().get(_SystemId));
+			String systemId = String.valueOf(context.getCurrentRecord().get(_SystemId));
 			String dataSpace = context.getCurrentRecord().getHome().getKey().format();
-			writer.startFormRow(Paths._Account._AssignedTo);
+			writer.startFormRow(new UIFormLabelSpec("Assigned To"));
 			writer.add("<td class=\"ebx_Input\" colspan=\"1\">");writer.addWidget(_AssignedTo);writer.add("</td>");
-			writer.add("<td colspan=\"5\"");writer.addButtonJavaScript(new UIButtonSpecJSAction(buttonLabel,"saveAssignmentProspect('"+dataSpace+"',ebx_form_getValue(\""+writer.getPrefixedPath(_AssignedTo).format()+"\"),'account',"+mdmdAccountId+")"));writer.add("</td>");
+			writer.add("<td colspan=\"5\" style=\"width:25%;  vertical-align:top;\" nowrap=\"nowrap\" color=\"#606060\">");writer.addButtonJavaScript(new UIButtonSpecJSAction(buttonLabel,"saveAssignmentProspect('"+dataSpace+"',ebx_form_getValue(\""+writer.getPrefixedPath(_AssignedTo).format()+"\"),'account','"+systemId+"')"));writer.add("</td>");
 			writer.endFormRow();
 		}else{
 			writer.addFormRow(Path.parse("./AssignedTo"));
