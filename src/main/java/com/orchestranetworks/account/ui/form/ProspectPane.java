@@ -42,9 +42,11 @@ public class ProspectPane implements UIFormPane {
 			buttonLabel.setString(Locale.ENGLISH, "Save Assigned To");
 			String systemId = String.valueOf(context.getCurrentRecord().get(_SystemId));
 			String dataSpace = context.getCurrentRecord().getHome().getKey().format();
-			writer.startFormRow(new UIFormLabelSpec("Assigned To"));
+			writer.add("<tr class=\"ebx_Field ebx_ComplexField\">");
+			writer.add("<td class=\"ebx_Label\"><label for=\"___40_cfvAO__AssignedTo\">Assigned To</label></td>");
 			writer.add("<td class=\"ebx_Input\" colspan=\"1\">");writer.addWidget(_AssignedTo);writer.add("</td>");
 			writer.add("<td colspan=\"5\" style=\"width:25%;  vertical-align:top;\" nowrap=\"nowrap\" color=\"#606060\">");writer.addButtonJavaScript(new UIButtonSpecJSAction(buttonLabel,"saveAssignmentProspect('"+dataSpace+"',ebx_form_getValue(\""+writer.getPrefixedPath(_AssignedTo).format()+"\"),'account','"+systemId+"')"));writer.add("</td>");
+			writer.add("</tr>");
 			writer.endFormRow();
 		}else{
 			writer.addFormRow(Path.parse("./AssignedTo"));
