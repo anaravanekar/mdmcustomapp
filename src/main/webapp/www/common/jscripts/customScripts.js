@@ -704,8 +704,8 @@ function validateAccountName()
 {
     var country = document.getElementsByName("___40_cfvAO__Country_5b_0_5d_")[0].value;
     var value = ebx_form_getValue(accountPrefixedPaths.AccountName);
-    if(country && lookupObj){
-        if(lookupObj["VALIDATE_ACCOUNT_NAME"][country]){
+    if(lookupObj){
+        if(country && country!="[not defined]" && lookupObj["VALIDATE_ACCOUNT_NAME"][country]){
             var patt = new RegExp(lookupObj["VALIDATE_ACCOUNT_NAME"][country], "g");
             if (!patt.exec(value)) {
                 var msgs = new EBX_ValidationMessage();
