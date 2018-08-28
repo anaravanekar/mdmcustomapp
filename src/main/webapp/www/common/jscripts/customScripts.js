@@ -709,7 +709,7 @@ function validateAccountName()
             var patt = new RegExp(lookupObj["VALIDATE_ACCOUNT_NAME"][country], "g");
             if (!patt.exec(value)) {
                 var msgs = new EBX_ValidationMessage();
-                msgs.warnings = ['Invalid Customer Name as characters ,.?%/\* are not allowed.'];
+                msgs.warnings = ['Invalid Customer Name as characters ,.?%/\\* are not allowed.'];
                 ebx_form_setNodeMessage(accountPrefixedPaths.AccountName, msgs);
             } else {
                 ebx_form_setNodeMessage(accountPrefixedPaths.AccountName, null);
@@ -718,7 +718,7 @@ function validateAccountName()
             var patt = new RegExp(lookupObj["VALIDATE_ACCOUNT_NAME"]["VALIDATE_ACCOUNT_NAME"], "g");
             if (!patt.exec(value)) {
                 var msgs = new EBX_ValidationMessage();
-                msgs.warnings = ['Invalid Customer Name as characters ,.?%/\* are not allowed.'];
+                msgs.warnings = ['Invalid Customer Name as characters ,.?%/\\* are not allowed.'];
                 ebx_form_setNodeMessage(accountPrefixedPaths.AccountName, msgs);
             } else {
                 ebx_form_setNodeMessage(accountPrefixedPaths.AccountName, null);
