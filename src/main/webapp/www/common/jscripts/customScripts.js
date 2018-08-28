@@ -324,6 +324,7 @@ function saveAssignment(dataSpace, newAssignment, table, primaryKey) {
     document.getElementById("divLoading").classList.add("show");
 }
 */
+var lookupObj = "{}";
 function toggeleStandardFields(displayStandard) {
     if (displayStandard) {
         document.getElementById('stateCustomDiv').style.display = 'none';

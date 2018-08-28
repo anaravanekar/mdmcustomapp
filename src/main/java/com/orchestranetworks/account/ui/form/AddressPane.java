@@ -749,7 +749,7 @@ public class AddressPane implements UIFormPane {
 			Map<String, Map<String, String>> lookupObj = applicationCacheUtil.getLookupValues("BReference");
 			Map<String,List<String>> cityMap = applicationCacheUtil.getCityMap("BReference");
 			writer.addJS("var addressPrefixedPaths = "+mapper.writeValueAsString(prefixedPaths)+";");
-			writer.addJS("var lookupObj = "+mapper.writeValueAsString(lookupObj)+";");
+			writer.addJS("lookupObj = "+mapper.writeValueAsString(lookupObj)+";");
 			writer.addJS("var cityLookup = "+mapper.writeValueAsString(cityMap)+";");
 		} catch (IllegalAccessException | ClassNotFoundException | JsonProcessingException e) {
 			throw new ApplicationRuntimeException("Error geting prefixed paths for address",e);

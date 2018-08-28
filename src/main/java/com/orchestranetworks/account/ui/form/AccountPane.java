@@ -187,8 +187,10 @@ public class AccountPane implements UIFormPane {
 		//GLOBAL JS VARIABLES
 		try {
 			Map<String, String> prefixedPaths = applicationCacheUtil.getPrefixedPaths(Paths._Account.class.getName(),writer);
+			Map<String, Map<String, String>> lookupObj = applicationCacheUtil.getLookupValues("BReference");
 			ObjectMapper mapper = new ObjectMapper();
 			writer.addJS("var accountPrefixedPaths = "+mapper.writeValueAsString(prefixedPaths)+";");
+			writer.addJS("lookupObj = "+mapper.writeValueAsString(lookupObj)+";");
 		} catch (IllegalAccessException | ClassNotFoundException | JsonProcessingException e) {
 			throw new ApplicationRuntimeException("Error geting prefixed paths for account",e);
 		}
