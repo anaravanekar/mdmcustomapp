@@ -537,7 +537,7 @@ setInterval(lookForStateLocalChange, 200);
 setInterval(lookForProvinceLocalChange, 200);
 setInterval(lookForStateChange, 200);
 setInterval(lookForProvinceChange, 200);
-//setInterval(lookForAccountCountryChange, 200);
+setInterval(lookForAccountCountryChange, 200);
 
 var stateLocal = "";
 var provinceLocal = "";
@@ -551,7 +551,7 @@ function lookForAccountCountryChange()
         var newCountryVal = document.getElementsByName("___40_cfvAO__Country_5b_0_5d_")[0].value;
         if (newCountryVal != accountCountryValue) {
             accountCountryValue = newCountryVal;
-
+            validateAccountName();
         }
     }
 }
@@ -694,6 +694,33 @@ function createEditableSelectProvince(optionsArray){
     newElement.setAttributeNode(onChangeAttr);
     container.appendChild(newElement);
     createEditableSelect(newElement);
+}
+
+function validateAccountName()
+{
+    var country = document.getElementsByName("___40_cfvAO__Country_5b_0_5d_")[0].value;
+    var value = ebx_form_getValue(accountPrefixedPaths.AccountName);
+    if(country && lookupObj){
+        if(lookupObj["VALIDATE_ACCOUNT_NAME"][country]){
+            var patt = new RegExp(lookupObj["VALIDATE_ACCOUNT_NAME"][country], "g");
+            if (!patt.exec(value)) {
+                var msgs = new EBX_ValidationMessage();
+                msgs.warnings = ['Invalid Customer Name as characters ,.?%/\* are not allowed.'];
+                ebx_form_setNodeMessage(accountPrefixedPaths.AccountName, msgs);
+            } else {
+                ebx_form_setNodeMessage(accountPrefixedPaths.AccountName, null);
+            }
+        }else{
+            var patt = new RegExp(lookupObj["VALIDATE_ACCOUNT_NAME"]["VALIDATE_ACCOUNT_NAME"], "g");
+            if (!patt.exec(value)) {
+                var msgs = new EBX_ValidationMessage();
+                msgs.warnings = ['Invalid Customer Name as characters ,.?%/\* are not allowed.'];
+                ebx_form_setNodeMessage(accountPrefixedPaths.AccountName, msgs);
+            } else {
+                ebx_form_setNodeMessage(accountPrefixedPaths.AccountName, null);
+            }
+        }
+    }
 }
 
 function validateOption(id,option,isOnChange){
