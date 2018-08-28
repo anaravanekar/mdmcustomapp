@@ -548,7 +548,7 @@ var accountCountryValue="";
 
 function lookForAccountCountryChange()
 {
-    if(document.getElementsByName("___40_cfvAO__Country_5b_0_5d_")){
+    if(document.getElementsByName("___40_cfvAO__Country_5b_0_5d_").length>0){
         var newCountryVal = document.getElementsByName("___40_cfvAO__Country_5b_0_5d_")[0].value;
         if (newCountryVal != accountCountryValue) {
             accountCountryValue = newCountryVal;
