@@ -544,12 +544,15 @@ var stateLocal = "";
 var provinceLocal = "";
 var stateCustom = "";
 var provinceCustom="";
-var accountCountryValue="";
+var accountCountryValue=null;
 
 function lookForAccountCountryChange()
 {
     if(document.getElementsByName("___40_cfvAO__Country_5b_0_5d_").length>0){
         var newCountryVal = document.getElementsByName("___40_cfvAO__Country_5b_0_5d_")[0].value;
+        if(!accountCountryValue){
+            accountCountryValue=newCountryVal;
+        }
         if (newCountryVal != accountCountryValue) {
             accountCountryValue = newCountryVal;
             validateAccountName();
