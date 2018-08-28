@@ -537,11 +537,24 @@ setInterval(lookForStateLocalChange, 200);
 setInterval(lookForProvinceLocalChange, 200);
 setInterval(lookForStateChange, 200);
 setInterval(lookForProvinceChange, 200);
+//setInterval(lookForAccountCountryChange, 200);
 
 var stateLocal = "";
 var provinceLocal = "";
 var stateCustom = "";
 var provinceCustom="";
+var accountCountryValue="";
+
+function lookForAccountCountryChange()
+{
+    if(document.getElementsByName("___40_cfvAO__Country_5b_0_5d_")){
+        var newCountryVal = document.getElementsByName("___40_cfvAO__Country_5b_0_5d_")[0].value;
+        if (newCountryVal != accountCountryValue) {
+            accountCountryValue = newCountryVal;
+
+        }
+    }
+}
 
 function lookForStateLocalChange()
 {
@@ -936,7 +949,7 @@ function validateCity() {
                 var cityArray = cityLookup[country];
                 if (cityArray.indexOf(city.toLowerCase())===-1) {
                     var msgs = new EBX_ValidationMessage();
-                    msgs.warnings = ['Invalid City'];
+                    msgs.warnings = ['City name not recognized'];
                     ebx_form_setNodeMessage(addressPrefixedPaths.City, msgs);
                 } else {
                     //var msgs = ebx_form_getNodeMessage(addressPrefixedPaths.City);
@@ -978,7 +991,7 @@ function validatePostalCode(){
                 if (!patt.exec(postalCode)) {
                     if(!msgs){
                         msgs = new EBX_ValidationMessage();
-                        msgs.warnings = ['Invalid Zip Code'];
+                        msgs.warnings = ['Wrong format in the zip code'];
                     }
                     ebx_form_setNodeMessage(addressPrefixedPaths.PostalCode,msgs);
                 }else{
@@ -1039,7 +1052,7 @@ function defaultUsingLookup(thisField,keyField,isLov){
             if(lookupObj["DEFAULT_"+thisField][keyValue]){
                 var value = lookupObj["DEFAULT_"+thisField][keyValue];
                 if(isLov){
-                    ebx_form_setValue(addressPrefixedPaths[thisField], lovs["DEFAULT_"+thisField][value]);
+                    ebx_form_setValue(addressPrefixedPaths[thisField], value);//lovs["DEFAULT_"+thisField][value]);
                 }else{
                     ebx_form_setValue(addressPrefixedPaths[thisField], value);
                 }
