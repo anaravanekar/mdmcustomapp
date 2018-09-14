@@ -22,6 +22,17 @@ keysight:
       paths: { account: MDM_Customer_to_Oracle, address: MDM_Customer_Address }
       connectTimeout: 5000
       readTimeout: 70000
+    sfdc:
+      username: mstr_user@keysight.com.prd.test1
+      password: ENC(oogXqxJ2xhCREWuyjtzNx54D4I5vWpmtt80+18F47p625+yeIgfs0kFhHVMOpqK5)
+      ssl: true
+      host: test.salesforce.com
+      port: null
+      baseURI: /services/data/
+      version: v32.0
+      paths: null
+      connectTimeout: 5000
+      readTimeout: 70000
   ebx:
     matching:
       lovsToMerge: { account: [Country], address: null }

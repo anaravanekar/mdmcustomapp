@@ -24,6 +24,7 @@ import com.orchestranetworks.ui.selection.TableViewEntitySelection;
 import com.orchestranetworks.userservice.*;
 import com.sereneast.orchestramdm.keysight.mdmcustom.Paths;
 import com.sereneast.orchestramdm.keysight.mdmcustom.SpringContext;
+import com.sereneast.orchestramdm.keysight.mdmcustom.config.properties.RestProperties;
 import com.sereneast.orchestramdm.keysight.mdmcustom.exception.ApplicationRuntimeException;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraContent;
 import com.sereneast.orchestramdm.keysight.mdmcustom.model.OrchestraObject;
@@ -247,8 +248,11 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                         throw new ApplicationRuntimeException("Error in Deduplicate Prospect Service", e);
                     }
                 }
-                tokenUrl = environmentUrl + "/services/oauth2/token?grant_type=password";
-                String loginUrl = tokenUrl + "&client_id=" + clientId + "&client_secret=" + clientSecret + "&username=" + userName + "&password=" + passWord;
+                RestProperties restProperties = (RestProperties) SpringContext.getApplicationContext().getBean("restProperties");
+                String host = "true".equalsIgnoreCase(restProperties.getSfdc().getSsl())?"https://"+restProperties.getSfdc().getHost():"http://"+restProperties.getSfdc().getHost();
+                tokenUrl = host + "/services/oauth2/token?grant_type=password";
+                String loginUrl = tokenUrl + "&client_id=" + clientId + "&client_secret=" + clientSecret + "&username=" + restProperties.getSfdc().getUsername() + "&password=" + restProperties.getSfdc().getPassword();
+                LOGGER.debug("sfdc loginUrl="+loginUrl);
                 HttpPost httpPost = new HttpPost(loginUrl);
                 DefaultHttpClient httpclient = new DefaultHttpClient();
                 HttpResponse response = null;
