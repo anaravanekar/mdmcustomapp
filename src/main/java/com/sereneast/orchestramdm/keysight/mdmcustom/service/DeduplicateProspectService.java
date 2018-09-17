@@ -363,6 +363,9 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                                         .withProfiles(languageProfiles)
                                         .build();
                                 locale = getLocale(languageDetector,name);
+                                if(StringUtils.containsAny(name, ';', '^', '\r', '\n')){
+                                    name = StringUtils.wrap(name,'^');
+                                }
                                 record.append(name);
                             } else if (jarr.getJSONObject(i).get(key) != null && StringUtils.containsAny(jarr.getJSONObject(i).get(key).toString(), ';', '^', '\r', '\n')) {
                                 if("Address__c".equals(key)){
