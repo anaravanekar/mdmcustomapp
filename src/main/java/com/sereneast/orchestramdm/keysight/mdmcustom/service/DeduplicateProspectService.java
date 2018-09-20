@@ -72,15 +72,9 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
     private ObjectKey objectKey;
 
 
-    private static final String clientId = "3MVG9Yb5IgqnkB4rvpE8ANt2MeTDwtPA5fbyHRPR1daVOo9fHEjRLChgZ7Kv1fR69MUN3KcYe2Nsbj2xIEwvY";
-    private static final String clientSecret = "1447597324437005395";
-    private static final String redirecturi = "1447597324437005395";
+    private static String clientId = null;//"3MVG9Yb5IgqnkB4rvpE8ANt2MeTDwtPA5fbyHRPR1daVOo9fHEjRLChgZ7Kv1fR69MUN3KcYe2Nsbj2xIEwvY";
+    private static String clientSecret = null;//"1447597324437005395";
     private static String tokenUrl = null;
-    private static final String environmentUrl = "https://test.salesforce.com";
-    private static final String userName = "mstr_user@keysight.com.prd.test1";
-    private static final String passWord = "Keysight123LT5xWyT8y3dqjp9FBKBFSzdON";//"Keysight123gOJm2KPTPV0c7hFjAVdaE5ccW";
-    private static final String accessToken = null;
-    private static final String instanceUrl= null;
     private static String R_EndPoint = "/services/data" ;
     private static String Version = "/v32.0" ;
     private static String baseUri;
@@ -249,6 +243,8 @@ public class DeduplicateProspectService implements UserService<TableViewEntitySe
                     }
                 }
                 RestProperties restProperties = (RestProperties) SpringContext.getApplicationContext().getBean("restProperties");
+                clientId = restProperties.getSfdc().getClientId();
+                clientSecret = restProperties.getSfdc().getClientSecret();
                 String host = "true".equalsIgnoreCase(restProperties.getSfdc().getSsl())?"https://"+restProperties.getSfdc().getHost():"http://"+restProperties.getSfdc().getHost();
                 tokenUrl = host + "/services/oauth2/token?grant_type=password";
                 String loginUrl = tokenUrl + "&client_id=" + clientId + "&client_secret=" + clientSecret + "&username=" + restProperties.getSfdc().getUsername() + "&password=" + restProperties.getSfdc().getPassword();

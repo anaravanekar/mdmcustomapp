@@ -33,6 +33,8 @@ keysight:
       paths: null
       connectTimeout: 5000
       readTimeout: 70000
+      clientId: 3MVG9Yb5IgqnkB4rvpE8ANt2MeTDwtPA5fbyHRPR1daVOo9fHEjRLChgZ7Kv1fR69MUN3KcYe2Nsbj2xIEwvY
+      clientSecret: ENC(lnVub6yqeHFhOEaAEpzylz7G/FyC6aCjWWexmsDL/Mo=)
   ebx:
     matching:
       lovsToMerge: { account: [Country], address: null }
