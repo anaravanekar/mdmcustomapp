@@ -124,6 +124,9 @@ public interface Paths
 		public static final Path _MergedTargetRecord = Path.parse("./MergedTargetRecord");
 		public static final Path _AccountLocked = Path.parse("./AccountLocked");
 		public static final Path _ErrorMessage = Path.parse("./ErrorMessage");
+		public static final Path _eInvoice_Corp_Id = Path.parse("./eInvoice_Corp_Id");
+		public static final Path _eInvoice_ID1 = Path.parse("./eInvoice_ID1");
+		public static final Path _eInvoice_ID2 = Path.parse("./eInvoice_ID2");
 	} 
 
 	// Table type path
